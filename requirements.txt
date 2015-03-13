@@ -1,0 +1,9 @@
+# Production
+SQLAlchemy
+requests
+lxml
+cssselect
+
+# Development
+ipython
+ipdb

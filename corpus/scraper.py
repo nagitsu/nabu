@@ -99,6 +99,8 @@ def scrape_entry(entry_id):
     db.commit()
     db.remove()
 
+    time.sleep(settings.THREAD_COOLDOWN)
+
 
 def main_loop():
     pool = mp.Pool(settings.POOL_SIZE)
@@ -108,7 +110,7 @@ def main_loop():
 
         # Populate the entries.
         logger.debug("populating entries for all data sources...")
-        data_sources = [ds[0] for ds in db.query(DataSource.id)]
+        data_sources = [ds[0] for ds in db.query(DataSource.id).all()]
         pool.map(fill_entries, data_sources)
         logger.debug("all necessary entries created")
 
@@ -118,8 +120,8 @@ def main_loop():
         statuses = ['timeout', 'pending']
         entries_to_scrape = db.query(Entry.id).filter(
             Entry.outcome.in_(statuses) &
-            Entry.number_of_tries < settings.MAX_RETRIES
-        ).order_by(func.random())
+            (Entry.number_of_tries < settings.MAX_RETRIES)
+        ).order_by(func.random()).all()
         entries_to_scrape = map(lambda e: e[0], entries_to_scrape)
         logger.info("%s entries to scrape found", len(entries_to_scrape))
 

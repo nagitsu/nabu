@@ -4,7 +4,7 @@ from sqlalchemy import (
     create_engine, Column, DateTime, ForeignKey, Integer, String, Text,
 )
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import backref, relationship, sessionmaker
+from sqlalchemy.orm import backref, relationship, sessionmaker, scoped_session
 
 from . import settings
 
@@ -85,5 +85,5 @@ Base.metadata.create_all(engine)
 
 
 # Default database session.
-Session = sessionmaker(bind=engine)
-db = Session()
+session_factory = sessionmaker(bind=engine)
+db = scoped_session(session_factory)

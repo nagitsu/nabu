@@ -3,6 +3,7 @@ SQLAlchemy
 requests
 lxml
 cssselect
+psycopg2
 
 # Development
 ipython

@@ -8,9 +8,17 @@ Each module inside this package has three functions:
 """
 from . import elobservador
 from . import lanacion
+from . import _180
+from . import republica
+from . import lared21
+from . import espectador
 
 
 SOURCES = {
     elobservador.SOURCE_DOMAIN: elobservador,
     lanacion.SOURCE_DOMAIN: lanacion,
+    _180.SOURCE_DOMAIN: _180,
+    republica.SOURCE_DOMAIN: republica,
+    lared21.SOURCE_DOMAIN: lared21,
+    espectador.SOURCE_DOMAIN: espectador,
 }

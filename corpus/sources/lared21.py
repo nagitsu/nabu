@@ -2,20 +2,20 @@ import logging
 import re
 import requests
 
-from datetime import datetime
+from dateutil.parser import parse as _parse_date
 from lxml import html
 
 
 logger = logging.getLogger(__name__)
 
 
-SOURCE_DOMAIN = 'lanacion.com.ar'
-DOCUMENT_URL = 'http://www.lanacion.com.ar/{}'
+SOURCE_DOMAIN = 'lr21.com.uy'
+DOCUMENT_URL = 'http://www.lr21.com.uy/politica/{}-f32as23cdsa'
 
 
 def get_missing_ids(existing_ids):
-    response = requests.get('http://www.lanacion.com.ar')
-    link_re = re.compile(r'.*lanacion.com.ar/(\d+)-')
+    response = requests.get('http://www.lr21.com.uy')
+    link_re = re.compile(r'.*/[0-9a-z-]+/(\d+)-[0-9a-z-]+')
 
     root = html.fromstring(response.content)
     links = root.xpath("//a/@href")
@@ -45,44 +45,34 @@ def get_content(response):
     root = html.fromstring(response.content)
 
     try:
-        title = root.xpath("//h1[@itemprop='name']")[0].text_content().strip()
+        title = root.xpath(
+            '//h1[contains(@itemprop, "headline") '
+            'or contains(@id, "article-title")]'
+        )[0].text_content()
+
         try:
             summary = root.xpath(
-                "//p[@itemprop='description']"
-            )[0].text_content().strip()
-        except:
+                '//h2[contains(@itemprop, "description")]'
+            )[0].text_content()
+        except IndexError:
+            # No summary found. Doesn't matter, it's optional.
             summary = ""
-        text = root.xpath(
-            "//section[@itemprop='articleBody']"
-        )[0].text_content().strip()
 
-        content = u'\n'.join([title, summary, text]).strip()
+        article = root.xpath(
+            '//div[contains(@itemprop, "articleBody")]'
+        )[0].text_content()
+
+        content = u'\n'.join([title, summary, article]).strip()
     except:
         return {'outcome': 'unparseable'}
 
     result = {
         'outcome': 'success',
         'content': content,
-        'tags': ['news', 'Argentina']
+        'tags': ['news', 'Uruguay']
     }
 
     return result
-
-
-def _parse_date(date):
-    spanish_months = {
-        'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4,
-        'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8,
-        'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12,
-    }
-
-    match = re.match('\w+ (\d+) de (\w+) de (\d+)', date, flags=re.UNICODE)
-    if match:
-        day = int(match.group(1))
-        month = spanish_months[match.group(2).lower()]
-        year = int(match.group(3))
-
-        return datetime(year, month, day)
 
 
 def get_metadata(response):
@@ -90,16 +80,18 @@ def get_metadata(response):
 
     metadata = {}
     try:
-        title = root.xpath("//h1[@itemprop='name']")[0].text_content().strip()
-        metadata['title'] = title
+        metadata['title'] = root.xpath(
+            '//h1[contains(@itemprop, "headline") '
+            'or contains(@id, "article-title")]'
+        )[0].text_content()
     except:
         pass
 
     try:
         raw_date = root.xpath(
-            "//span[@itemprop='datePublished']"
-        )[0].text_content().strip()
-        date = _parse_date(raw_date)
+            '//meta[@itemprop="datePublished"]'
+        )[0].get('content')
+        date = _parse_date(raw_date.strip())
         if date:
             metadata['date'] = date
     except:

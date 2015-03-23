@@ -28,7 +28,7 @@ def get_missing_ids(existing_ids):
     last_id = max(ids)
 
     scraped_ids = set(map(int, existing_ids))
-    missing_ids = map(str, set(range(last_id)) - set(scraped_ids))
+    missing_ids = map(str, set(range(last_id + 1)) - set(scraped_ids))
 
     return missing_ids
 

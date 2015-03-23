@@ -4,6 +4,7 @@ requests
 lxml
 cssselect
 psycopg2
+python-dateutil
 
 # Development
 ipython

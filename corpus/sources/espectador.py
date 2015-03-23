@@ -2,23 +2,23 @@ import logging
 import re
 import requests
 
-from datetime import datetime
+from dateutil.parser import parse as _parse_date
 from lxml import html
 
 
 logger = logging.getLogger(__name__)
 
 
-SOURCE_DOMAIN = '<DOMAIN>'
-DOCUMENT_URL = '<DOCUMENT-URL-WITH-{}>'
+SOURCE_DOMAIN = 'espectador.com'
+DOCUMENT_URL = 'http://www.espectador.com/sociedad/312095/baa2839c23'
 
 
 def get_missing_ids(existing_ids):
-    response = requests.get(<BASE-URL>)
-    link_re = re.compile(r'.*/noticia/(\d+)/')
+    response = requests.get('http://www.espectador.com')
+    link_re = re.compile(r'.*/[a-z-]+/(\d+)/[a-z-]+')
 
     root = html.fromstring(response.content)
-    links = root.xpath("//a/@href")
+    links = root.xpath("//a[@itemprop='url']/@href")
     ids = []
     for link in links:
         m = link_re.match(link)
@@ -45,32 +45,20 @@ def get_content(response):
     root = html.fromstring(response.content)
 
     try:
-        content = <PARSED-DATA>
+        title = root.cssselect('header > h1')[0].text_content().strip()
+        summary = root.cssselect('article > p.copete')[0].text_content()
+        article = root.cssselect('article > div.texto')[0].text_content()
+        content = u'\n'.join([title, summary, article]).strip()
     except:
         return {'outcome': 'unparseable'}
 
     result = {
         'outcome': 'success',
         'content': content,
-        'tags': [<TAGS>]
+        'tags': ['news', 'Uruguay']
     }
 
     return result
-
-
-def _parse_date(date):
-    """
-    Example: "+ - 25.01.2015, 16:10 hs".
-    """
-    match = re.match('[^\d]*(\d+)\.(\d+)\.(\d+),\s*(\d+):(\d+)', date, flags=re.UNICODE)
-    if match:
-        day = int(match.group(1))
-        month = int(match.group(2))
-        year = int(match.group(3))
-        hour = int(match.group(4))
-        minute = int(match.group(5))
-
-        return datetime(year, month, day, hour, minute)
 
 
 def get_metadata(response):
@@ -78,12 +66,13 @@ def get_metadata(response):
 
     metadata = {}
     try:
-        metadata['title'] = <TITLE>
+        metadata['title'] = root.cssselect('header > h1')[0]\
+                                .text_content().strip()
     except:
         pass
 
     try:
-        raw_date = <DATE-STRING>
+        raw_date = root.cssselect('time.fecha')[0].get('datetime')
         date = _parse_date(raw_date.strip())
         if date:
             metadata['date'] = date

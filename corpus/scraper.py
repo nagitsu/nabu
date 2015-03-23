@@ -71,7 +71,11 @@ def scrape_entry(entry_id):
         return
 
     content = module.get_content(response)
-    # TODO: Make sure at least some content was scraped.
+
+    if content['outcome'] == 'success' and not content['content']:
+        # Parsing was marked as successful, but no content returned; mark as
+        # unparseable instead.
+        content['outcome'] = 'unparseable'
 
     entry.outcome = content['outcome']
     entry.last_tried = datetime.now()
@@ -104,6 +108,7 @@ def scrape_entry(entry_id):
 
 
 def main_loop():
+    logger.info("starting session")
     pool = mp.Pool(settings.POOL_SIZE)
 
     while True:

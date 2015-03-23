@@ -1,8 +1,12 @@
+import logging
 import re
 import requests
 
 from datetime import datetime
 from lxml import html
+
+
+logger = logging.getLogger(__name__)
 
 
 SOURCE_DOMAIN = 'observador.com.uy'
@@ -36,7 +40,9 @@ def get_content(response):
 
     # Check if the response is valid.
     if response.status_code >= 400:
-        return {'outcome': 'timeout'}
+        logger.debug("request to %s returned status_code = %s",
+                     response.url, response.status_code)
+        return {'outcome': 'failure'}
 
     root = html.fromstring(response.content)
 

@@ -59,10 +59,11 @@ def scrape_entry(entry_id):
     # TODO: Better error handling.
     try:
         response = requests.get(url, timeout=settings.REQUEST_TIMEOUT)
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException as e:
         # Clean up.
-        logger.info("entry_id = %s failed when requesting url", entry_id)
-        entry.outcome = 'timeout'  # TODO: Should have a better name.
+        logger.info("entry_id = %s failed when requesting url; %s",
+                    entry_id, repr(e))
+        entry.outcome = 'failure'
         entry.last_tried = datetime.now()
         entry.number_of_tries += 1
         db.merge(entry)
@@ -117,7 +118,7 @@ def main_loop():
         # See which entries need to be scraped, checking their status and
         # retries. Scrape them randomly so the load is distributed evenly
         # between all the data sources.
-        statuses = ['timeout', 'pending']
+        statuses = ['failure', 'pending']
         entries_to_scrape = db.query(Entry.id).filter(
             Entry.outcome.in_(statuses) &
             (Entry.number_of_tries < settings.MAX_RETRIES)

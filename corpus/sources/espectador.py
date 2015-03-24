@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 SOURCE_DOMAIN = 'espectador.com'
-DOCUMENT_URL = 'http://www.espectador.com/sociedad/312095/baa2839c23'
+DOCUMENT_URL = 'http://www.espectador.com/sociedad/{}/baa2839c23'
 
 
 def get_missing_ids(existing_ids):

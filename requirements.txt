@@ -5,6 +5,7 @@ lxml
 cssselect
 psycopg2
 python-dateutil
+Flask
 
 # Development
 ipython

@@ -42,7 +42,7 @@ class Document(Base):
     # Metadata for the Document, may have a date, an author, a title, etc.
     # TODO: Use some kind of JSONField, or PostgreSQL's json field.
     metadata_ = Column(Text, nullable=False, default="{}")
-    # E.g. `['news', 'uruguay']`.
+    # E.g. `['news', 'Uruguay']`.
     tags = Column(Text, nullable=False, default="[]")
 
     # Document derived from this Entry, if any.

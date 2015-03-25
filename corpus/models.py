@@ -27,6 +27,13 @@ class DataSource(Base):
         return "<DataSource('{}')>".format(self.domain)
 
 
+def document_word_count(context):
+    """
+    Calculate the word count for a document.
+    """
+    return len(context.current_parameters['content'].split())
+
+
 # TODO: Will live in ElasticSearch in the future.
 class Document(Base):
     """
@@ -48,6 +55,9 @@ class Document(Base):
     # Document derived from this Entry, if any.
     entry_id = Column(Integer, ForeignKey('entries.id'), nullable=False)
     entry = relationship('Entry', backref=backref('documents', lazy='dynamic'))
+
+    # Denormalized fields.
+    word_count = Column(Integer, nullable=False, default=document_word_count)
 
     def __repr__(self):
         return "<Document('{}')>".format(self.id)

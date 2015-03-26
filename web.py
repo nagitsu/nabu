@@ -2,6 +2,7 @@ import json
 import re
 import subprocess
 
+from sqlalchemy.sql import func
 from flask import abort, Flask, jsonify
 
 from corpus.models import db, DataSource, Document, Entry
@@ -26,10 +27,7 @@ def general():
     except:
         summary['disk_usage'] = None
 
-    summary['word_count'] = 0
-    documents = db.query(Document.content).yield_per(5000)
-    for document in documents:
-        summary['word_count'] += len(document[0].split())
+    summary['word_count'] = db.query(func.sum(Document.word_count)).scalar()
 
     sources = [ds[0] for ds in db.query(DataSource.domain).all()]
 
@@ -50,15 +48,9 @@ def source_detail(domain):
 
     summary['document_count'] = documents.count()
 
-    summary['word_count'] = 0
-
-    docs_content = db.query(Document.content)\
-                     .join(Entry)\
-                     .join(DataSource)\
-                     .filter(DataSource.domain == domain)\
-                     .yield_per(5000)
-    for document in docs_content:
-        summary['word_count'] += len(document[0].split())
+    summary['word_count'] = db.query(func.sum(Document.word_count))\
+                              .join(Entry)\
+                              .filter(Entry.data_source == data_source)
 
     entry_count = db.query(Entry).join(DataSource)\
                     .filter(DataSource.domain == domain)\

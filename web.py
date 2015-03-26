@@ -31,6 +31,8 @@ def general():
 
     sources = [ds[0] for ds in db.query(DataSource.domain).all()]
 
+    db.remove()
+
     return jsonify(summary=summary, sources=sources)
 
 
@@ -80,6 +82,8 @@ def source_detail(domain):
             'date': entry.last_tried,
             'source_id': entry.source_id
         })
+
+    db.remove()
 
     return jsonify(summary=summary, last_entries=last_entries)
 

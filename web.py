@@ -50,7 +50,8 @@ def source_detail(domain):
 
     summary['word_count'] = db.query(func.sum(Document.word_count))\
                               .join(Entry)\
-                              .filter(Entry.data_source == data_source)
+                              .filter(Entry.data_source == data_source)\
+                              .scalar()
 
     entry_count = db.query(Entry).join(DataSource)\
                     .filter(DataSource.domain == domain)\

@@ -29,6 +29,15 @@ def general():
 
     summary['word_count'] = db.query(func.sum(Document.word_count)).scalar()
 
+    total_entries = db.query(Entry).count()
+    if total_entries:
+        tried_count = db.query(Entry)\
+                        .filter(Entry.outcome != 'pending')\
+                        .count()
+        summary['completion'] = tried_count / float(total_entries)
+    else:
+        summary['completion'] = 0.0
+
     sources = [ds[0] for ds in db.query(DataSource.domain).all()]
 
     db.remove()
@@ -58,11 +67,23 @@ def source_detail(domain):
     entry_count = db.query(Entry).join(DataSource)\
                     .filter(DataSource.domain == domain)\
                     .count()
-    successful_entries = db.query(Entry).join(DataSource)\
+    tried_entries = db.query(Entry)\
+                      .join(DataSource)\
+                      .filter(DataSource.domain == domain)\
+                      .filter(Entry.outcome != 'pending')\
+                      .count()
+    successful_entries = db.query(Entry)\
+                           .join(DataSource)\
                            .filter(DataSource.domain == domain)\
                            .filter(Entry.outcome == 'success')\
                            .count()
-    summary['success'] = successful_entries / float(entry_count)
+
+    if entry_count:
+        summary['completion'] = tried_entries / float(entry_count)
+        summary['successful'] = successful_entries / float(entry_count)
+    else:
+        summary['completion'] = 0.0
+        summary['successful'] = 0.0
 
     # TODO: Should tags be per-source?
     document = documents.first()

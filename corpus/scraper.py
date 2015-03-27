@@ -43,7 +43,6 @@ def fill_entries(data_source_id):
         db.merge(entry)
 
     db.commit()
-    db.remove()
 
 
 def scrape_entry(entry_id):
@@ -102,7 +101,6 @@ def scrape_entry(entry_id):
                 entry_id, content['outcome'])
 
     db.commit()
-    db.remove()
 
     time.sleep(settings.THREAD_COOLDOWN)
 
@@ -143,5 +141,3 @@ def main_loop():
             wait_time = int(settings.LOOP_COOLDOWN - (loop_end - loop_start))
             logger.info("finished the loop too fast, sleeping %ss", wait_time)
             time.sleep(wait_time)
-
-    db.remove()

@@ -9,7 +9,11 @@ from sqlalchemy.orm import backref, relationship, sessionmaker, scoped_session
 from . import settings
 
 
-engine = create_engine(settings.DATABASE_ENGINE)
+engine = create_engine(
+    settings.DATABASE_ENGINE,
+    pool_size=settings.POOL_SIZE + 10,
+    max_overflow=100
+)
 
 Base = declarative_base()
 

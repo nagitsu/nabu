@@ -18,31 +18,47 @@ logger = logging.getLogger(__name__)
 
 def fill_entries(data_source_id):
     """
-    Creates the missing entries for a Data Source.
+    Creates the missing entries for a Data Source. Assumes the DataSource
+    exists.
 
-    Assumes the DataSource exists.
+    If the missing ids may not be retrieved, return False. Otherwise, return
+    True.
     """
     data_source = db.query(DataSource).get(data_source_id)
     module = sources.SOURCES[data_source.domain]
 
     existing_ids = db.query(Entry.source_id)\
-                     .join(DataSource)\
-                     .filter(DataSource.id == data_source.id)
+                     .filter(Entry.data_source_id == data_source_id)\
+                     .yield_per(10000)
     existing_ids = map(lambda r: r[0], existing_ids)
+
     logger.info("%s existing ids found for %s",
                 len(existing_ids), data_source.domain)
 
-    missing_ids = module.get_missing_ids(existing_ids)
+    try:
+        missing_ids = module.get_missing_ids(existing_ids)
+    except:
+        return False
+
     logger.info("%s entries for %s need to be created",
                 len(missing_ids), data_source.domain)
-    for missing_id in missing_ids:
-        entry = Entry(
-            source_id=missing_id,
-            data_source_id=data_source.id
-        )
-        db.merge(entry)
 
+    # Go around the SQLAlchemy ORM so we avoid loading over 1 million entries
+    # on memory when first adding data sources.
+    new_entries = []
+    now = datetime.utcnow()
+    for missing_id in missing_ids:
+        new_entries.append({
+            'outcome': 'pending',
+            'source_id': missing_id,
+            'added': now,
+            'number_of_tries': 0,
+            'data_source_id': data_source_id
+        })
+    db.execute(Entry.__table__.insert(), new_entries)
     db.commit()
+
+    return True
 
 
 def scrape_entry(entry_id):

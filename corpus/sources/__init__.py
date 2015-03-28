@@ -12,6 +12,8 @@ from . import _180
 from . import republica
 from . import lared21
 from . import espectador
+from . import informador
+from . import univision
 
 
 SOURCES = {
@@ -21,4 +23,6 @@ SOURCES = {
     republica.SOURCE_DOMAIN: republica,
     lared21.SOURCE_DOMAIN: lared21,
     espectador.SOURCE_DOMAIN: espectador,
+    univision.SOURCE_DOMAIN: univision,
+    informador.SOURCE_DOMAIN: informador,
 }

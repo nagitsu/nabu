@@ -130,19 +130,29 @@ def main_loop():
 
         # Populate the entries.
         logger.debug("populating entries for all data sources...")
+
         data_sources = [ds[0] for ds in db.query(DataSource.id).all()]
-        pool.map(fill_entries, data_sources)
+        success = pool.map(fill_entries, data_sources)
+
+        successful_ds = []
+        for ds, succ in zip(data_sources, success):
+            if succ:
+                successful_ds.append(ds)
+            else:
+                logger.info("error populating data_source_id = %s", ds)
+
         logger.debug("all necessary entries created")
 
         # See which entries need to be scraped, checking their status and
         # retries. Scrape them randomly so the load is distributed evenly
-        # between all the data sources. Also, scrape 200k entries per loop
+        # between all the data sources. Also, scrape 300k entries per loop
         # to avoid loading every entry into memory.
         statuses = ['failure', 'pending']
         entries_to_scrape = db.query(Entry.id).filter(
-            Entry.outcome.in_(statuses) &
-            (Entry.number_of_tries < settings.MAX_RETRIES)
-        ).order_by(func.random()).limit(200000).all()
+            Entry.outcome.in_(statuses),
+            Entry.number_of_tries < settings.MAX_RETRIES,
+            Entry.data_source_id.in_(successful_ds)
+        ).order_by(func.random()).limit(300000).all()
 
         entries_to_scrape = map(lambda e: e[0], entries_to_scrape)
         logger.info("%s entries to scrape found", len(entries_to_scrape))

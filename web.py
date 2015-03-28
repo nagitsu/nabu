@@ -80,9 +80,12 @@ def source_detail(domain):
 
     if entry_count:
         summary['completion'] = tried_entries / float(entry_count)
-        summary['successful'] = successful_entries / float(entry_count)
     else:
         summary['completion'] = 0.0
+
+    if tried_entries:
+        summary['successful'] = successful_entries / float(tried_entries)
+    else:
         summary['successful'] = 0.0
 
     # TODO: Should tags be per-source?

@@ -85,7 +85,7 @@ class Entry(Base):
     number_of_tries = Column(Integer, nullable=False, default=0)
 
     # DataSource from which this Entry originates.
-    data_source_id = Column(Integer, ForeignKey('data_sources.id'))
+    data_source_id = Column(Integer, ForeignKey('data_sources.id'), index=True)
     data_source = relationship('DataSource',
                                backref=backref('entries', lazy='dynamic'))
 

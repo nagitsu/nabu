@@ -5,6 +5,8 @@ import requests
 from datetime import datetime
 from lxml import html
 
+from ..utils import was_redirected
+
 
 logger = logging.getLogger(__name__)
 
@@ -43,15 +45,8 @@ def get_content(response):
         return {'outcome': 'failure'}
 
     # Now check if the redirection history changed our ID.
-    if response.history:
-        id_regexp = re.compile(r'.*/(\d+)/')
-        original_url = response.history[0].url
-        current_url = response.url
-        m_original = id_regexp.match(original_url)
-        m_current = id_regexp.match(current_url)
-        if m_original and m_current:
-            if m_original.group(1) != m_current.group(1):
-                return {'outcome': 'notfound'}
+    if was_redirected(response):
+        return {'outcome': 'notfound'}
 
     root = html.fromstring(response.content)
 

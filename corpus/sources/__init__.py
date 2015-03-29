@@ -12,8 +12,9 @@ from . import _180
 from . import republica
 from . import lared21
 from . import espectador
-from . import informador
 from . import univision
+from . import informador
+from . import elmercurio
 
 
 SOURCES = {
@@ -25,4 +26,5 @@ SOURCES = {
     espectador.SOURCE_DOMAIN: espectador,
     univision.SOURCE_DOMAIN: univision,
     informador.SOURCE_DOMAIN: informador,
+    elmercurio.SOURCE_DOMAIN: elmercurio,
 }

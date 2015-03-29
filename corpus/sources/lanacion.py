@@ -2,8 +2,9 @@ import logging
 import re
 import requests
 
-from datetime import datetime
 from lxml import html
+
+from ..utils import parse_date
 
 
 logger = logging.getLogger(__name__)
@@ -69,22 +70,6 @@ def get_content(response):
     return result
 
 
-def _parse_date(date):
-    spanish_months = {
-        'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4,
-        'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8,
-        'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12,
-    }
-
-    match = re.match('\w+ (\d+) de (\w+) de (\d+)', date, flags=re.UNICODE)
-    if match:
-        day = int(match.group(1))
-        month = spanish_months[match.group(2).lower()]
-        year = int(match.group(3))
-
-        return datetime(year, month, day)
-
-
 def get_metadata(response):
     root = html.fromstring(response.content)
 
@@ -99,7 +84,7 @@ def get_metadata(response):
         raw_date = root.xpath(
             "//span[@itemprop='datePublished']"
         )[0].text_content().strip()
-        date = _parse_date(raw_date)
+        date = parse_date(raw_date)
         if date:
             metadata['date'] = date
     except:

@@ -2,8 +2,9 @@ import logging
 import re
 import requests
 
-from dateutil.parser import parse as _parse_date
 from lxml import html
+
+from ..utils import parse_date
 
 
 logger = logging.getLogger(__name__)
@@ -91,7 +92,7 @@ def get_metadata(response):
         raw_date = root.xpath(
             '//meta[@itemprop="datePublished"]'
         )[0].get('content')
-        date = _parse_date(raw_date.strip())
+        date = parse_date(raw_date.strip())
         if date:
             metadata['date'] = date
     except:

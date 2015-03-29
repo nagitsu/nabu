@@ -1,6 +1,9 @@
+# coding: utf-8
 import re
 
 from datetime import datetime
+
+from dateutil.parser import parse, parserinfo
 
 
 def custom_encoder(obj):
@@ -42,3 +45,67 @@ def was_redirected(response):
                 return True
 
     return False
+
+
+class CustomParser(parserinfo):
+    JUMP = [
+        " ", ".", ",", ";", "-", "/", "'", "|",
+        "at", "on", "and", "ad", "m", "t", "of",
+        "st", "nd", "rd", "th",
+        "y", "el", "a", "las", "de", "del",
+    ]
+
+    WEEKDAYS = [
+        ("Mon", "Monday", "Lun", "Lunes"),
+        ("Tue", "Tuesday", "Martes"),
+        ("Wed", "Wednesday", "Mie", "Miercoles", u"Mié", u"Miércoles"),
+        ("Thu", "Thursday", "Jue", "Jueves"),
+        ("Fri", "Friday", "Vie", "Viernes"),
+        ("Sat", "Saturday", "Sab", "Sabado", u"Sáb", u"Sábado"),
+        ("Sun", "Sunday", "Dom", "Domingo")
+    ]
+
+    MONTHS = [
+        ("Jan", "January", "Ene", "Enero"),
+        ("Feb", "February", "Febrero"),
+        ("Mar", "March", "Marzo"),
+        ("Apr", "April", "Abr", "Abril"),
+        ("May", "May", "Mayo"),
+        ("Jun", "June", "Junio"),
+        ("Jul", "July", "Julio"),
+        ("Aug", "August", "Ago", "Agosto"),
+        ("Sep", "Sept", "September", "Set", "Setiembre", "Septiembre"),
+        ("Oct", "October", "Octubre"),
+        ("Nov", "November", "Noviembre"),
+        ("Dec", "December", "Dic", "Diciembre")
+    ]
+
+    HMS = [
+        ("h", "hour", "hours", "hrs", "hs"),
+        ("m", "minute", "minutes"),
+        ("s", "second", "seconds")
+    ]
+
+    AMPM = [
+        ("am"),
+        ("pm")
+    ]
+
+    UTCZONE = ["UTC", "GMT", "Z"]
+
+    PERTAIN = ["of", "de", "del"]
+
+
+def parse_date(text):
+    """
+    Uses a localized version of the python-dateutil library to parse a date.
+
+    Note that it's not perfect; it still needs some help to reduce the search
+    string as much as possible beforehand.
+    """
+    parser = CustomParser(dayfirst=True, yearfirst=True)
+    try:
+        date = parse(text, parserinfo=parser, fuzzy=True)
+    except:
+        date = None
+    return date

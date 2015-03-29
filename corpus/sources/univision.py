@@ -2,10 +2,9 @@ import logging
 import re
 import requests
 
-from datetime import datetime
 from lxml import html
 
-from ..utils import was_redirected
+from ..utils import parse_date, was_redirected
 
 
 logger = logging.getLogger(__name__)
@@ -65,29 +64,6 @@ def get_content(response):
     return result
 
 
-def _parse_date(date):
-    english_months = {
-        'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
-        'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
-    }
-    match = re.match(
-        '.*\|\s*(\w+)\s*(\d+),\s*(\d+)\s*\|\s*(\d+):(\d+)\s*(\w+)',
-        date, flags=re.UNICODE
-    )
-    if match:
-        day = int(match.group(2))
-        month = english_months[match.group(1).lower()]
-        year = int(match.group(3))
-
-        hour = int(match.group(4))
-        minute = int(match.group(5))
-
-        if match.group(6).lower() == 'pm':
-            hour = (hour + 12) % 24
-
-        return datetime(year, month, day, hour, minute)
-
-
 def get_metadata(response):
     root = html.fromstring(response.content)
 
@@ -100,7 +76,7 @@ def get_metadata(response):
 
     try:
         raw_date = root.cssselect('span.author-details')[0].text_content()
-        date = _parse_date(raw_date.strip())
+        date = parse_date(u' '.join(raw_date.split('|')[1:]))
         if date:
             metadata['date'] = date
     except:

@@ -2,10 +2,9 @@ import logging
 import re
 import requests
 
-from datetime import datetime
 from lxml import html
 
-from ..utils import was_redirected
+from ..utils import parse_date, was_redirected
 
 
 logger = logging.getLogger(__name__)
@@ -84,31 +83,6 @@ def get_content(response):
     return result
 
 
-def _parse_date(date):
-    """
-    Parses dates from republica.com.uy. Example: "Viernes 19 abril, 6:12pm".
-    """
-    spanish_months = {
-        'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4,
-        'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8,
-        'setiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12,
-    }
-
-    match = re.match('\w+ (\d+) (\w+), (\d+):(\d+)(\w+)', date)
-    if match:
-        day = int(match.group(1))
-        month = spanish_months[match.group(2)]
-        # The year is not present, we assume (incorrectly) the current year.
-        year = datetime.now().year
-
-        hour = int(match.group(3))
-        minute = int(match.group(4))
-        if match.group(5) == 'pm':
-            hour = (hour + 12) % 24
-
-        return datetime(year, month, day, hour, minute)
-
-
 def get_metadata(response):
     root = html.fromstring(response.content)
 
@@ -121,7 +95,7 @@ def get_metadata(response):
     try:
         raw_date = root.cssselect('p.post-meta > span.updated')[0]\
                        .text_content().strip()
-        date = _parse_date(raw_date.strip())
+        date = parse_date(raw_date.strip())
         if date:
             metadata['date'] = date
     except:

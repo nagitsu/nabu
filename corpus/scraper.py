@@ -44,19 +44,26 @@ def fill_entries(data_source_id):
                 len(missing_ids), data_source.domain)
 
     # Go around the SQLAlchemy ORM so we avoid loading over 1 million entries
-    # on memory when first adding data sources.
-    new_entries = []
+    # on memory when first adding data sources. Also, add them in batches of
+    # 100k.
     now = datetime.utcnow()
-    for missing_id in missing_ids:
-        new_entries.append({
-            'outcome': 'pending',
-            'source_id': missing_id,
-            'added': now,
-            'number_of_tries': 0,
-            'data_source_id': data_source_id
-        })
-    db.execute(Entry.__table__.insert(), new_entries)
-    db.commit()
+    step = 100000
+    for start in xrange(0, len(missing_ids), step):
+        logger.info("adding batch #%s for %s",
+                    start / step + 1, data_source.domain)
+
+        end = start + step
+        new_entries = []
+        for missing_id in missing_ids[start:end]:
+            new_entries.append({
+                'outcome': 'pending',
+                'source_id': missing_id,
+                'added': now,
+                'number_of_tries': 0,
+                'data_source_id': data_source_id
+            })
+        db.execute(Entry.__table__.insert(), new_entries)
+        db.commit()
 
     return True
 

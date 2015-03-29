@@ -152,14 +152,13 @@ def main_loop():
 
         # See which entries need to be scraped, checking their status and
         # retries. Scrape them randomly so the load is distributed evenly
-        # between all the data sources. Also, scrape 300k entries per loop
-        # to avoid loading every entry into memory.
+        # between all the data sources.
         statuses = ['failure', 'pending']
         entries_to_scrape = db.query(Entry.id).filter(
             Entry.outcome.in_(statuses),
             Entry.number_of_tries < settings.MAX_RETRIES,
             Entry.data_source_id.in_(successful_ds)
-        ).order_by(func.random()).limit(300000).all()
+        ).order_by(func.random()).yield_per(50000)
 
         entries_to_scrape = map(lambda e: e[0], entries_to_scrape)
         logger.info("%s entries to scrape found", len(entries_to_scrape))

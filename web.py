@@ -2,10 +2,11 @@ import json
 import re
 import subprocess
 
-from sqlalchemy.sql import func
+from datetime import datetime, timedelta
 from flask import abort, Flask, jsonify
+from sqlalchemy.sql import func
 
-from corpus.models import db, DataSource, Document, Entry
+from corpus.models import db, DataSource, Document, Entry, Statistic
 
 
 app = Flask(__name__)
@@ -15,6 +16,67 @@ def disk_usage():
     output = subprocess.check_output(['df', '-h'])
     percentage = re.findall('(\d+%) \/\n', output)[0]
     return percentage
+
+
+def calculate_statistics(limit_date):
+    """
+    Returns a dictionary with the values for the statistics, including entries
+    up to `limit_date`.
+    """
+    stats = {}
+
+    results = db.query(Entry.data_source_id,
+                       func.count(Document.id).label('document_count'),
+                       func.sum(Document.word_count).label('word_count'),
+                       func.count(Entry.id).label('entry_count_tried'))\
+                .outerjoin(Document)\
+                .filter(Entry.last_tried <= limit_date)\
+                .group_by(Entry.data_source_id)\
+                .all()
+
+    for result in results:
+        row = dict(map(lambda f: (f, getattr(result, f)), result.keys()))
+        stats.setdefault(result.data_source_id, {}).update(row)
+
+    results = db.query(Entry.data_source_id,
+                       func.count(Entry.id).label('entry_count_total'))\
+                .filter(Entry.added <= limit_date)\
+                .group_by(Entry.data_source_id)\
+                .all()
+
+    for result in results:
+        row = dict(map(lambda f: (f, getattr(result, f)), result.keys()))
+        stats.setdefault(result.data_source_id, {}).update(row)
+
+    return stats.values()
+
+
+@app.route("/api/stats/update")
+def update_statistics():
+    # First get the last Statistic created.
+    last = db.query(Statistic).order_by(Statistic.date.desc()).first()
+
+    now = datetime.now()
+    if not last:
+        # If none exist, just create one for the present.
+        limit = now.replace(minute=0, second=0, microsecond=0)
+        for stat in calculate_statistics(limit):
+            stat['date'] = limit
+            db.merge(Statistic(**stat))
+    else:
+        # If one exists, calculate all the hour-length intervals up to the
+        # present, and calculate the statistics for each of them.
+        limit = last.date + timedelta(hours=1)
+        while limit <= now:
+            for stat in calculate_statistics(limit):
+                stat['date'] = limit
+                db.merge(Statistic(**stat))
+            limit += timedelta(hours=1)
+
+    db.commit()
+
+    # `stat` holds the last Statistic added (i.e. the most current).
+    return jsonify(current=stat)
 
 
 @app.route("/api/general")
@@ -113,4 +175,4 @@ def source_detail(domain):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

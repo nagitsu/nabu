@@ -89,18 +89,27 @@ def general():
     except:
         summary['disk_usage'] = None
 
-    summary['word_count'] = db.query(func.sum(Document.word_count)).scalar()
+    sources = []
+    word_count = 0
+    tried_count = 0
+    total_entries = 0
 
-    total_entries = db.query(Entry).count()
+    for ds in db.query(DataSource).all():
+        # TODO: Any way to avoid doing separate queries?
+        stat = ds.statistics.order_by(Statistic.date.desc()).first()
+        if not stat:
+            continue
+
+        sources.append(ds.domain)
+        word_count += stat.word_count
+        tried_count += stat.entry_count_tried
+        total_entries += stat.entry_count_total
+
+    summary['word_count'] = word_count
     if total_entries:
-        tried_count = db.query(Entry)\
-                        .filter(Entry.outcome != 'pending')\
-                        .count()
         summary['completion'] = tried_count / float(total_entries)
     else:
         summary['completion'] = 0.0
-
-    sources = [ds[0] for ds in db.query(DataSource.domain).all()]
 
     db.remove()
 
@@ -116,42 +125,32 @@ def source_detail(domain):
     summary = {}
     summary['domain'] = domain
 
-    documents = db.query(Document).join(Entry).join(DataSource)\
-                  .filter(DataSource.domain == domain)
+    stat = data_source.statistics.order_by(Statistic.date.desc()).first()
+    if stat:
+        summary['document_count'] = stat.document_count
+        summary['word_count'] = stat.word_count
+    else:
+        summary['document_count'] = 0
+        summary['word_count'] = 0
 
-    summary['document_count'] = documents.count()
-
-    summary['word_count'] = db.query(func.sum(Document.word_count))\
-                              .join(Entry)\
-                              .filter(Entry.data_source == data_source)\
-                              .scalar()
-
-    entry_count = db.query(Entry).join(DataSource)\
-                    .filter(DataSource.domain == domain)\
-                    .count()
-    tried_entries = db.query(Entry)\
-                      .join(DataSource)\
-                      .filter(DataSource.domain == domain)\
-                      .filter(Entry.outcome != 'pending')\
-                      .count()
-    successful_entries = db.query(Entry)\
-                           .join(DataSource)\
-                           .filter(DataSource.domain == domain)\
-                           .filter(Entry.outcome == 'success')\
-                           .count()
-
-    if entry_count:
-        summary['completion'] = tried_entries / float(entry_count)
+    if stat and stat.entry_count_total:
+        summary['completion'] = (
+            stat.entry_count_tried / float(stat.entry_count_total)
+        )
     else:
         summary['completion'] = 0.0
 
-    if tried_entries:
-        summary['successful'] = successful_entries / float(tried_entries)
+    if stat and stat.entry_count_tried:
+        summary['successful'] = (
+            stat.document_count / float(stat.entry_count_tried)
+        )
     else:
         summary['successful'] = 0.0
 
     # TODO: Should tags be per-source?
-    document = documents.first()
+    document = db.query(Document).join(Entry).join(DataSource)\
+                 .filter(DataSource.domain == domain)\
+                 .first()
     if document:
         summary['tags'] = json.loads(document.tags)
     else:

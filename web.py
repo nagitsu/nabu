@@ -57,10 +57,12 @@ def update_statistics():
     last = db.query(Statistic).order_by(Statistic.date.desc()).first()
 
     now = datetime.now()
+    stats = []
     if not last:
         # If none exist, just create one for the present.
         limit = now.replace(minute=0, second=0, microsecond=0)
-        for stat in calculate_statistics(limit):
+        stats = calculate_statistics(limit)
+        for stat in stats:
             stat['date'] = limit
             db.merge(Statistic(**stat))
     else:
@@ -68,15 +70,15 @@ def update_statistics():
         # present, and calculate the statistics for each of them.
         limit = last.date + timedelta(hours=1)
         while limit <= now:
-            for stat in calculate_statistics(limit):
+            stats = calculate_statistics(limit)
+            for stat in stats:
                 stat['date'] = limit
                 db.merge(Statistic(**stat))
             limit += timedelta(hours=1)
 
     db.commit()
 
-    # `stat` holds the last Statistic added (i.e. the most current).
-    return jsonify(current=stat)
+    return jsonify(current=stats)
 
 
 @app.route("/api/general")
@@ -156,21 +158,9 @@ def source_detail(domain):
     else:
         summary['tags'] = []
 
-    entries = db.query(Entry).join(DataSource)\
-                .filter(DataSource.domain == domain)\
-                .filter(Entry.outcome == 'success')\
-                .order_by(Entry.last_tried.desc())\
-                .limit(5)
-    last_entries = []
-    for entry in entries:
-        last_entries.append({
-            'date': entry.last_tried,
-            'source_id': entry.source_id
-        })
-
     db.remove()
 
-    return jsonify(summary=summary, last_entries=last_entries)
+    return jsonify(summary=summary)
 
 
 if __name__ == '__main__':

@@ -132,6 +132,15 @@ def main_loop():
     logger.info("starting session")
     pool = mp.Pool(settings.POOL_SIZE)
 
+    # Create the missing DataSources.
+    existing_domains = [ds[0] for ds in db.query(DataSource.domain).all()]
+    for domain in sources.SOURCES.keys():
+        if domain not in existing_domains:
+            logger.info("creating new data source, domain = %s", domain)
+            new_ds = DataSource(domain=domain)
+            db.merge(new_ds)
+    db.commit()
+
     while True:
         loop_start = time.time()
 

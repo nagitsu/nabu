@@ -6,25 +6,15 @@ Each module inside this package has three functions:
 - `get_metadata`: returns the document's metadata given a requests' `Response`
   object. May assume that the response is valid.
 """
-from . import elobservador
-from . import lanacion
-from . import _180
-from . import republica
-from . import lared21
-from . import espectador
-from . import univision
-from . import informador
-from . import elmercurio
+from os.path import dirname
 
+import importlib
+import pkgutil
 
-SOURCES = {
-    elobservador.SOURCE_DOMAIN: elobservador,
-    lanacion.SOURCE_DOMAIN: lanacion,
-    _180.SOURCE_DOMAIN: _180,
-    republica.SOURCE_DOMAIN: republica,
-    lared21.SOURCE_DOMAIN: lared21,
-    espectador.SOURCE_DOMAIN: espectador,
-    univision.SOURCE_DOMAIN: univision,
-    informador.SOURCE_DOMAIN: informador,
-    elmercurio.SOURCE_DOMAIN: elmercurio,
-}
+SOURCES = {}
+
+# Iterate on all the modules found on the `sources` (this) package, import
+# them and store their `SOURCE_DOMAIN` for easier access.
+for importer, modname, _ in pkgutil.iter_modules([dirname(__file__)]):
+    m = importlib.import_module('.{}'.format(modname), package=__name__)
+    SOURCES[m.SOURCE_DOMAIN] = m

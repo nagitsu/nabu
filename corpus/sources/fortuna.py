@@ -4,19 +4,19 @@ import requests
 
 from lxml import html
 
-from ..utils import parse_date
+from ..utils import parse_date, was_redirected
 
 
 logger = logging.getLogger(__name__)
 
 
-SOURCE_DOMAIN = '<DOMAIN>'
-DOCUMENT_URL = '<DOCUMENT-URL-WITH-{}>'
+SOURCE_DOMAIN = 'fortunaweb.com.ar'
+DOCUMENT_URL = 'http://fortunaweb.com.ar/2015-03-01-{}-asdf/'
 
 
 def get_missing_ids(existing_ids):
-    response = requests.get(<BASE-URL>)
-    link_re = re.compile(r'.*/noticia/(\d+)/')
+    response = requests.get('http://fortunaweb.com.ar/')
+    link_re = re.compile(r'.*/\d+-\d+-\d+-(\d+)-\w+')
 
     root = html.fromstring(response.content)
     links = root.xpath("//a/@href")
@@ -43,12 +43,18 @@ def get_content(response):
                      response.url, response.status_code)
         return {'outcome': 'failure'}
 
+    # Now check if the redirection history changed our ID.
+    if was_redirected(response, regexp=r'.*/\d+-\d+-\d+-(\d+)-\w+'):
+        return {'outcome': 'notfound'}
+
     root = html.fromstring(response.content)
 
     try:
-        title = <PARSED-TITLE>
-        summary = <PARSED-SUMMARY>
-        text = <PARSED-TEXT>
+        title = root.cssselect('#contenido-general-articulo > header > h1')[0]\
+                    .text_content().strip()
+        summary = root.cssselect('header > #descripcion')[0]\
+                      .text_content().strip()
+        text = u' '.join(root.xpath("//section[@id='content']//p//text()"))
 
         content = u'\n'.join([title, summary, text]).strip()
     except:
@@ -57,7 +63,7 @@ def get_content(response):
     result = {
         'outcome': 'success',
         'content': content,
-        'tags': [<TAGS>]
+        'tags': ['news', 'Argentina']
     }
 
     return result
@@ -68,12 +74,15 @@ def get_metadata(response):
 
     metadata = {}
     try:
-        metadata['title'] = <TITLE>
+        metadata['title'] = root.cssselect(
+            '#contenido-general-articulo > header > h1'
+        )[0].text_content().strip()
     except:
         pass
 
     try:
-        raw_date = <DATE-STRING>
+        raw_date = root.cssselect('div.dia-publicacion')[0]\
+                       .text_content().strip()
         date = parse_date(raw_date)
         if date:
             metadata['date'] = date

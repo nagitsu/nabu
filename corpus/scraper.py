@@ -80,7 +80,11 @@ def scrape_entry(entry_id):
     url = module.DOCUMENT_URL.format(entry.source_id)
     # TODO: Better error handling.
     try:
-        response = requests.get(url, timeout=settings.REQUEST_TIMEOUT)
+        response = requests.get(
+            url,
+            timeout=settings.REQUEST_TIMEOUT,
+            headers=settings.REQUEST_HEADERS,
+        )
     except requests.exceptions.RequestException as e:
         # Clean up.
         logger.info("entry_id = %s failed when requesting url; %s",

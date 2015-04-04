@@ -21,7 +21,7 @@ def custom_encoder(obj):
         raise TypeError(msg.format(type(obj), repr(obj)))
 
 
-def was_redirected(response):
+def was_redirected(response, regexp=r'.*/(\d+)/'):
     """
     Checks whether the request was redirected to a different article.
 
@@ -32,7 +32,7 @@ def was_redirected(response):
         original_url = response.history[0].url
         current_url = response.url
 
-        id_regexp = re.compile(r'.*/(\d+)/')
+        id_regexp = re.compile(regexp)
         m_original = id_regexp.match(original_url)
         m_current = id_regexp.match(current_url)
 

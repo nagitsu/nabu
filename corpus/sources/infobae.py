@@ -10,13 +10,13 @@ from ..utils import parse_date
 logger = logging.getLogger(__name__)
 
 
-SOURCE_DOMAIN = '<DOMAIN>'
-DOCUMENT_URL = '<DOCUMENT-URL-WITH-{}>'
+SOURCE_DOMAIN = 'infobae.com'
+DOCUMENT_URL = 'http://www.infobae.com/2015/04/02/{}-asdf'
 
 
 def get_missing_ids(existing_ids):
-    response = requests.get(<BASE-URL>)
-    link_re = re.compile(r'.*/noticia/(\d+)/')
+    response = requests.get('http://www.infobae.com/?noredirect')
+    link_re = re.compile(r'.*/\d+/\d+/\d+/(\d+)-\w+')
 
     root = html.fromstring(response.content)
     links = root.xpath("//a/@href")
@@ -46,9 +46,27 @@ def get_content(response):
     root = html.fromstring(response.content)
 
     try:
-        title = <PARSED-TITLE>
-        summary = <PARSED-SUMMARY>
-        text = <PARSED-TEXT>
+        unneeded = [
+            'div.social-hori', 'footer', 'figure', 'div.modal', 'script',
+            'div.tags'
+        ]
+        for selector in unneeded:
+            nodes = root.cssselect(selector)
+            for node in nodes:
+                node.getparent().remove(node)
+
+        base = "(//section[contains(@class, wrapper)])[1]"
+        title = root.xpath(base + "//h1[@class='entry-title']")[0]\
+                    .text_content().strip()
+        summary = root.xpath(
+            base + "//h1[@class='entry-title']/following-sibling::p"
+        )[0].text_content().strip()
+        text = u' '.join(root.xpath(
+            base + "//div[contains(@class, 'entry-content')]//div//text()"
+        )).strip()
+
+        if len(text) < 50:
+            return {'outcome': 'unparseable'}
 
         content = u'\n'.join([title, summary, text]).strip()
     except:
@@ -57,7 +75,7 @@ def get_content(response):
     result = {
         'outcome': 'success',
         'content': content,
-        'tags': [<TAGS>]
+        'tags': ['news', 'Argentina']
     }
 
     return result
@@ -68,12 +86,14 @@ def get_metadata(response):
 
     metadata = {}
     try:
-        metadata['title'] = <TITLE>
+        base = "//article[contains(@class, item)]"
+        metadata['title'] = root.xpath(base + "//h1[@class='entry-title']")[0]\
+                                .text_content().strip()
     except:
         pass
 
     try:
-        raw_date = <DATE-STRING>
+        raw_date = root.cssselect('span.date')[0].text_content().strip()
         date = parse_date(raw_date)
         if date:
             metadata['date'] = date

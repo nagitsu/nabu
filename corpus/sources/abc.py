@@ -10,13 +10,13 @@ from ..utils import parse_date
 logger = logging.getLogger(__name__)
 
 
-SOURCE_DOMAIN = '<DOMAIN>'
-DOCUMENT_URL = '<DOCUMENT-URL-WITH-{}>'
+SOURCE_DOMAIN = 'abc.com.py'
+DOCUMENT_URL = 'http://www.abc.com.py/asdf/asdf/Asdf-{}.html'
 
 
 def get_missing_ids(existing_ids):
-    response = requests.get(<BASE-URL>)
-    link_re = re.compile(r'.*/noticia/(\d+)/')
+    response = requests.get('http://www.abc.com.py/')
+    link_re = re.compile(r'.*/\w+/[a-zA-Z\-]*(\d+).html')
 
     root = html.fromstring(response.content)
     links = root.xpath("//a/@href")
@@ -35,6 +35,10 @@ def get_missing_ids(existing_ids):
 
 
 def get_content(response):
+    # Check if redirected to `/404/`.
+    if "/404/" in response.url:
+        return {'outcome': 'notfound'}
+
     # Check if the response is valid.
     if response.status_code == 404:
         return {'outcome': 'notfound'}
@@ -46,9 +50,17 @@ def get_content(response):
     root = html.fromstring(response.content)
 
     try:
-        title = <PARSED-TITLE>
-        summary = <PARSED-SUMMARY>
-        text = <PARSED-TEXT>
+        title = root.cssselect('#article > h1')[0].text_content().strip()
+        summary = root.cssselect('#article > p.summary')[0]\
+                      .text_content().strip()
+        text = u'\n'.join([
+            node.text_content().strip()
+            for node in root.cssselect('#article > div.text > p')
+        ])
+
+        # Old-style articles.
+        if not text.strip():
+            text = root.cssselect('#article > div.text')[0].text_content()
 
         content = u'\n'.join([title, summary, text]).strip()
     except:
@@ -57,7 +69,7 @@ def get_content(response):
     result = {
         'outcome': 'success',
         'content': content,
-        'tags': [<TAGS>]
+        'tags': ['news', 'Paraguay']
     }
 
     return result
@@ -68,12 +80,13 @@ def get_metadata(response):
 
     metadata = {}
     try:
-        metadata['title'] = <TITLE>
+        metadata['title'] = root.cssselect('#article > h1')[0]\
+                                .text_content().strip()
     except:
         pass
 
     try:
-        raw_date = <DATE-STRING>
+        raw_date = root.cssselect('#article > h3')[0].text_content().strip()
         date = parse_date(raw_date)
         if date:
             metadata['date'] = date

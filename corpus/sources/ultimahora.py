@@ -10,13 +10,13 @@ from ..utils import parse_date
 logger = logging.getLogger(__name__)
 
 
-SOURCE_DOMAIN = '<DOMAIN>'
-DOCUMENT_URL = '<DOCUMENT-URL-WITH-{}>'
+SOURCE_DOMAIN = 'ultimahora.com'
+DOCUMENT_URL = 'http://www.ultimahora.com/asdf-n{}.html'
 
 
 def get_missing_ids(existing_ids):
-    response = requests.get(<BASE-URL>)
-    link_re = re.compile(r'.*/noticia/(\d+)/')
+    response = requests.get('http://www.ultimahora.com')
+    link_re = re.compile(r'.*/[-\w]+-n(\d+).html')
 
     root = html.fromstring(response.content)
     links = root.xpath("//a/@href")
@@ -35,6 +35,10 @@ def get_missing_ids(existing_ids):
 
 
 def get_content(response):
+    # Check if redirected to the main page.
+    if response.url.endswith('www.ultimahora.com'):
+        return {'outcome': 'notfound'}
+
     # Check if the response is valid.
     if response.status_code == 404:
         return {'outcome': 'notfound'}
@@ -46,9 +50,14 @@ def get_content(response):
     root = html.fromstring(response.content)
 
     try:
-        title = <PARSED-TITLE>
-        summary = <PARSED-SUMMARY>
-        text = <PARSED-TEXT>
+        title = root.cssselect('div.news-headline-obj > h1.t1')[0]\
+                    .text_content().strip()
+        summary = root.cssselect('div.news-headline-obj > h2.summary')[0]\
+                      .text_content().strip()
+        text = u'\n'.join(map(
+            lambda node: node.text_content().strip(),
+            root.cssselect('div.news-detail-obj p')
+        ))
 
         content = u'\n'.join([title, summary, text]).strip()
     except:
@@ -57,7 +66,7 @@ def get_content(response):
     result = {
         'outcome': 'success',
         'content': content,
-        'tags': [<TAGS>]
+        'tags': ['news', 'Paraguay']
     }
 
     return result
@@ -68,12 +77,15 @@ def get_metadata(response):
 
     metadata = {}
     try:
-        metadata['title'] = <TITLE>
+        metadata['title'] = root.cssselect('div.news-headline-obj > h1.t1')[0]\
+                                .text_content().strip()
     except:
         pass
 
     try:
-        raw_date = <DATE-STRING>
+        raw_date = root.cssselect(
+            'div.news-headline-obj > div.cols1 div.floatright'
+        )[0].text_content().strip()
         date = parse_date(raw_date)
         if date:
             metadata['date'] = date

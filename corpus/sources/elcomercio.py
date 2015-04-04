@@ -10,13 +10,13 @@ from ..utils import parse_date
 logger = logging.getLogger(__name__)
 
 
-SOURCE_DOMAIN = '<DOMAIN>'
-DOCUMENT_URL = '<DOCUMENT-URL-WITH-{}>'
+SOURCE_DOMAIN = 'elcomercio.pe'
+DOCUMENT_URL = 'http://elcomercio.pe/mundo/actualidad/nunca-antes-visto-serie-television-feminista-afganistan-noticia-{}'
 
 
 def get_missing_ids(existing_ids):
-    response = requests.get(<BASE-URL>)
-    link_re = re.compile(r'.*/noticia/(\d+)/')
+    response = requests.get('http://elcomercio.pe')
+    link_re = re.compile(r'.*/[\w-]+/[\w-]*(\d+)')
 
     root = html.fromstring(response.content)
     links = root.xpath("//a/@href")
@@ -46,9 +46,17 @@ def get_content(response):
     root = html.fromstring(response.content)
 
     try:
-        title = <PARSED-TITLE>
-        summary = <PARSED-SUMMARY>
-        text = <PARSED-TEXT>
+        title = root.xpath("//h1[@itemprop='headline']")[0]\
+                    .text_content().strip()
+        try:
+            summary = root.xpath(
+                "//h2[@itemprop='description']"
+            )[0].text_content().strip()
+        except:
+            summary = ""
+        text = root.xpath(
+            "//*[@itemprop='articleBody']"
+        )[0].text_content().strip()
 
         content = u'\n'.join([title, summary, text]).strip()
     except:
@@ -57,7 +65,7 @@ def get_content(response):
     result = {
         'outcome': 'success',
         'content': content,
-        'tags': [<TAGS>]
+        'tags': ['news', 'Peru']
     }
 
     return result
@@ -68,12 +76,14 @@ def get_metadata(response):
 
     metadata = {}
     try:
-        metadata['title'] = <TITLE>
+        metadata['title'] = root.xpath("//h1[@itemprop='headline']")[0]\
+                                .text_content().strip()
     except:
         pass
 
     try:
-        raw_date = <DATE-STRING>
+        raw_date = root.cssselect('section.ec-main time.fecha')[0]\
+                       .text_content().strip()
         date = parse_date(raw_date)
         if date:
             metadata['date'] = date

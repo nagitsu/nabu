@@ -16,7 +16,7 @@ DOCUMENT_URL = 'http://elcomercio.pe/mundo/actualidad/nunca-antes-visto-serie-te
 
 def get_missing_ids(existing_ids):
     response = requests.get('http://elcomercio.pe')
-    link_re = re.compile(r'.*/[\w-]+/[\w-]*(\d+)')
+    link_re = re.compile(r'.*/[\w-]+/[\w-]*-(\d+)')
 
     root = html.fromstring(response.content)
     links = root.xpath("//a/@href")

@@ -25,6 +25,15 @@ def calculate_statistics(limit_date):
     """
     stats = {}
 
+    for row in db.query(DataSource.id).all():
+        data_source_id = row[0]
+        stats[data_source_id] = {
+            'document_count': 0,
+            'word_count': 0,
+            'entry_count_tried': 0,
+            'entry_count_total': 0,
+        }
+
     results = db.query(Entry.data_source_id,
                        func.count(Document.id).label('document_count'),
                        func.sum(Document.word_count).label('word_count'),
@@ -36,7 +45,7 @@ def calculate_statistics(limit_date):
 
     for result in results:
         row = dict(map(lambda f: (f, getattr(result, f)), result.keys()))
-        stats.setdefault(result.data_source_id, {}).update(row)
+        stats[result.data_source_id].update(row)
 
     results = db.query(Entry.data_source_id,
                        func.count(Entry.id).label('entry_count_total'))\
@@ -46,7 +55,7 @@ def calculate_statistics(limit_date):
 
     for result in results:
         row = dict(map(lambda f: (f, getattr(result, f)), result.keys()))
-        stats.setdefault(result.data_source_id, {}).update(row)
+        stats[result.data_source_id].update(row)
 
     return stats.values()
 

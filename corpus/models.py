@@ -80,7 +80,7 @@ class Entry(Base):
     # TODO: Add a unique constraint between this and data_source_id.
     source_id = Column(String, nullable=False)
 
-    added = Column(DateTime, nullable=False, default=datetime.utcnow)
+    added = Column(DateTime, nullable=False, default=datetime.now)
     last_tried = Column(DateTime, nullable=True)
     number_of_tries = Column(Integer, nullable=False, default=0)
 

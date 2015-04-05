@@ -96,7 +96,17 @@ def scrape_entry(entry_id):
         db.commit()
         return
 
-    content = module.get_content(response)
+    try:
+        content = module.get_content(response)
+    except Exception as e:
+        logger.info("entry_id = %s failed when getting content; %s",
+                    entry_id, repr(e))
+        entry.outcome = 'failure'
+        entry.last_tried = datetime.now()
+        entry.number_of_tries += 1
+        db.merge(entry)
+        db.commit()
+        return
 
     if content['outcome'] == 'success' and not content['content']:
         # Parsing was marked as successful, but no content returned; mark as

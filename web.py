@@ -90,6 +90,31 @@ def update_statistics():
     return jsonify(current=stats)
 
 
+def get_source_stats(stat):
+    """
+    Returns a summary of statistics derived from the given `stat`.
+    """
+    summary = {}
+    summary['document_count'] = stat.document_count
+    summary['word_count'] = stat.word_count
+
+    if stat.entry_count_total:
+        summary['completion'] = (
+            stat.entry_count_tried / float(stat.entry_count_total)
+        )
+    else:
+        summary['completion'] = 0.0
+
+    if stat.entry_count_tried:
+        summary['successful'] = (
+            stat.document_count / float(stat.entry_count_tried)
+        )
+    else:
+        summary['successful'] = 0.0
+
+    return summary
+
+
 @app.route("/api/general")
 def general():
     summary = {}
@@ -111,7 +136,10 @@ def general():
         if not stat:
             continue
 
-        sources.append(ds.domain)
+        source_info = {'domain': ds.domain}
+        source_info.update(get_source_stats(stat))
+        sources.append(source_info)
+
         word_count += stat.word_count
         tried_count += stat.entry_count_tried
         total_entries += stat.entry_count_total

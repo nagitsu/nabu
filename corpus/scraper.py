@@ -46,7 +46,7 @@ def fill_entries(data_source_id):
     # Go around the SQLAlchemy ORM so we avoid loading over 1 million entries
     # on memory when first adding data sources. Also, add them in batches of
     # 100k.
-    now = datetime.utcnow()
+    now = datetime.now()
     step = 100000
     for start in xrange(0, len(missing_ids), step):
         logger.info("adding batch #%s for %s",

@@ -20,7 +20,11 @@ def get_missing_ids(existing_ids):
     """
     if existing_ids:
         last_id = sorted(existing_ids, reverse=True)[0]
-        last_date = date(last_id[:4], last_id[4:6], last_id[6:8])
+        last_date = date(
+            int(last_id[:4]),
+            int(last_id[4:6]),
+            int(last_id[6:8])
+        )
     else:
         # Initial date for Perfil.
         last_date = date(2006, 9, 9)

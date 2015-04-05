@@ -5,6 +5,7 @@ import requests
 from lxml import html
 
 from ..utils import parse_date
+from .. import settings
 
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,10 @@ DOCUMENT_URL = 'http://www.infobae.com/2015/04/02/{}-asdf'
 
 
 def get_missing_ids(existing_ids):
-    response = requests.get('http://www.infobae.com/?noredirect')
+    response = requests.get(
+        'http://www.infobae.com/?noredirect',
+        headers=settings.REQUEST_HEADERS
+    )
     link_re = re.compile(r'.*/\d+/\d+/\d+/(\d+)-\w+')
 
     root = html.fromstring(response.content)

@@ -85,8 +85,9 @@ def scrape_entry(entry_id):
             timeout=settings.REQUEST_TIMEOUT,
             headers=settings.REQUEST_HEADERS,
         )
-    except requests.exceptions.RequestException as e:
-        # Clean up.
+    except Exception as e:
+        # Capture all exceptions, as the `requests` library may raise
+        # arbitrary exceptions; not all of them are wrapped.
         logger.info("entry_id = %s failed when requesting url; %s",
                     entry_id, repr(e))
         entry.outcome = 'failure'

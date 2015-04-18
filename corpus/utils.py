@@ -1,9 +1,29 @@
 # coding: utf-8
+import asyncio
+import functools
 import re
+import requests
 
 from datetime import datetime
 
 from dateutil.parser import parse, parserinfo
+
+from . import settings
+
+
+@asyncio.coroutine
+def get(*args, **kwargs):
+    """
+    Performs a request in an asyncio-aware manner using the `requests` library.
+    """
+    loop = asyncio.get_event_loop()
+    with (yield from loop.request_semaphore):
+        make_request = functools.partial(requests.get, *args, **kwargs)
+        future = asyncio.wait_for(
+            loop.run_in_executor(None, make_request),
+            settings.REQUEST_TIMEOUT
+        )
+        return (yield from future)
 
 
 def custom_encoder(obj):

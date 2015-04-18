@@ -1,7 +1,8 @@
 from datetime import datetime
 
 from sqlalchemy import (
-    create_engine, Column, DateTime, ForeignKey, Integer, String, Text,
+    create_engine, Boolean, Column, DateTime, ForeignKey, Integer, String,
+    Text,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship, sessionmaker, scoped_session
@@ -11,7 +12,7 @@ from . import settings
 
 engine = create_engine(
     settings.DATABASE_ENGINE,
-    pool_size=settings.POOL_SIZE + 10,
+    pool_size=50,
     max_overflow=100
 )
 
@@ -26,6 +27,12 @@ class DataSource(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     domain = Column(String, unique=True, nullable=False)
+
+    # Number of concurrent requests to perform for this DataSource.
+    concurrency = Column(Integer, nullable=False, default=5)
+
+    # Whether to scrape entries from this source.
+    active = Column(Boolean, nullable=False, default=True)
 
     def __repr__(self):
         return "<DataSource('{}')>".format(self.domain)

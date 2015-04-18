@@ -3,7 +3,7 @@ import re
 import requests
 
 from lxml import html
-from urllib2 import urlparse
+from urllib.parse import urlsplit
 
 from ..utils import parse_date
 
@@ -128,7 +128,7 @@ def get_content(response):
                      response.url, response.status_code)
         return {'outcome': 'failure'}
 
-    domain = urlparse.urlsplit(response.url).netloc
+    domain = urlsplit(response.url).netloc
     root = html.fromstring(response.content)
 
     try:
@@ -151,7 +151,7 @@ def get_content(response):
 
 
 def get_metadata(response):
-    domain = urlparse.urlsplit(response.url).netloc
+    domain = urlsplit(response.url).netloc
     root = html.fromstring(response.content)
 
     metadata = {}

@@ -36,7 +36,7 @@ def get_missing_ids(existing_ids):
     while last_date < yesterday:
         last_date += one_day
         id_base = last_date.isoformat().replace('-', '')
-        for i in xrange(1, 101):
+        for i in range(1, 101):
             missing_ids.append(id_base + "-{:04d}".format(i))
 
     return missing_ids

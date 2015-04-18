@@ -1,4 +1,4 @@
-from corpus import main_loop
+from corpus import main
 
 if __name__ == '__main__':
-    main_loop()
+    main()

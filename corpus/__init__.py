@@ -1,1 +1,1 @@
-from .scraper import main_loop
+from .scraper import main

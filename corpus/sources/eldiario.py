@@ -42,7 +42,7 @@ def get_missing_ids(existing_ids):
             last_date.month,
             last_date.isoformat().replace('-', '')[2:]
         )
-        for i in xrange(1, 131):
+        for i in range(1, 131):
             missing_ids.append(id_base + str(i))
 
     return missing_ids

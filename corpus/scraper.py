@@ -196,6 +196,7 @@ def scrape_entry(entry_id):
     # instance.
     if content['outcome'] == 'success':
         metadata = module.get_metadata(response)
+        metadata['url'] = response.url
         doc = Document(
             content=content['content'],
             # If a `content_type` was provided, use it; else assume `clean`.

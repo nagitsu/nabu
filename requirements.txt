@@ -6,7 +6,13 @@ cssselect
 psycopg2
 python-dateutil
 Flask
+click
+elasticsearch
 
 # Development
 ipython
 ipdb
+
+# Training
+gensim
+nltk

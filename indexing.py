@@ -17,15 +17,20 @@ INDEX_BODY = {
             "number_of_shards": 5,
             "number_of_replicas": 0,
             "analysis": {
+                "filter": {
+                    "spanish_stop": {
+                        "type": "stop",
+                        "stopwords": "_spanish_",
+                    },
+                },
                 "analyzer": {
                     # Standrad analyzer plus folding.
                     "folding": {
                         "type": "custom",
                         "tokenizer": "standard",
                         "filter": [
-                            "standard", "lowercase", "stop", "asciifolding"
+                            "lowercase", "spanish_stop", "asciifolding",
                         ],
-                        "stopwords": "_spanish_",
                     }
                 }
             }
@@ -42,11 +47,12 @@ INDEX_BODY = {
                 "date": {"type": "date", "format": "dateOptionalTime"},
                 "url": {"type": "string", "index": "not_analyzed"},
                 "tags": {"type": "string", "index": "not_analyzed"},
+                "word_count": {"type": "long"},
                 # The data source's domain.
                 "data_source": {"type": "string", "index": "not_analyzed"},
                 "entry": {
                     "properties": {
-                        # ID of the entry on the databse.
+                        # ID of the entry on the database.
                         "entry_id": {"type": "long"},
                         "date_scraped": {
                             "type": "date",
@@ -80,6 +86,41 @@ def create_index(force=False):
     es.indices.create(index="nabu", body=INDEX_BODY, ignore=400)
 
 
+def prepare_document(doc):
+    """
+    Transforms a `Document` instance into a dictionary ready to be sent to
+    Elasticsearch.
+    """
+    payload = json.loads(doc.metadata_)
+    domain = doc.entry.data_source.domain
+    source_id = doc.entry.source_id
+
+    # Calculate the document's URL and add it to the metadata if it isn't
+    # there already.
+    if 'url' not in payload:
+        url = sources.SOURCES[domain].DOCUMENT_URL.format(source_id)
+        payload['url'] = url
+
+    # Update the `date` field, if present.
+    if 'date' in payload:
+        payload['date'] = datetime.fromtimestamp(payload['date'])
+
+    payload.update({
+        "content": doc.content,
+        "content_type": doc.content_type,
+        "word_count": doc.word_count,
+        "tags": json.loads(doc.tags),
+        "data_source": domain,
+        "entry": {
+            "entry_id": doc.entry.id,
+            "date_scraped": doc.entry.last_tried,
+            "source_id": source_id,
+        }
+    })
+
+    return payload
+
+
 def prepare_documents(limit=None):
     """
     Returns an iterator of ES actions ready to pass to `bulk` of all the
@@ -95,31 +136,7 @@ def prepare_documents(limit=None):
         documents = documents.limit(limit)
 
     for doc in documents:
-        payload = json.loads(doc.metadata_)
-        domain = doc.entry.data_source.domain
-        source_id = doc.entry.source_id
-
-        # Calculate the document's URL and add it to the metadata if it isn't
-        # there already.
-        if 'url' not in payload:
-            url = sources.SOURCES[domain].DOCUMENT_URL.format(source_id)
-            payload['url'] = url
-
-        # Update the `date` field, if present.
-        if 'date' in payload:
-            payload['date'] = datetime.fromtimestamp(payload['date'])
-
-        payload.update({
-            "content": doc.content,
-            "content_type": doc.content_type,
-            "tags": json.loads(doc.tags),
-            "data_source": domain,
-            "entry": {
-                "entry_id": doc.entry.id,
-                "date_scraped": doc.entry.last_tried,
-                "source_id": source_id,
-            }
-        })
+        payload = prepare_document(doc)
 
         action = {
             "_op_type": "index",

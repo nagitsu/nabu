@@ -6,6 +6,7 @@ import logging
 from datetime import datetime
 
 from . import settings, sources
+from .indexing import es, prepare_document
 from .models import db, DataSource, Document, Entry
 from .utils import custom_encoder, get
 
@@ -213,6 +214,11 @@ def scrape_entry(entry_id):
                 entry_id, content['outcome'])
 
     db.commit()
+
+    # Finally, store document on Elasticsearch too.
+    if content['outcome'] == 'success':
+        payload = prepare_document(doc)
+        es.index(index='nabu', doc_type='document', id=doc.id, body=payload)
 
 
 def main():

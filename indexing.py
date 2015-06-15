@@ -33,11 +33,15 @@ INDEX_BODY = {
                         ],
                     }
                 }
-            }
+            },
+            "query": {
+                "default_field": "content"
+            },
         }
     },
     "mappings": {
         "document": {
+            "_all": {"enabled": False},
             "properties": {
                 "content": {"type": "string", "analyzer": "folding"},
                 # Also included in the content.

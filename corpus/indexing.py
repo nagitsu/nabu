@@ -1,4 +1,3 @@
-import click
 import json
 
 from datetime import datetime
@@ -6,8 +5,8 @@ from datetime import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
-from corpus.models import db, DataSource, Document, Entry
-from corpus import sources
+from .models import db, DataSource, Document, Entry
+from . import sources
 
 
 INDEX_BODY = {
@@ -159,17 +158,6 @@ def reindex_documents(limit=None, force=False):
     bulk(es, document_iterator)
 
 
-@click.command()
-@click.option('--limit', default=None)
-@click.option('--force', default=False)
-def main(limit, force):
-    reindex_documents(limit, force)
-
-
 # Check everything is correctly configured when importing the module.
 es = Elasticsearch()
 check_configuration()
-
-
-if __name__ == '__main__':
-    main()

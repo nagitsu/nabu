@@ -183,10 +183,12 @@ def scrape_entry(entry_id):
         db.commit()
         return
 
-    if content['outcome'] == 'success' and not content['content']:
-        # Parsing was marked as successful, but no content returned; mark as
-        # unparseable instead.
-        content['outcome'] = 'unparseable'
+    if content['outcome'] == 'success':
+        min_words = settings.MIN_WORDS_PER_DOCUMENT
+        if not content['content'] or len(content['content']) < min_words:
+            # Parsing was marked as successful, but no (or too little) content
+            # returned; mark as unparseable instead.
+            content['outcome'] = 'unparseable'
 
     entry.outcome = content['outcome']
     entry.last_tried = datetime.now()

@@ -1,0 +1,76 @@
+@import 'fonts';
+@import 'variables';
+
+body {
+  background-color: $background-color;
+  font-family: "Lato Regular", sans-serif;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+
+  #corpus-size {
+    font-weight: 700;
+    font-size: 3rem;
+  }
+}
+
+.source-list {
+  width: 800px;
+}
+
+.source-entry {
+
+  display: flex;
+  align-items: center;
+
+  .bar-container {
+
+    display: flex;
+    align-items: center;
+
+    flex-grow: 1;
+
+    .bar {
+      box-sizing: border-box;
+      padding: 0.45rem;
+      height: $bar-height;
+      margin-left: 5px;
+      margin-right: 5px;
+
+      overflow: hidden;
+      cursor: default;
+
+      color: white;
+      font-size: 0.8rem;
+    }
+
+    .bar.bar-1 { background-color: nth($bar-colors, 1); }
+    .bar.bar-2 { background-color: nth($bar-colors, 2); }
+    .bar.bar-3 { background-color: nth($bar-colors, 3); }
+    .bar.bar-4 { background-color: nth($bar-colors, 4); }
+    .bar.bar-5 { background-color: nth($bar-colors, 5); }
+
+    .bar:hover {
+      background-color:#1F8DD6;
+      background-image: linear-gradient(90deg, #1F8DD6 0%, #74C1ED);
+    }
+
+    .bar-value {
+      font-size: 1rem;
+    }
+  }
+}
+
+svg.chart {
+
+  .bar {
+    fill: $over-time-bar-color;
+  }
+
+  .bar:hover {
+    fill: $over-time-bar-hover-color;
+  }
+
+}

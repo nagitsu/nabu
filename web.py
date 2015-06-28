@@ -242,8 +242,7 @@ def dashboard_over_time():
         "query": {
             "range": {
                 "entry.date_scraped": {
-                    "gte": "now-10d/d",
-                    "lte": "now"
+                    "gte": "now-10d/d"
                 }
             }
         },

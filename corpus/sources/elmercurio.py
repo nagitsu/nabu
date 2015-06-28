@@ -46,11 +46,12 @@ def get_content(response):
     root = html.fromstring(response.content)
 
     try:
-        title = root.cssselect('#cont_iz_titulobajada > h1')[0]\
+        title = root.cssselect('#cuDetalle_cuTitular_tituloNoticia')[0]\
                     .text_content().strip()
-        summary = root.cssselect('#cont_iz_titulobajada > h2')[0]\
+        summary = root.cssselect('#cuDetalle_cuTitular_bajadaNoticia')[0]\
                       .text_content().strip()
-        article = root.cssselect('div.EmolText')[0].text_content()
+        article = root.cssselect('#cuDetalle_cuTexto_textoNoticia')[0]\
+                      .text_content()
         content = u'\n'.join([title, summary, article])
     except:
         return {'outcome': 'unparseable'}
@@ -73,13 +74,14 @@ def get_metadata(response):
 
     metadata = {}
     try:
-        metadata['title'] = root.cssselect('#cont_iz_titulobajada > h1')[0]\
-                                .text_content().strip()
+        metadata['title'] = root\
+            .cssselect('#cuDetalle_cuTitular_tituloNoticia')[0]\
+            .text_content().strip()
     except:
         pass
 
     try:
-        raw_date = root.cssselect('#info-notaemol-porfecha')[0]\
+        raw_date = root.cssselect('#cuDetalle_cuCreditos_fecha')[0]\
                        .text_content().strip()
         date = parse_date(raw_date)
         if date:

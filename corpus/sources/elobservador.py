@@ -11,12 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 SOURCE_DOMAIN = 'observador.com.uy'
-DOCUMENT_URL = 'http://www.elobservador.com.uy/noticia/{}/c/'
+DOCUMENT_URL = 'http://www.elobservador.com.uy/asdf-n{}'
 
 
 def get_missing_ids(existing_ids):
     response = requests.get("http://www.elobservador.com.uy")
-    link_re = re.compile(r'.*/noticia/(\d+)/')
+    link_re = re.compile(r'.*/[\w-]+-n(\d+)')
 
     root = html.fromstring(response.content)
     links = root.xpath("//a/@href")
@@ -35,8 +35,7 @@ def get_missing_ids(existing_ids):
 
 
 def get_content(response):
-    # Check if redirected to error_404.php.
-    if "error_404.php" in response.url:
+    if response.status_code == 404:
         return {'outcome': 'notfound'}
 
     # Check if the response is valid.
@@ -48,11 +47,12 @@ def get_content(response):
     root = html.fromstring(response.content)
 
     try:
-        title = root.cssselect('div.story > h1')[0].text_content().strip()
-        summary = root.cssselect('div.story > h2')[0].text_content()
-        article = u"\n".join(root.xpath(
-            "//div[@class='story_left']/p/text()"
-        ))
+        title = root.cssselect('.detail-title')[0].text_content().strip()
+        summary = root.cssselect('.detail-preview')[0].text_content()
+        article = root.cssselect('.cuerpo')[0].text_content()
+        # article = u"\n".join(root.xpath(
+        #     "//div[@class='story_left']/p/text()"
+        # ))
 
         content = u'\n'.join([title, summary, article]).strip()
     except:
@@ -72,14 +72,14 @@ def get_metadata(response):
 
     metadata = {}
     try:
-        metadata['title'] = root.cssselect('div.story > h1')[0]\
+        metadata['title'] = root.cssselect('.detail-title')[0]\
                                 .text_content().strip()
     except:
         pass
 
     try:
-        raw_date = root.cssselect('div.story div.fecha')[0].text_content()
-        date = parse_date(raw_date.split('-')[1])
+        raw_date = root.cssselect('.detail-nav span.date')[0].text_content()
+        date = parse_date(raw_date)
         if date:
             metadata['date'] = date
     except:

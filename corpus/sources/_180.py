@@ -43,12 +43,20 @@ def get_content(response):
                      response.url, response.status_code)
         return {'outcome': 'failure'}
 
-    root = html.fromstring(response.content)
+    # `lxml` doesn't support <meta charset> tags, replace it for http-equiv.
+    raw_content = response.content.replace(
+        b'<meta charset="utf-8">',
+        b'<meta http-equiv="content-type" content="text/html; charset=utf-8"/>'
+    )
+    root = html.fromstring(raw_content)
 
     try:
-        title = root.cssselect('.text > h3')[0].text_content().strip()
-        summary = root.cssselect('.text > h4')[0].text_content().strip()
-        article = root.cssselect('.nota > article')[0].text_content().strip()
+        title = root.cssselect('.main-content .nota .text > h3')[0]\
+                    .text_content().strip()
+        summary = root.cssselect('.main-content .nota .text > h4')[0]\
+                      .text_content().strip()
+        article = root.cssselect('.main-content .nota > article')[0]\
+                      .text_content().strip()
         content = u'\n'.join([title, summary, article]).strip()
     except:
         return {'outcome': 'unparseable'}
@@ -63,12 +71,18 @@ def get_content(response):
 
 
 def get_metadata(response):
-    root = html.fromstring(response.content)
+    # `lxml` doesn't support <meta charset> tags, replace it for http-equiv.
+    raw_content = response.content.replace(
+        b'<meta charset="utf-8">',
+        b'<meta http-equiv="content-type" content="text/html; charset=utf-8"/>'
+    )
+    root = html.fromstring(raw_content)
 
     metadata = {}
     try:
-        metadata['title'] = root.cssselect('.text > h3')[0]\
-                                .text_content().strip()
+        metadata['title'] = root\
+            .cssselect('.main-content .nota .text > h3')[0]\
+            .text_content().strip()
     except:
         pass
 

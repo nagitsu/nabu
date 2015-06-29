@@ -201,6 +201,16 @@ def source_detail(domain):
     return jsonify(summary=summary)
 
 
+@app.route("/api/dashboard/word-count")
+def word_count():
+    query = {"aggs": {"words": {"sum": {"field": "word_count"}}}}
+    response = es.search(
+        index='nabu', doc_type='document',
+        search_type='count', body=query
+    )
+    return jsonify(word_count=response['aggregations']['words']['value'])
+
+
 @app.route("/api/dashboard/totals")
 def dashboard():
     query = {

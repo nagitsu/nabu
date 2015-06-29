@@ -1,4 +1,4 @@
-import {totalWords, formatNumber} from './utils';
+import {humanizeNumber} from './utils';
 
 
 /* Creates the histogram chart with the counts per source. */
@@ -26,7 +26,7 @@ export function countHistogram(wordsPerSource) {
 
   container.append('div')
       .attr('class', 'bar-value')
-      .text(d => formatNumber(d.value));
+      .text(d => humanizeNumber(d.value));
 }
 
 

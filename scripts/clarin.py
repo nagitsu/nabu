@@ -49,6 +49,8 @@ def main(first_date=FIRST_DATE):
 
             # Remove beginning and ending parentheses.
             page = json.loads(response.text[1:-1])
+            if not page['news']:
+                break
 
             # Get the IDs for each link on the history page.
             root = html.fromstring(page['news'])
@@ -64,12 +66,13 @@ def main(first_date=FIRST_DATE):
                 break
             page_number += 1
 
-        save_entries(day_ids, clarin.id)
+        if day_ids:
+            save_entries(day_ids, clarin.id)
 
 
 if __name__ == '__main__':
     if len(sys.argv) > 3:
-        year, month, day = sys.argv[1:4]
+        year, month, day = map(int, sys.argv[1:4])
         first_date = date(year, month, day)
         main(first_date)
     else:

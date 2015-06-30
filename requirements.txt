@@ -8,6 +8,7 @@ python-dateutil
 Flask
 click
 elasticsearch
+dataset
 
 # Development
 ipython

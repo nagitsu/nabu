@@ -70,13 +70,15 @@ def _sentences(query, parameters=None, report=None):
 
     processed = 0
     for document in documents:
+        processed += 1
         sentences = sentence_tokenizer(document['fields']['content'][0])
+
         for sentence in sentences:
             yield word_tokenizer.tokenize(sentence)
-            processed += 1
             # Report how many documents have been processed, if necessary.
-            if report and processed % step == 0:
-                report(processed / count)
+
+        if report and processed % step == 0:
+            report(processed / count)
 
 
 def train(params, query, file_name, report=None):

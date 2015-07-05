@@ -442,7 +442,7 @@ def delete_embedding(embedding_id):
             abort(500)
     elif embedding.task_id:
         # Kill the task if it has been enqueued.
-        celery_app.control.revoke(embedding.task_id)
+        celery_app.control.revoke(embedding.task_id, terminate=True)
 
     db.delete(embedding)
     db.commit()
@@ -480,7 +480,11 @@ def training_cancel(embedding_id):
     if not embedding or embedding.trained or not embedding.task_id:
         abort(404)
 
-    celery_app.control.revoke(embedding.task_id)
+    celery_app.control.revoke(embedding.task_id, terminate=True)
+    embedding.task_id = None
+
+    db.merge(embedding)
+    db.commit()
 
     return jsonify(succes=True)
 

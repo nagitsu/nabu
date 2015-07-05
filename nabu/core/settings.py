@@ -1,5 +1,9 @@
-DATABASE_ENGINE = "sqlite:///data.db"
-LOG_FILE_LOCATION = 'corpus.log'
+DATABASE_ENGINE = 'postgresql:///nabudb'
+LOG_FILE_LOCATION = '/home/nabu/logs/'
+
+BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+EMBEDDING_PATH = '/home/nabu/vector_store/'
 
 MAX_RETRIES = 5
 REQUEST_TIMEOUT = 20

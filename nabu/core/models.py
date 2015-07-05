@@ -4,6 +4,7 @@ from sqlalchemy import (
     create_engine, Boolean, Column, DateTime, ForeignKey, Integer, String,
     Text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship, sessionmaker, scoped_session
 
@@ -126,6 +127,38 @@ class Statistic(Base):
             self.data_source_id,
             self.date.isoformat()
         )
+
+
+class Embedding(Base):
+    __tablename__ = 'embeddings'
+
+    id = Column(Integer, primary_key=True, nullable=False)
+
+    description = Column(Text, nullable=False)
+
+    model = Column(String, nullable=False)  # May be `word2vec` or `glove`.
+    parameters = Column(JSONB, default={})
+    evaluation = Column(JSONB, default={})
+    query = Column(JSONB, default={})
+
+    creation_date = Column(DateTime, nullable=False, default=datetime.now)
+    elapsed_time = Column(Integer, nullable=True)  # In seconds.
+
+    task_id = Column(String, nullable=True)
+
+    def __repr__(self):
+        return "<Embedding('{}', '{}')>".format(
+            self.model,
+            self.id,
+        )
+
+    @property
+    def file_name(self):
+        return "emb{}-{}".format(self.id, self.model)
+
+    @property
+    def trained(self):
+        return self.elapsed_time
 
 
 # TODO: Shouldn't be done like this. Should be done in alembic.

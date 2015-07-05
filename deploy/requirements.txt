@@ -17,3 +17,5 @@ ipdb
 # Training
 gensim
 nltk
+celery
+celery[redis]

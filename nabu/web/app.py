@@ -408,7 +408,7 @@ def view_embedding(embedding_id):
         try:
             progress = result.result.get('progress')
         except AttributeError:
-            progress = 100
+            progress = 0
     elif embedding.elapsed_time:
         state = 'SUCCESS'
         progress = 100.0
@@ -469,7 +469,17 @@ def delete_embedding(embedding_id):
 
 @app.route("/api/embedding/<embedding_id>/train-start", methods=['POST'])
 def training_start(embedding_id):
-    train.delay(embedding_id)
+    embedding = db.query(Embedding).get(embedding_id)
+    if not embedding:
+        abort(404)
+
+    result = train.delay(embedding_id)
+
+    # Set the task ID for the embedding.
+    embedding.task_id = result.task_id
+    db.merge(embedding)
+    db.commit()
+
     return jsonify(started=True)
 
 

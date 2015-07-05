@@ -21,11 +21,6 @@ def train(self, embedding_id):
     if not embedding:
         raise Exception("Embedding doesn't exist")
 
-    # Set the task ID for the embedding.
-    embedding.task_id = self.request.id
-    db.merge(embedding)
-    db.commit()
-
     def report(progress):
         self.update_state(state='PROGRESS', meta={'progress': progress})
 

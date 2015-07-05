@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import subprocess
 
@@ -6,12 +7,12 @@ from datetime import datetime, timedelta
 from flask import abort, Flask, jsonify, request
 from sqlalchemy.sql import func
 
+from nabu.core import settings
 from nabu.core.models import (
     db, DataSource, Document, Entry, Statistic, Embedding,
 )
 from nabu.core.index import es
-
-from nabu.vectors.tasks import train
+from nabu.vectors.tasks import app as celery_app, train
 
 
 app = Flask(__name__)
@@ -429,7 +430,24 @@ def delete_embedding(embedding_id):
     if not embedding:
         abort(404)
 
-    # TODO: Implement. Needs to delete model file if trained.
+    if embedding.trained:
+        # Remove the model files if the embedding has been trained.
+        if embedding.model == 'word2vec':
+            path = os.path.join(settings.EMBEDDING_PATH, embedding.file_name)
+            os.remove(path)
+            os.remove('{}.syn0.npy'.format(path))
+            os.remove('{}.syn1.npy'.format(path))
+        else:
+            # Not implemented yet.
+            abort(500)
+    elif embedding.task_id:
+        # Kill the task if it has been enqueued.
+        celery_app.control.revoke(embedding.task_id)
+
+    db.delete(embedding)
+    db.commit()
+
+    return jsonify(success=True)
 
 
 @app.route("/api/embedding/<embedding_id>/train-start", methods=['POST'])
@@ -462,9 +480,9 @@ def training_cancel(embedding_id):
     if not embedding or embedding.trained or not embedding.task_id:
         abort(404)
 
-    # TODO: Not implemented yet.
-    # task_id = embedding.task_id
-    abort(500)
+    celery_app.control.revoke(embedding.task_id)
+
+    return jsonify(succes=True)
 
 
 if __name__ == '__main__':

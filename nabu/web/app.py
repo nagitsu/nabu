@@ -382,7 +382,7 @@ def list_embeddings():
             try:
                 serialized['progress'] = result.result.get('progress')
             except AttributeError:
-                serialized['progress'] = 100
+                serialized['progress'] = 0.0
         elif embedding.elapsed_time:
             serialized['state'] = 'SUCCESS'
         else:
@@ -408,7 +408,7 @@ def view_embedding(embedding_id):
         try:
             progress = result.result.get('progress')
         except AttributeError:
-            progress = 0
+            progress = 0.0
     elif embedding.elapsed_time:
         state = 'SUCCESS'
         progress = 100.0
@@ -498,7 +498,7 @@ def training_status(embedding_id):
     try:
         progress = result.result.get('progress')
     except AttributeError:
-        progress = 100
+        progress = 0.0
 
     return jsonify(
         state=result.state,

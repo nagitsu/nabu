@@ -3,11 +3,15 @@ import re
 import subprocess
 
 from datetime import datetime, timedelta
-from flask import abort, Flask, jsonify
+from flask import abort, Flask, jsonify, request
 from sqlalchemy.sql import func
 
-from nabu.core.models import db, DataSource, Document, Entry, Statistic
+from nabu.core.models import (
+    db, DataSource, Document, Entry, Statistic, Embedding,
+)
 from nabu.core.index import es
+
+from nabu.vectors.tasks import train
 
 
 app = Flask(__name__)
@@ -316,6 +320,151 @@ def dashboard_over_time():
         source['value'].sort(key=lambda d: d['day'])
 
     return jsonify(data=result)
+
+
+@app.route("/api/embedding/", methods=['POST'])
+def create_embedding():
+    data = request.get_json()
+
+    existing = set(data.keys())
+    needed = {'model', 'description', 'parameters', 'query'}
+    if existing != needed:
+        abort(400)
+
+    existing_params = set(data['parameters'].keys())
+    needed_params = {
+        'dimension', 'min_count', 'window', 'subsampling', 'algorithm',
+        'negative_sampling', 'hierarchical_softmax', 'epochs', 'alpha',
+        'word_tokenizer', 'sentence_tokenizer', 'lowercase_tokens',
+    }
+    if existing_params != needed_params:
+        abort(400)
+
+    # TODO: parameter defaults in JS:
+    # size=100, min_count=5, window=5, sample=0, sg=1, hs=1, negative=0,
+    # iter=1, alpha=0.025, word_tokenizer='alphanum',
+    # sentece_tokenizer='periodspace'
+
+    embedding = Embedding(
+        model=data['model'],
+        description=data['description'],
+        query=data['query'],
+        parameters=data['parameters']
+    )
+
+    db.add(embedding)
+    db.commit()
+
+    return jsonify(id=embedding.id)
+
+
+@app.route("/api/embedding/", methods=['GET'])
+def list_embeddings():
+    training_only = request.args.get('training_only', False)
+    if training_only:
+        embeddings = db.query(Embedding)\
+                       .filter(Embedding.elapsed_time == None)\
+                       .filter(Embedding.task_id != None)  # noqa
+    else:
+        embeddings = db.query(Embedding).all()
+
+    data = []
+    for embedding in embeddings:
+        serialized = {
+            'id': embedding.id,
+            'description': embedding.description,
+        }
+
+        if embedding.task_id:
+            result = train.AsyncResult(embedding.task_id)
+            serialized['state'] = result.state
+            serialized['progress'] = result.result
+        elif embedding.elapsed_time:
+            serialized['state'] = 'SUCCESS'
+        else:
+            serialized['state'] = 'NOT_STARTED'
+
+        data.append(serialized)
+
+    return jsonify(
+        result=data,
+        count=len(data)
+    )
+
+
+@app.route("/api/embedding/<embedding_id>/")
+def view_embedding(embedding_id):
+    embedding = db.query(Embedding).get(embedding_id)
+    if not embedding:
+        abort(404)
+
+    if embedding.task_id:
+        result = train.AsyncResult(embedding.task_id)
+        state = result.state
+        progress = result.result
+    elif embedding.elapsed_time:
+        state = 'SUCCESS'
+        progress = 100.0
+    else:
+        state = 'NOT_STARTED'
+        progress = 0.0
+
+    return jsonify(
+        id=embedding.id,
+        description=embedding.description,
+        model=embedding.model,
+        parameters=embedding.parameters,
+        evaluation=embedding.evaluation,
+        query=embedding.query,
+        creation_date=embedding.creation_date,
+        elapsed_time=embedding.elapsed_time,
+        state=state,
+        progress=progress
+    )
+
+
+@app.route("/api/embedding/<embedding_id>/", methods=['DELETE'])
+def delete_embedding(embedding_id):
+    embedding = db.query(Embedding).get(embedding_id)
+    if not embedding:
+        abort(404)
+
+    # TODO: Implement. Needs to delete model file if trained.
+
+
+@app.route("/api/embedding/<embedding_id>/train-start", methods=['POST'])
+def training_start(embedding_id):
+    train.delay(embedding_id)
+    return jsonify(started=True)
+
+
+@app.route("/api/embedding/<embedding_id>/train-status")
+def training_status(embedding_id):
+    embedding = db.query(Embedding).get(embedding_id)
+    if not embedding:
+        abort(404)
+
+    if embedding.trained:
+        return jsonify(state='SUCCESS')
+
+    task_id = embedding.task_id
+    result = train.AsyncResult(task_id)
+
+    return jsonify(
+        state=result.state,
+        progress=result.result,
+    )
+
+
+@app.route("/api/embedding/<embedding_id>/train-cancel", methods=['POST'])
+def training_cancel(embedding_id):
+    embedding = db.query(Embedding).get(embedding_id)
+    if not embedding or embedding.trained or not embedding.task_id:
+        abort(404)
+
+    # TODO: Not implemented yet.
+    # task_id = embedding.task_id
+    abort(500)
 
 
 if __name__ == '__main__':

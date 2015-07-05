@@ -379,7 +379,10 @@ def list_embeddings():
         if embedding.task_id:
             result = train.AsyncResult(embedding.task_id)
             serialized['state'] = result.state
-            serialized['progress'] = result.result
+            try:
+                serialized['progress'] = result.result.get('progress')
+            except AttributeError:
+                serialized['progress'] = 100
         elif embedding.elapsed_time:
             serialized['state'] = 'SUCCESS'
         else:
@@ -402,7 +405,10 @@ def view_embedding(embedding_id):
     if embedding.task_id:
         result = train.AsyncResult(embedding.task_id)
         state = result.state
-        progress = result.result
+        try:
+            progress = result.result.get('progress')
+        except AttributeError:
+            progress = 100
     elif embedding.elapsed_time:
         state = 'SUCCESS'
         progress = 100.0
@@ -479,9 +485,14 @@ def training_status(embedding_id):
     task_id = embedding.task_id
     result = train.AsyncResult(task_id)
 
+    try:
+        progress = result.result.get('progress')
+    except AttributeError:
+        progress = 100
+
     return jsonify(
         state=result.state,
-        progress=result.result,
+        progress=progress,
     )
 
 

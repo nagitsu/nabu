@@ -434,9 +434,20 @@ def delete_embedding(embedding_id):
         # Remove the model files if the embedding has been trained.
         if embedding.model == 'word2vec':
             path = os.path.join(settings.EMBEDDING_PATH, embedding.file_name)
-            os.remove(path)
-            os.remove('{}.syn0.npy'.format(path))
-            os.remove('{}.syn1.npy'.format(path))
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+
+            try:
+                os.remove('{}.syn0.npy'.format(path))
+            except OSError:
+                pass
+
+            try:
+                os.remove('{}.syn1.npy'.format(path))
+            except OSError:
+                pass
         else:
             # Not implemented yet.
             abort(500)

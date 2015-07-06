@@ -88,9 +88,15 @@ def train(params, query, file_name, report=None):
         'lowercase_tokens': params.pop('lowercase_tokens'),
     }
 
-    report(0.0)  # Update the state before creating the vocabulary.
-    vocabulary_sentences = _sentences(query, sentences_params)
-    training_sentences = _sentences(query, sentences_params, report)
+    # Gathering the vocabulary is around 20% of the total work.
+    vocabulary_sentences = _sentences(
+        query, sentences_params,
+        lambda p: report(p * 0.2)
+    )
+    training_sentences = _sentences(
+        query, sentences_params,
+        lambda p: report(0.2 + p * 0.8)
+    )
 
     model_params = word2vec_params(params)
     model = gensim.models.Word2Vec(workers=12, **model_params)

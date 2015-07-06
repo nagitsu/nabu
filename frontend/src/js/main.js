@@ -20,6 +20,108 @@ function drawCharts() {
 }
 
 
+function displayEmbeddings() {
+  return $.get(`${API_DOMAIN}/api/embedding`).then(data => {
+    // Empty the embedding list.
+    $('.embedding-list').empty();
+    let embeddings = data.result;
+
+    let trained = embeddings.filter(e => e.state == 'SUCCESS');
+    let training = embeddings.filter(e => e.state == 'PROGRESS');
+    let waiting = embeddings.filter(e => e.state == 'PENDING');
+    let notTrained = embeddings.filter(e => e.state == 'NOT_STARTED');
+
+    if (trained.length > 0) {
+      let trainedNode = $(
+        '<div class="embedding-group trained">' +
+          '<div class="embedding-group-header">Trained</div>' +
+        '</div>'
+      );
+      for (let embedding of trained) {
+        let newNode = $('<div class="embedding embedding-striped"></div>');
+        newNode.text(embedding.description);
+        newNode.prepend($(`<span class="embedding-id">(${embedding.id})</span>`));
+        trainedNode.append(newNode);
+      }
+      $('.embedding-list').append(trainedNode);
+    }
+
+    if (training.length > 0) {
+      let trainingNode = $(
+        '<div class="embedding-group training">' +
+          '<div class="embedding-group-header">Training</div>' +
+        '</div>'
+      );
+      for (let embedding of training) {
+        let newNode = $('<div class="embedding embedding-progress"></div>');
+
+        let progress = (embedding.progress * 100).toFixed(2) + "%";
+        newNode.css('background-size', `${progress} 100%`);
+
+        newNode.text(`${progress} - ${embedding.description}`);
+        newNode.prepend($(`<span class="embedding-id">(${embedding.id})</span>`));
+
+        let cancelButton = $('<a href="#" class="embedding-action embedding-cancel">Cancel</a>')
+        cancelButton.click(e => {
+          e.preventDefault();
+          $.post(`${API_DOMAIN}/api/embedding/${embedding.id}/train-cancel`)
+        });
+        newNode.append(cancelButton);
+
+        trainingNode.append(newNode);
+      }
+      $('.embedding-list').append(trainingNode);
+    }
+
+    if (waiting.length > 0) {
+      let waitingNode = $(
+        '<div class="embedding-group waiting">' +
+          '<div class="embedding-group-header">Waiting</div>' +
+        '</div>'
+      );
+      for (let embedding of waiting) {
+        let newNode = $('<div class="embedding embedding-striped"></div>');
+        newNode.text(embedding.description);
+        newNode.prepend($(`<span class="embedding-id">(${embedding.id})</span>`));
+
+        let cancelButton = $('<a href="#" class="embedding-action embedding-cancel">Cancel</a>')
+        cancelButton.click(e => {
+          e.preventDefault();
+          $.post(`${API_DOMAIN}/api/embedding/${embedding.id}/train-cancel`)
+        });
+        newNode.append(cancelButton);
+
+        waitingNode.append(newNode);
+      }
+      $('.embedding-list').append(waitingNode);
+    }
+
+    if (notTrained.length > 0) {
+      let notTrainedNode = $(
+        '<div class="embedding-group not-trained">' +
+          '<div class="embedding-group-header">Not trained yet</div>' +
+        '</div>'
+      );
+      for (let embedding of notTrained) {
+        let newNode = $('<div class="embedding embedding-striped"></div>');
+        newNode.text(embedding.description);
+        newNode.prepend($(`<span class="embedding-id">(${embedding.id})</span>`));
+
+        let trainButton = $('<a href="#" class="embedding-action embedding-train">Train</a>')
+        trainButton.click(e => {
+          e.preventDefault();
+          $.post(`${API_DOMAIN}/api/embedding/${embedding.id}/train-start`)
+        });
+        newNode.append(trainButton);
+
+        notTrainedNode.append(newNode);
+      }
+      $('.embedding-list').append(notTrainedNode);
+    }
+  });
+}
+
+
 function updateCounter() {
   return $.get(`${API_DOMAIN}/api/dashboard/word-count`).then(data => {
     $('#corpus-size').text(formatNumber(data.word_count));
@@ -27,12 +129,13 @@ function updateCounter() {
 }
 
 
-function setUpCounter() {
-  updateCounter().then(() => window.setInterval(updateCounter, 1000));
+function runAndRepeat(func, interval) {
+  func().then(() => window.setInterval(func, interval));
 }
 
 
 $(document).ready(function () {
-  setUpCounter();
+  runAndRepeat(updateCounter, 1000);
+  runAndRepeat(displayEmbeddings, 1000);
   drawCharts();
 });

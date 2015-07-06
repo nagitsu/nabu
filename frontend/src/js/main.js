@@ -30,6 +30,7 @@ function displayEmbeddings() {
     let training = embeddings.filter(e => e.state == 'PROGRESS');
     let waiting = embeddings.filter(e => e.state == 'PENDING');
     let notTrained = embeddings.filter(e => e.state == 'NOT_STARTED');
+    let failed = embeddings.filter(e => e.state == 'FAILURE');
 
     if (trained.length > 0) {
       let trainedNode = $(
@@ -94,6 +95,29 @@ function displayEmbeddings() {
         waitingNode.append(newNode);
       }
       $('.embedding-list').append(waitingNode);
+    }
+
+    if (failed.length > 0) {
+      let failedNode = $(
+        '<div class="embedding-group failed">' +
+          '<div class="embedding-group-header">Failed</div>' +
+        '</div>'
+      );
+      for (let embedding of failed) {
+        let newNode = $('<div class="embedding embedding-striped"></div>');
+        newNode.text(embedding.description);
+        newNode.prepend($(`<span class="embedding-id">(${embedding.id})</span>`));
+
+        let retryButton = $('<a href="#" class="embedding-action embedding-train">Retry</a>')
+        retryButton.click(e => {
+          e.preventDefault();
+          $.post(`${API_DOMAIN}/api/embedding/${embedding.id}/train-start`)
+        });
+        newNode.append(retryButton);
+
+        failedNode.append(newNode);
+      }
+      $('.embedding-list').append(failedNode);
     }
 
     if (notTrained.length > 0) {

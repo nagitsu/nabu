@@ -7,12 +7,12 @@ from datetime import datetime
 import dataset
 
 # Database.
-DB_NAME = 'w2v-questions-words.db'
+DB_NAME = 'questions-words.db'
 TRANSLATIONS_TABLE = 'translations'
 
 # Files.
-IN_FILE = 'mod-w2v-questions-words.txt'
-OUT_FILE = 'w2v-questions-words-ES.txt'
+IN_FILE = 'mod-questions-words.txt'
+OUT_FILE = 'questions-words-ES.txt'
 
 # Marks.
 DELETE_MARK = 'DELETE_MARK'

@@ -8880,6 +8880,172 @@
             "yo": "pulsase"
         }
     }, 
+    "quedar": {
+        "condicional": {
+            "el": "quedaría", 
+            "ellos": "quedarían", 
+            "nosotros": "quedaríamos", 
+            "tu": "quedarías", 
+            "vosotros": "quedaríais", 
+            "yo": "quedaría"
+        }, 
+        "futuro_1": {
+            "el": "quedará", 
+            "ellos": "quedarán", 
+            "nosotros": "quedaremos", 
+            "tu": "quedarás", 
+            "vosotros": "quedaréis", 
+            "yo": "quedaré"
+        }, 
+        "gerundio": "quedando", 
+        "imperativo_presente": {
+            "el": "quede", 
+            "ellos": "queden", 
+            "nosotros": "quedemos", 
+            "tu": "queda", 
+            "vosotros": "quedad"
+        }, 
+        "imperfecto": {
+            "el": "quedaba", 
+            "ellos": "quedaban", 
+            "nosotros": "quedábamos", 
+            "tu": "quedabas", 
+            "vosotros": "quedabais", 
+            "yo": "quedaba"
+        }, 
+        "indefinido": {
+            "el": "quedó", 
+            "ellos": "quedaron", 
+            "nosotros": "quedamos", 
+            "tu": "quedaste", 
+            "vosotros": "quedasteis", 
+            "yo": "quedé"
+        }, 
+        "participio": "quedado", 
+        "presente": {
+            "el": "queda", 
+            "ellos": "quedan", 
+            "nosotros": "quedamos", 
+            "tu": "quedas", 
+            "vosotros": "quedáis", 
+            "yo": "quedo"
+        }, 
+        "subjuntivo": {
+            "el": "quede", 
+            "ellos": "queden", 
+            "nosotros": "quedemos", 
+            "tu": "quedes", 
+            "vosotros": "quedéis", 
+            "yo": "quede"
+        }, 
+        "subjuntivo_futuro": {
+            "el": "quedare", 
+            "ellos": "quedaren", 
+            "nosotros": "quedáremos", 
+            "tu": "quedares", 
+            "vosotros": "quedareis", 
+            "yo": "quedare"
+        }, 
+        "subjuntivo_p_i_1": {
+            "el": "quedara", 
+            "ellos": "quedaran", 
+            "nosotros": "quedáramos", 
+            "tu": "quedaras", 
+            "vosotros": "quedarais", 
+            "yo": "quedara"
+        }, 
+        "subjuntivo_p_i_2": {
+            "el": "quedase", 
+            "ellos": "quedasen", 
+            "nosotros": "quedásemos", 
+            "tu": "quedases", 
+            "vosotros": "quedaseis", 
+            "yo": "quedase"
+        }
+    }, 
+    "quejar": {
+        "condicional": {
+            "el": "quejaría", 
+            "ellos": "quejarían", 
+            "nosotros": "quejaríamos", 
+            "tu": "quejarías", 
+            "vosotros": "quejaríais", 
+            "yo": "quejaría"
+        }, 
+        "futuro_1": {
+            "el": "quejará", 
+            "ellos": "quejarán", 
+            "nosotros": "quejaremos", 
+            "tu": "quejarás", 
+            "vosotros": "quejaréis", 
+            "yo": "quejaré"
+        }, 
+        "gerundio": "quejando", 
+        "imperativo_presente": {
+            "el": "queje", 
+            "ellos": "quejen", 
+            "nosotros": "quejemos", 
+            "tu": "queja", 
+            "vosotros": "quejad"
+        }, 
+        "imperfecto": {
+            "el": "quejaba", 
+            "ellos": "quejaban", 
+            "nosotros": "quejábamos", 
+            "tu": "quejabas", 
+            "vosotros": "quejabais", 
+            "yo": "quejaba"
+        }, 
+        "indefinido": {
+            "el": "quejó", 
+            "ellos": "quejaron", 
+            "nosotros": "quejamos", 
+            "tu": "quejaste", 
+            "vosotros": "quejasteis", 
+            "yo": "quejé"
+        }, 
+        "participio": "quejado", 
+        "presente": {
+            "el": "queja", 
+            "ellos": "quejan", 
+            "nosotros": "quejamos", 
+            "tu": "quejas", 
+            "vosotros": "quejáis", 
+            "yo": "quejo"
+        }, 
+        "subjuntivo": {
+            "el": "queje", 
+            "ellos": "quejen", 
+            "nosotros": "quejemos", 
+            "tu": "quejes", 
+            "vosotros": "quejéis", 
+            "yo": "queje"
+        }, 
+        "subjuntivo_futuro": {
+            "el": "quejare", 
+            "ellos": "quejaren", 
+            "nosotros": "quejáremos", 
+            "tu": "quejares", 
+            "vosotros": "quejareis", 
+            "yo": "quejare"
+        }, 
+        "subjuntivo_p_i_1": {
+            "el": "quejara", 
+            "ellos": "quejaran", 
+            "nosotros": "quejáramos", 
+            "tu": "quejaras", 
+            "vosotros": "quejarais", 
+            "yo": "quejara"
+        }, 
+        "subjuntivo_p_i_2": {
+            "el": "quejase", 
+            "ellos": "quejasen", 
+            "nosotros": "quejásemos", 
+            "tu": "quejases", 
+            "vosotros": "quejaseis", 
+            "yo": "quejase"
+        }
+    }, 
     "quemar": {
         "condicional": {
             "el": "quemaría", 

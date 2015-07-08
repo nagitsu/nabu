@@ -1,4 +1,3 @@
-llover
 desear
 tener
 olvidar
@@ -24,17 +23,15 @@ volver
 dar
 gritar
 traer
-quedarse
+quedar
 decidir
 oír
 necesitar
-sentarse
 mirar
 morir
 comprar
 ganar
 elegir
-doler
 firmar
 visitar
 ser
@@ -83,7 +80,7 @@ acabar
 terminar
 hablar
 pulsar
-quejarse
+quejar
 trabajar
 llegar
 lanzar
@@ -114,7 +111,6 @@ encontrar
 ofrecer
 mentir
 sacar
-encontrarse
 descansar
 tirar
 ir

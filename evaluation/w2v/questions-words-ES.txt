@@ -1,3 +1,4 @@
+: capital-common-countries
 Atenas Grecia Bagdad Irak
 Atenas Grecia Bangkok Tailandia
 Atenas Grecia Beijing China
@@ -504,6 +505,7 @@ Tokio Japón París Francia
 Tokio Japón Roma Italia
 Tokio Japón Estocolmo Suecia
 Tokio Japón Teherán Irán
+: capital-world
 Abuya Nigeria Acra Ghana
 Abuya Nigeria Argel Argelia
 Abuya Nigeria Amán Jordania
@@ -5028,6 +5030,7 @@ Zagreb Croacia Damasco Siria
 Zagreb Croacia Dacca Bangladés
 Zagreb Croacia Doha Catar
 Zagreb Croacia Dublín Irlanda
+: currency
 Argelia dinar Angola kwanza
 Argelia dinar Argentina peso
 Argelia dinar Armenia dram
@@ -5894,6 +5897,7 @@ Vietnam dong Suecia corona
 Vietnam dong Tailandia baht
 Vietnam dong Ucrania grivna
 Vietnam dong EE.UU. dólar
+: family
 chico chica hermano hermana
 chico chica hermanos hermanas
 chico chica papá mamá
@@ -6274,6 +6278,7 @@ tío tía hijos hijas
 tío tía hermanastro hermanastra
 tío tía padrastro madrastra
 tío tía hijastro hijastra
+: gram1-adjective-to-adverb
 increíble increíblemente aparente aparentemente
 increíble increíblemente tranquilo tranquilamente
 increíble increíblemente alegre alegremente
@@ -7086,6 +7091,7 @@ usual usualmente lento lentamente
 usual usualmente repentino repentinamente
 usual usualmente típico típicamente
 usual usualmente desafortunado desafortunadamente
+: gram2-opposite
 aceptable inaceptable consciente inconsciente
 aceptable inaceptable cierto incierto
 aceptable inaceptable claro confuso
@@ -7638,6 +7644,7 @@ refinado vulgar racional irracional
 refinado vulgar razonable irrazonable
 refinado vulgar responsable irresponsable
 refinado vulgar seguro inseguro
+: gram5-present-participle
 codificar codificando bailar bailando
 codificar codificando depurar depurando
 codificar codificando disminuir decreciente
@@ -8630,6 +8637,7 @@ escribir escribiendo nadar nadando
 escribir escribiendo pensar pensando
 escribir escribiendo desaparecer desapareciendo
 escribir escribiendo caminar caminando
+: gram6-nationality-adjective
 Albania albanés Argentina argentino
 Albania albanés Australia australiano
 Albania albanés Austria austríaco
@@ -10229,6 +10237,7 @@ Ucrania ucraniano Eslovaquia eslovaco
 Ucrania ucraniano España español
 Ucrania ucraniano Suecia sueco
 Ucrania ucraniano Suiza suizo
+: gram7-past-tense
 bailando bailó decreciente disminuyó
 bailando bailó describiendo describió
 bailando bailó realzando realzó
@@ -11789,6 +11798,7 @@ escribiendo escribió tomando tomó
 escribiendo escribió pensando pensó
 escribiendo escribió desapareciendo desapareció
 escribiendo escribió caminando caminó
+: gram8-plural
 banana bananas pájaro pájaros
 banana bananas botella botellas
 banana bananas edificio edificios
@@ -13121,6 +13131,7 @@ mujer mujeres piña piñas
 mujer mujeres rata ratas
 mujer mujeres carretera carreteras
 mujer mujeres serpiente serpientes
+: gram9-plural-verbs
 disminuir disminuye describir describe
 disminuir disminuye comer come
 disminuir disminuye realzar realza

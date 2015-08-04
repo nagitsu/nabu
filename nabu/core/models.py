@@ -1,8 +1,10 @@
+import gensim
+
 from datetime import datetime
 
 from sqlalchemy import (
     create_engine, Boolean, Column, DateTime, ForeignKey, Integer, String,
-    Text,
+    Text, Float,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
@@ -138,7 +140,6 @@ class Embedding(Base):
 
     model = Column(String, nullable=False)  # May be `word2vec` or `glove`.
     parameters = Column(JSONB, default={})
-    evaluation = Column(JSONB, default={})
     query = Column(JSONB, default={})
 
     creation_date = Column(DateTime, nullable=False, default=datetime.now)
@@ -155,6 +156,79 @@ class Embedding(Base):
     @property
     def file_name(self):
         return "emb{}-{}".format(self.id, self.model)
+
+    @property
+    def full_path(self):
+        return '{}{}'.format(settings.EMBEDDING_PATH, self.file_name)
+
+    @property
+    def trained(self):
+        return self.elapsed_time
+
+    def load_model(self):
+        if self.model == 'word2vec':
+            model = gensim.models.Word2Vec.load(self.full_path)
+        else:
+            raise Exception("Cannot load model type.")
+        return model
+
+
+class TestSet(Base):
+    __tablename__ = 'testsets'
+
+    id = Column(Integer, primary_key=True, nullable=False)
+
+    # Path relative to test folder.
+    file_name = Column(String, nullable=False)
+    name = Column(String, nullable=False)  # e.g. A01, <type><number>.
+    test_type = Column(String, nullable=False)  # May be `analogies`.
+    description = Column(Text, nullable=False)
+
+    def __repr__(self):
+        return "<TestSet('{}')>".format(self.name)
+
+    @property
+    def full_path(self):
+        return "{}{}".format(settings.TEST_PATH, self.file_name)
+
+
+class Result(Base):
+    __tablename__ = 'results'
+
+    testset_id = Column(
+        Integer,
+        ForeignKey('testsets.id'),
+        primary_key=True
+    )
+    testset = relationship(
+        'TestSet',
+        backref=backref('results', lazy='dynamic')
+    )
+    embedding_id = Column(
+        Integer,
+        ForeignKey('embeddings.id'),
+        primary_key=True
+    )
+    embedding = relationship(
+        'Embedding',
+        backref=backref('results', lazy='dynamic')
+    )
+
+    creation_date = Column(DateTime, nullable=False, default=datetime.now)
+    elapsed_time = Column(Integer, nullable=True)  # In seconds.
+
+    # `accuracy` may be NULL while training.
+    accuracy = Column(Float, nullable=True)
+    # `extended` stores further evaluation results (e.g. F1 score, etc.).
+    extended = Column(JSONB, default={})
+
+    task_id = Column(String, nullable=True)
+
+    def __repr__(self):
+        return "<Result('{}', '{}')>".format(
+            self.embedding_id,
+            self.testset.name,
+        )
 
     @property
     def trained(self):

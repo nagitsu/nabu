@@ -44,6 +44,8 @@ def _sentences(query, parameters=None, report=None):
     Optionally, a `report` callback may be specified, which will be called with
     the completion percentage 1000 times during the training.
     """
+    # TODO: Should be a factory function for the preprocessing, so it may be
+    # reused when evaluating.
     parameters = parameters or {}
     if parameters['word_tokenizer'] == 'alphanum':
         word_tokenizer = RegexpTokenizer(r'\w+')

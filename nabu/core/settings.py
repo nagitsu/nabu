@@ -4,6 +4,7 @@ LOG_FILE_LOCATION = '/home/nabu/logs/nabu.log'
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 EMBEDDING_PATH = '/home/nabu/vector_store/'
+TEST_PATH = '/home/nabu/test_store/'
 
 MAX_RETRIES = 5
 REQUEST_TIMEOUT = 20

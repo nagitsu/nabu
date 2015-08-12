@@ -3,7 +3,12 @@ from time import time
 from nabu.core.models import db, Result
 
 
-def evaluate(embedding, testset):
+def evaluate(embedding, testset, model=None, report=None):
+    """
+    Tests the given embedding against the given testset.
+
+    If `model` is provided, use that instead of loading it from disk.
+    """
     start_time = time()
     if testset.test_type == 'analogies':
         # Open testset file and preprocess with embedding's options.
@@ -17,13 +22,15 @@ def evaluate(embedding, testset):
                 w1, w2, w3, w4 = line.strip().split()
                 analogies.append((w1, w2, w3, w4))
 
-        # Load the embedding model on memory.
         # TODO: Make sure the GloVe model has a similar interface.
-        model = embedding.load_model()
+        # Load the embedding model on memory, if it hasn't been provided.
+        if not model:
+            model = embedding.load_model()
 
-        # Run the test and fill `accuracy`, `extended_results`.
+        # Run the test and fill `accuracy`, `extended_results`. Report every
+        # 25 analogies tested.
         results = []
-        for analogy in analogies:
+        for idx, analogy in enumerate(analogies):
             if not all(w in model for w in analogy):
                 # One of the words is not present, ignore test.
                 # TODO: Is it OK to ignore it?
@@ -41,6 +48,9 @@ def evaluate(embedding, testset):
                 w4 in result[:5],
                 w4 in result[:10],
             ))
+
+            if report and (idx + 1) % 25 == 0:
+                report(idx / len(analogies))
 
         top1 = len(list(filter(lambda r: r[0], results))) / len(results)
         top5 = len(list(filter(lambda r: r[1], results))) / len(results)
@@ -70,7 +80,7 @@ def evaluate(embedding, testset):
         elapsed_time=elapsed
     )
 
-    db.merge(result)
+    result = db.merge(result)
     db.commit()
 
     # Return the instance.

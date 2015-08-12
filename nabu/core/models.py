@@ -217,12 +217,9 @@ class Result(Base):
     creation_date = Column(DateTime, nullable=False, default=datetime.now)
     elapsed_time = Column(Integer, nullable=True)  # In seconds.
 
-    # `accuracy` may be NULL while training.
-    accuracy = Column(Float, nullable=True)
+    accuracy = Column(Float, nullable=False)
     # `extended` stores further evaluation results (e.g. F1 score, etc.).
     extended = Column(JSONB, default={})
-
-    task_id = Column(String, nullable=True)
 
     def __repr__(self):
         return "<Result('{}', '{}')>".format(
@@ -233,6 +230,28 @@ class Result(Base):
     @property
     def trained(self):
         return self.elapsed_time
+
+
+class EvaluationTask(Base):
+    """
+    The table is not normalized; since it's a model to keep track of
+    short-lived tasks, we don't even set the foreign keys.
+    """
+    __tablename__ = 'evaluationtasks'
+
+    id = Column(Integer, primary_key=True, nullable=False)
+
+    embedding = Column(Integer, nullable=False)
+    # `type` may be 'full', 'missing', 'single'.
+    test_type = Column(String, nullable=False)
+
+    task_id = Column(String, nullable=True, default=None)
+
+    def __repr__(self):
+        return "<EvaluationTask('{}', '{}')>".format(
+            self.embedding,
+            self.test_type,
+        )
 
 
 # TODO: Shouldn't be done like this. Should be done in alembic.

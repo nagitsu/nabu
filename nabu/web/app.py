@@ -9,10 +9,13 @@ from sqlalchemy.sql import func
 
 from nabu.core import settings
 from nabu.core.models import (
-    db, DataSource, Document, Entry, Statistic, Embedding,
+    db, DataSource, Document, Entry, Statistic, Embedding, TestSet,
+    EvaluationTask,
 )
 from nabu.core.index import es
-from nabu.vectors.tasks import app as celery_app, train
+from nabu.vectors.tasks import (
+    app as celery_app, train, test_full, test_missing, test_single,
+)
 
 
 app = Flask(__name__)
@@ -192,7 +195,6 @@ def source_detail(domain):
     else:
         summary['successful'] = 0.0
 
-    # TODO: Should tags be per-source?
     document = db.query(Document).join(Entry).join(DataSource)\
                  .filter(DataSource.domain == domain)\
                  .first()
@@ -416,17 +418,30 @@ def view_embedding(embedding_id):
         state = 'NOT_STARTED'
         progress = 0.0
 
+    results = []
+    for result in embedding.results.all():
+        results.append({
+            'testset': {
+                'id': result.testset.id,
+                'name': result.testset.name,
+            },
+            'accuracy': result.accuracy,
+            'extended': result.extended,
+            'creation_date': result.creation_date,
+            'elapsed_time': result.elapsed_time,
+        })
+
     return jsonify(
         id=embedding.id,
         description=embedding.description,
         model=embedding.model,
         parameters=embedding.parameters,
-        evaluation=embedding.evaluation,
         query=embedding.query,
         creation_date=embedding.creation_date,
         elapsed_time=embedding.elapsed_time,
         state=state,
-        progress=progress
+        progress=progress,
+        evaluation=results,
     )
 
 
@@ -516,6 +531,117 @@ def training_cancel(embedding_id):
     embedding.task_id = None
 
     db.merge(embedding)
+    db.commit()
+
+    return jsonify(succes=True)
+
+
+@app.route("/api/embedding/<embedding_id>/evaluate-start", methods=['POST'])
+def evaluation_start(embedding_id):
+    """
+    {
+      "testset": <id> | 'full' | 'missing'
+    }
+    """
+    embedding = db.query(Embedding).get(embedding_id)
+    if not embedding:
+        abort(404)
+
+    try:
+        test_type = request.get_json().get('testset')
+    except KeyError:
+        abort(400)
+
+    if test_type != 'full' and test_type != 'missing':
+        testset = db.query(TestSet).get(test_type)
+        if not testset:
+            abort(404)
+        else:
+            test_type = 'single'
+
+    task = EvaluationTask(embedding=embedding.id, test_type=test_type)
+    db.add(task)
+    db.commit()
+
+    if test_type == 'full':
+        result = test_full.delay(task.id, embedding.id)
+    elif testset == 'missing':
+        result = test_missing.delay(task.id, embedding.id)
+    else:
+        result = test_single.delay(task.id, embedding.id, testset.id)
+
+    # Set the task ID for the EvaluationTask.
+    task.task_id = result.task_id
+    db.merge(task)
+    db.commit()
+
+    return jsonify(task_id=task.id)
+
+
+@app.route("/api/evaluate-status/<task_id>")
+def evaluation_status(task_id):
+    task = db.query(EvaluationTask).get(task_id)
+    if not task:
+        # May be due to it never existing or due to it having finished.
+        abort(404)
+
+    if task.test_type == 'full':
+        result = test_full.AsyncResult(task.task_id)
+    elif task.test_type == 'missing':
+        result = test_missing.AsyncResult(task.task_id)
+    else:
+        result = test_single.AsyncResult(task.task_id)
+
+    try:
+        progress = result.result.get('progress')
+    except AttributeError:
+        progress = 0.0
+
+    return jsonify(
+        state=result.state,
+        progress=progress,
+    )
+
+
+@app.route("/api/evaluate-status")
+def evaluation_status_list():
+    results = []
+
+    tasks = db.query(EvaluationTask).all()
+    for task in tasks:
+        if task.test_type == 'full':
+            result = test_full.AsyncResult(task.task_id)
+        elif task.test_type == 'missing':
+            result = test_missing.AsyncResult(task.task_id)
+        else:
+            result = test_single.AsyncResult(task.task_id)
+
+        try:
+            progress = result.result.get('progress')
+        except AttributeError:
+            progress = 0.0
+
+        results.append({
+            'id': task.id,
+            'test_type': task.test_type,
+            'embedding_id': task.embedding,
+            'state': result.state,
+            'progress': progress
+        })
+
+    return jsonify(data=results)
+
+
+@app.route("/api/evaluate-cancel/<task_id>", methods=['POST'])
+def evaluation_cancel(task_id):
+    task = db.query(EvaluationTask).get(task_id)
+    if not task or not task.task_id:
+        abort(404)
+
+    celery_app.control.revoke(task.task_id, terminate=True)
+
+    # Delete the associated EvaluationTask.
+    db.delete(task)
     db.commit()
 
     return jsonify(succes=True)

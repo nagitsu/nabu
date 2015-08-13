@@ -1,8 +1,6 @@
 import os
 import random
 
-MAX_WORDS_PER_CATEGORY = 10
-
 
 def main():
     test_categories = {}
@@ -20,18 +18,13 @@ def main():
         for cat_name, cat_items in test_categories.iteritems():
             f.write(': {}\n'.format(cat_name))
 
-            if MAX_WORDS_PER_CATEGORY < len(cat_items):
-                sample = random.sample(cat_items, MAX_WORDS_PER_CATEGORY)
-            else:
-                sample = cat_items
-
-            for s in sample:
+            for word in cat_items:
                 odd_category = random.choice([
                     c for c in categories_list if c != cat_name
                 ])
                 odds = random.sample(test_categories[odd_category], 3)
 
-                f.write('{} {}\n'.format(s, ' '.join(odds)))
+                f.write('{} {}\n'.format(word, ' '.join(odds)))
 
 if __name__ == '__main__':
     main()

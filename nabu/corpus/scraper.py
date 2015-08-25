@@ -157,7 +157,9 @@ def scrape_entry(entry_id):
     module = sources.SOURCES[entry.data_source.domain]
 
     # Fetch the entry's content.
-    url = module.DOCUMENT_URL.format(entry.source_id)
+    # `source_id` may be composite, separating parts with `@@`.
+    source_id = entry.source_id.split('@@')
+    url = module.DOCUMENT_URL.format(*source_id)
     try:
         response = yield from get(url, headers=settings.REQUEST_HEADERS)
     except Exception as e:

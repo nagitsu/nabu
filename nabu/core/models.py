@@ -85,7 +85,7 @@ class Entry(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     # May be `success`, `failure`, `notfound`, `pending`, `unparseable`,
-    # `more_entries`.
+    # `more_entries`, `multiple`.
     outcome = Column(String, nullable=False, default='pending')
     # DataSource-level ID (e.g. Observador's article ID).
     # TODO: Add a unique constraint between this and data_source_id.

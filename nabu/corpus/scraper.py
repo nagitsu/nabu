@@ -194,29 +194,22 @@ def scrape_entry(entry_id):
             # returned; mark as unparseable instead.
             content['outcome'] = 'unparseable'
 
-    entry.outcome = content['outcome']
+    outcome = content['outcome']
+    entry.outcome = outcome
     entry.last_tried = datetime.now()
     entry.number_of_tries += 1
     db.merge(entry)
 
-    # If successful, fetch the metadata of the entry and create the Document
-    # instance.
-    if content['outcome'] == 'success':
-        metadata = module.get_metadata(response)
-        metadata['url'] = response.url
-        doc = Document(
-            content=content['content'],
-            # If a `content_type` was provided, use it; else assume `clean`.
-            content_type=content.get('content_type', 'clean'),
-            metadata_=json.dumps(metadata, default=custom_encoder),
-            # TODO: Should it be `get_contents` the one to return the tags?
-            # TODO: Shouldn't tags be per DataSource instead?
-            tags=json.dumps(content.get('tags', [])),
-            entry=entry
-        )
-        db.merge(doc)
+    if outcome not in ['multiple', 'success', 'more_entries']:
+        # Finished already.
+        logger.info("entry_id = %s finished with outcome = %s",
+                    entry_id, outcome)
+        db.commit()
+        return
 
-    elif content['outcome'] == 'more_entries':
+    # The `multiple` case returns a dict like this:
+    # {'outcome': 'multiple', 'new_entries': [...], 'documents': [...]}
+    if outcome in ['more_entries', 'multiple']:
         # Create new entries, only if not needed.
         new_ids = content['new_entries']
         existing = db.query(Entry.source_id)\
@@ -236,13 +229,43 @@ def scrape_entry(entry_id):
             })
             db.execute(Entry.__table__.insert(), new_entries)
 
-    logger.info("entry_id = %s finished with outcome = %s",
-                entry_id, content['outcome'])
+    # If successful, fetch the metadata of the entry and create the Document
+    # instance.
+    if outcome in ['multiple', 'success']:
+        # `get_metadata` must return the same number of documents as
+        # `get_content`.
+        metadata = module.get_metadata(response)
+        metadata['url'] = response.url
 
+        if outcome == 'success':
+            results = [content]
+            metadatas = [metadata]
+        else:
+            results = content['documents']
+            metadatas = metadata
+
+        new_docs = []
+        for content, metadata in zip(results, metadatas):
+            min_words = settings.MIN_WORDS_PER_DOCUMENT
+            if not content['content'] or len(content['content']) < min_words:
+                continue
+
+            doc = Document(
+                content=content['content'],
+                # If a `content_type` was provided, use it; else assume
+                # `clean`.
+                content_type=content.get('content_type', 'clean'),
+                metadata_=json.dumps(metadata, default=custom_encoder),
+                tags=json.dumps(content.get('tags', [])),
+                entry=entry
+            )
+            new_docs.append(db.merge(doc))
+
+    logger.info("entry_id = %s finished with outcome = %s", entry_id, outcome)
     db.commit()
 
     # Finally, store document on Elasticsearch too.
-    if content['outcome'] == 'success':
+    for doc in new_docs:
         payload = prepare_document(doc)
         es.index(index='nabu', doc_type='document', id=doc.id, body=payload)
 

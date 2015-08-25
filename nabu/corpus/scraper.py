@@ -216,6 +216,26 @@ def scrape_entry(entry_id):
         )
         db.merge(doc)
 
+    elif content['outcome'] == 'more_entries':
+        # Create new entries, only if not needed.
+        new_ids = content['new_entries']
+        existing = db.query(Entry.source_id)\
+                     .filter(Entry.source_id.in_(new_ids))
+        existing = set(map(lambda r: r[0], existing))
+        missing = set(new_ids) - existing
+
+        now = datetime.now()
+        new_entries = []
+        for new_id in missing:
+            new_entries.append({
+                'outcome': 'pending',
+                'source_id': new_id,
+                'added': now,
+                'number_of_tries': 0,
+                'data_source_id': entry.data_source.id,
+            })
+            db.execute(Entry.__table__.insert(), new_entries)
+
     logger.info("entry_id = %s finished with outcome = %s",
                 entry_id, content['outcome'])
 

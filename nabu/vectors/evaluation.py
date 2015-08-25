@@ -1,3 +1,5 @@
+import unicodedata
+
 from time import time
 
 from nabu.core.models import db, Result
@@ -16,8 +18,13 @@ def evaluate(embedding, testset, model=None, report=None):
             analogies = []
             for line in f.readlines():
                 # Preprocess the line like the embedding.
-                if embedding.parameters['lowercase_tokens']:
+                if embedding.parameters.get('lowercase_tokens'):
                     line = line.lower()
+
+                if embedding.parameters.get('remove_accents'):
+                    line = unicodedata.normalize('NFKD', line)\
+                                      .encode('ascii', 'ignore')\
+                                      .decode('ascii')
 
                 w1, w2, w3, w4 = line.strip().split()
                 analogies.append((w1, w2, w3, w4))

@@ -1,5 +1,6 @@
 import gensim
 import os
+import unicodedata
 
 from nltk.tokenize import RegexpTokenizer
 from elasticsearch.helpers import scan
@@ -55,8 +56,15 @@ def _sentences(query, parameters=None, report=None):
     else:
         lower = lambda d: d
 
+    if parameters['remove_accents']:
+        accents = lambda d: unicodedata.normalize('NFKD', d)\
+                                       .encode('ascii', 'ignore')\
+                                       .decode('ascii')
+    else:
+        accents = lambda d: d
+
     if parameters['sentence_tokenizer'] == 'periodspace':
-        sentence_tokenizer = lambda d: lower(d).split('. ')
+        sentence_tokenizer = lambda d: accents(lower(d)).split('. ')
 
     if report:
         # Get the approximate number of results.
@@ -87,7 +95,8 @@ def train(params, query, file_name, report=None):
     sentences_params = {
         'word_tokenizer': params.pop('word_tokenizer'),
         'sentence_tokenizer': params.pop('sentence_tokenizer'),
-        'lowercase_tokens': params.pop('lowercase_tokens'),
+        'lowercase_tokens': params.pop('lowercase_tokens', False),
+        'remove_accents': params.pop('remove_accents', False),
     }
 
     # Gathering the vocabulary is around 20% of the total work.

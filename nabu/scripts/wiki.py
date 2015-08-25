@@ -46,28 +46,31 @@ def process_file(file_path):
     """
     Parse a wikipedia article, indexing it on Elasticsearch.
     """
-    content = bz2.BZ2File(file_path).read().decode('utf-8')
+    try:
+        content = bz2.BZ2File(file_path).read().decode('utf-8')
 
-    # In case any `Ref` went unnoticed.
-    ref_re = re.compile(r'<ref>.*</ref>', re.IGNORECASE)
-    content = ref_re.sub('', content)
+        # In case any `Ref` went unnoticed.
+        ref_re = re.compile(r'<ref>.*</ref>', re.IGNORECASE)
+        content = ref_re.sub('', content)
 
-    # Extract the documents from the pseudo-XML files.
-    doc_re = re.compile(
-        r'^<doc id="(.*?)" url="(.*?)" title="(.*?)">$'
-        '(.*?)'
-        '^</doc>$',
-        re.MULTILINE | re.DOTALL
-    )
-    matches = doc_re.findall(content)
+        # Extract the documents from the pseudo-XML files.
+        doc_re = re.compile(
+            r'^<doc id="(.*?)" url="(.*?)" title="(.*?)">$'
+            '(.*?)'
+            '^</doc>$',
+            re.MULTILINE | re.DOTALL
+        )
+        matches = doc_re.findall(content)
 
-    actions = []
-    for page_id, url, title, text in matches:
-        actions.append(prepare_document(page_id, url, title, text))
+        actions = []
+        for page_id, url, title, text in matches:
+            actions.append(prepare_document(page_id, url, title, text))
 
-    bulk(es, actions)
+        bulk(es, actions)
 
-    print("file_path = {}; length = {}".format(file_path, len(actions)))
+        print("file_path = {}; length = {}".format(file_path, len(actions)))
+    except:
+        print("file_path = {}; FAILED".format(file_path))
 
 
 def main():

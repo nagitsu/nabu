@@ -7,7 +7,7 @@ import time
 from datetime import datetime, date, timedelta
 from lxml import html
 
-from nabu.corpus.models import db, Entry, DataSource
+from nabu.core.models import db, Entry, DataSource
 
 
 BASE_URL = 'http://www.clarin.com/archivo/pager.json?date={}&page={}'

@@ -160,8 +160,15 @@ def scrape_entry(entry_id):
     # `source_id` may be composite, separating parts with `@@`.
     source_id = entry.source_id.split('@@')
     url = module.DOCUMENT_URL.format(*source_id)
+
+    headers = settings.REQUEST_HEADERS
+    source_headers = getattr(module, 'HEADERS')
+    if source_headers:
+        headers = headers.copy()
+        headers.update(source_headers)
+
     try:
-        response = yield from get(url, headers=settings.REQUEST_HEADERS)
+        response = yield from get(url, headers=headers)
     except Exception as e:
         # Capture all exceptions, as the `requests` library may raise
         # arbitrary exceptions; not all of them are wrapped.

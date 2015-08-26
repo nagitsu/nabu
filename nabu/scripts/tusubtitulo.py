@@ -93,9 +93,6 @@ def save_entries(ids, data_source):
     now = datetime.now()
     new_entries = []
     for source_id in ids:
-        if source_id is None:
-            continue
-
         prepared_id = "@@".join(source_id)
         new_entries.append({
             'outcome': 'pending',
@@ -134,6 +131,9 @@ def main():
     subtitle_ids = []
     for result in results:
         subtitle_ids.extend(result)
+
+    # Fitler `None`s.
+    subtitle_ids = list(filter(lambda s: s, subtitle_ids))
 
     existing = db.query(Entry.source_id).filter_by(data_source=tusubtitulo)
     existing = set(map(lambda r: r[0].split('@@')[1], existing))

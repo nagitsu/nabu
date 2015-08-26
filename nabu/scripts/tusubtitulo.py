@@ -17,8 +17,7 @@ HEADERS = {'Referer': 'http://www.tusubtitulo.com/'}
 
 def parse_show_line(node):
     show_id = node.get('href')[len('/show/'):]
-    show_name = node.text_content()
-    return show_id, show_name
+    return show_id
 
 
 def get_show_list():

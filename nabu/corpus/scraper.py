@@ -162,7 +162,7 @@ def scrape_entry(entry_id):
     url = module.DOCUMENT_URL.format(*source_id)
 
     headers = settings.REQUEST_HEADERS
-    source_headers = getattr(module, 'HEADERS')
+    source_headers = getattr(module, 'HEADERS', None)
     if source_headers:
         headers = headers.copy()
         headers.update(source_headers)

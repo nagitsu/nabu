@@ -339,6 +339,7 @@ def create_embedding():
         'dimension', 'min_count', 'window', 'subsampling', 'algorithm',
         'negative_sampling', 'hierarchical_softmax', 'epochs', 'alpha',
         'word_tokenizer', 'sentence_tokenizer', 'lowercase_tokens',
+        'remove_accents',
     }
     if existing_params != needed_params:
         abort(400)

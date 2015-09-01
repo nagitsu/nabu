@@ -67,7 +67,8 @@ class Document(Base):
     tags = Column(Text, nullable=False, default="[]")
 
     # Document derived from this Entry, if any.
-    entry_id = Column(Integer, ForeignKey('entries.id'), nullable=False)
+    entry_id = Column(Integer, ForeignKey('entries.id'),
+                      nullable=False, index=True)
     entry = relationship('Entry', backref=backref('documents', lazy='dynamic'))
 
     # Denormalized fields.

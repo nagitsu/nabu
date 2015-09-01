@@ -90,7 +90,7 @@ class Entry(Base):
     outcome = Column(String, nullable=False, default='pending')
     # DataSource-level ID (e.g. Observador's article ID).
     # TODO: Add a unique constraint between this and data_source_id.
-    source_id = Column(String, nullable=False)
+    source_id = Column(String, nullable=False, index=True)
 
     added = Column(DateTime, nullable=False, default=datetime.now)
     last_tried = Column(DateTime, nullable=True)

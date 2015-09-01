@@ -105,34 +105,6 @@ class Entry(Base):
         return "<Entry('{}')>".format(self.id)
 
 
-class Statistic(Base):
-    """
-    An object storing statistics about the scraping being performed.
-    """
-    __tablename__ = 'statistics'
-
-    id = Column(Integer, primary_key=True, nullable=False)
-
-    # Date up to which this statistic considers.
-    date = Column(DateTime, nullable=False)
-
-    document_count = Column(Integer, nullable=False)
-    word_count = Column(Integer, nullable=False)
-    entry_count_total = Column(Integer, nullable=False)
-    entry_count_tried = Column(Integer, nullable=False)
-
-    # DataSource to which this statistic refers.
-    data_source_id = Column(Integer, ForeignKey('data_sources.id'), index=True)
-    data_source = relationship('DataSource',
-                               backref=backref('statistics', lazy='dynamic'))
-
-    def __repr__(self):
-        return "<Statistic('{}', '{}')>".format(
-            self.data_source_id,
-            self.date.isoformat()
-        )
-
-
 class Embedding(Base):
     __tablename__ = 'embeddings'
 

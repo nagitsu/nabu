@@ -234,7 +234,7 @@ def scrape_entry(entry_id):
                 'number_of_tries': 0,
                 'data_source_id': entry.data_source.id,
             })
-            db.execute(Entry.__table__.insert(), new_entries)
+        db.execute(Entry.__table__.insert(), new_entries)
 
     # If successful, fetch the metadata of the entry and create the Document
     # instance.

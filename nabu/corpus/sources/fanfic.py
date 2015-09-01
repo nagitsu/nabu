@@ -61,10 +61,14 @@ def get_content(response):
         except:
             return {'outcome': 'unparseable'}
 
-        result = {
-            'outcome': 'more_entries',
-            'new_entries': new_entries
-        }
+        if new_entries:
+            result = {
+                'outcome': 'more_entries',
+                'new_entries': new_entries
+            }
+        else:
+            return {'outcome': 'notfound'}
+
     else:
         # we are in a fanfic chapter, just get the contents
         try:

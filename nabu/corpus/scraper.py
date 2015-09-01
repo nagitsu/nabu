@@ -219,22 +219,29 @@ def scrape_entry(entry_id):
     if outcome in ['more_entries', 'multiple']:
         # Create new entries, only if not needed.
         new_ids = content['new_entries']
-        existing = db.query(Entry.source_id)\
-                     .filter(Entry.source_id.in_(new_ids))
-        existing = set(map(lambda r: r[0], existing))
-        missing = set(new_ids) - existing
+        if new_ids:
+            existing = db.query(Entry.source_id)\
+                        .filter(Entry.source_id.in_(new_ids))
+            existing = set(map(lambda r: r[0], existing))
+            missing = set(new_ids) - existing
 
-        now = datetime.now()
-        new_entries = []
-        for new_id in missing:
-            new_entries.append({
-                'outcome': 'pending',
-                'source_id': new_id,
-                'added': now,
-                'number_of_tries': 0,
-                'data_source_id': entry.data_source.id,
-            })
-        db.execute(Entry.__table__.insert(), new_entries)
+            if missing:
+                now = datetime.now()
+                new_entries = []
+                for new_id in missing:
+                    new_entries.append({
+                        'outcome': 'pending',
+                        'source_id': new_id,
+                        'added': now,
+                        'number_of_tries': 0,
+                        'data_source_id': entry.data_source.id,
+                    })
+                db.execute(Entry.__table__.insert(), new_entries)
+        elif outcome == 'more_entries':
+            logger.warning(
+                "entry_id = %s (outcome = %s) returned no additional entries",
+                entry_id, outcome
+            )
 
     # If successful, fetch the metadata of the entry and create the Document
     # instance.

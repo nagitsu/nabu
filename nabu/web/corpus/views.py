@@ -1,5 +1,5 @@
 from elasticsearch import ElasticsearchException
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, abort
 
 from nabu.core.index import es
 
@@ -200,3 +200,35 @@ def search():
     }
 
     return jsonify(meta=meta, data=data)
+
+
+@bp.route('/document/<document_id>/')
+def document_detail(document_id):
+    try:
+        response = es.get(index='nabu', doc_type='document', id=document_id)
+    except ElasticsearchException:
+        abort(404)
+
+    try:
+        permalink = response['_source']['url']
+    except KeyError:
+        permalink = None
+
+    metadata = {}
+    possible_metadata = {'title', 'date'}
+    existing = set(response['_source'].keys())
+    for field in possible_metadata & existing:
+        metadata[field] = response['_source'][field]
+
+    document = {
+        'id': response['_id'],
+        'content': response['_source']['content'],
+        'data_source': response['_source']['data_source'],
+        'date_scraped': response['_source']['entry']['date_scraped'],
+        'metadata': metadata,
+        'tags': response['_source']['tags'],
+        'word_count': response['_source']['word_count'],
+        'permalink': permalink,
+    }
+
+    return jsonify(data=document)

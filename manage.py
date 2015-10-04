@@ -14,9 +14,8 @@ def scrape():
 
 
 @cli.command()
-@click.option('--debug', default=True)
-def serve(debug):
-    webapp.run(debug=debug)
+def serve():
+    webapp.run()
 
 
 if __name__ == '__main__':

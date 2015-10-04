@@ -6,18 +6,24 @@ from nabu.core.index import es
 bp = Blueprint('corpus', __name__, url_prefix='/corpus')
 
 
-@bp.route("/api/dashboard/word-count")
-def word_count():
-    query = {"aggs": {"words": {"sum": {"field": "word_count"}}}}
+def get_corpus_size():
+    query = {
+        "aggs": {
+            "words": {
+                "sum": {
+                    "field": "word_count"
+                }
+            }
+        }
+    }
     response = es.search(
         index='nabu', doc_type='document',
         search_type='count', body=query
     )
-    return jsonify(word_count=response['aggregations']['words']['value'])
+    return response['aggregations']['words']['value']
 
 
-@bp.route("/api/dashboard/totals")
-def dashboard():
+def get_corpus_size_by_source():
     query = {
         "aggs": {
             "per_source": {
@@ -45,14 +51,13 @@ def dashboard():
     for bucket in response['aggregations']['per_source']['buckets']:
         result.append({
             'source': bucket['key'],
-            'value': bucket['words']['value'],
+            'size': bucket['words']['value'],
         })
 
-    return jsonify(data=result)
+    return result
 
 
-@bp.route("/api/dashboard/over-time")
-def dashboard_over_time():
+def get_corpus_size_increase():
     query = {
         "query": {
             "range": {
@@ -107,17 +112,27 @@ def dashboard_over_time():
             })
         result.append({
             'source': outer_bucket['key'],
-            'value': on_day,
+            'values': on_day,
         })
 
     # Fill up the missing days with zeros.
     for source in result:
-        missing_days = days - set(map(lambda d: d['day'], source['value']))
+        missing_days = days - set(map(lambda d: d['day'], source['values']))
         for day in missing_days:
-            source['value'].append({
+            source['values'].append({
                 'day': day,
                 'value': 0,
             })
-        source['value'].sort(key=lambda d: d['day'])
+        source['values'].sort(key=lambda d: d['day'])
+        source['values'] = [v['value'] for v in source['values']]
 
-    return jsonify(data=result)
+    return result
+
+
+@bp.route('/stats/')
+def stats():
+    return jsonify(data={
+        'size': get_corpus_size(),
+        'by_source': get_corpus_size_by_source(),
+        'over_time': get_corpus_size_increase(),
+    })

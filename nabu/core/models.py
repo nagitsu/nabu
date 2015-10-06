@@ -115,6 +115,10 @@ class Embedding(Base):
     model = Column(String, nullable=False)  # May be `word2vec` or `glove`.
     parameters = Column(JSONB, default={})
     query = Column(JSONB, default={})
+    # TODO: Add `preprocessing` field with preprocessing parameters from
+    # `parameters`.
+    # TODO: Add `corpus_size` with the size of the corpus used. Auto-filled on
+    # creation.
 
     creation_date = Column(DateTime, nullable=False, default=datetime.now)
     elapsed_time = Column(Integer, nullable=True)  # In seconds.
@@ -128,12 +132,30 @@ class Embedding(Base):
         )
 
     @property
+    def name(self):
+        # TODO: Actually generate a useful name.
+        return "{} dim={}".format(
+            self.model,
+            self.parameters.get('dimension', 'N/A')
+        )
+
+    @property
     def file_name(self):
         return "emb{}-{}".format(self.id, self.model)
 
     @property
     def full_path(self):
         return '{}{}'.format(settings.EMBEDDING_PATH, self.file_name)
+
+    @property
+    def status(self):
+        # TODO: Return the status correctly.
+        if self.elapsed_time:
+            return 'TRAINED'
+        elif self.task_id:
+            return 'TRAINING'
+        else:
+            return 'UNTRAINED'
 
     @property
     def trained(self):
@@ -145,6 +167,16 @@ class Embedding(Base):
         else:
             raise Exception("Cannot load model type.")
         return model
+
+    def clean_up(self):
+        """
+        Cleans up all data related to the Embedding.
+
+        Will delete all its files, cancel any ongoing tasks, and delete
+        Results, TrainingJobs and TestingJobs. After this method is called, the
+        Embedding will stay in an inconsistent state, be careful.
+        """
+        # TODO: Implement.
 
 
 class TestSet(Base):

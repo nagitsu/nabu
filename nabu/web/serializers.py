@@ -1,4 +1,4 @@
-from nabu.core.models import Embedding
+from nabu.core.models import Embedding, TestSet
 
 
 def serialize_embedding(embedding, summary=True):
@@ -53,3 +53,47 @@ def deserialize_embedding(data):
     )
 
     return embedding, None
+
+
+def serialize_testset(testset, summary=True):
+    if summary:
+        serialized = {
+            'id': testset.id,
+            'name': testset.name,
+            'description': testset.description,
+            'type': testset.test_type,
+        }
+
+    else:
+        serialized = {
+            'id': testset.id,
+            'name': testset.name,
+            'description': testset.description,
+            'type': testset.test_type,
+            'sample_entry': testset.sample_entry,
+            # TODO: Needs to point to the correct link.
+            'download_link': 'not-available',
+        }
+
+    return serialized
+
+
+def deserialize_testset(data):
+    existing = set(data.keys())
+    needed = {'description', 'type', 'file', 'name'}
+    if existing != needed:
+        message = "missing keys: {}".format(needed - existing)
+        return None, message
+
+    testset = TestSet(
+        name=data['name'],
+        description=data['description'],
+        test_type=data['type'],
+    )
+
+    try:
+        data['file'].save(testset.full_path)
+    except Exception as e:
+        return None, str(e)
+
+    return testset, None

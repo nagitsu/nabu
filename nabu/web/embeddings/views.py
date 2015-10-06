@@ -1,8 +1,5 @@
-import os
-
 from flask import Blueprint, jsonify, request, abort
 
-from nabu.core import settings
 from nabu.core.models import db, Embedding
 from nabu.web.serializers import serialize_embedding, deserialize_embedding
 

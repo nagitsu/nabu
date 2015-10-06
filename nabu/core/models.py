@@ -184,8 +184,10 @@ class TestSet(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
 
-    # Path relative to test folder.
-    file_name = Column(String, nullable=False)
+    # TODO: Remove field.
+    # file_name = Column(String, nullable=False)
+
+    # TODO: Add uniqueness constraint.
     name = Column(String, nullable=False)  # e.g. A01, <type><number>.
     test_type = Column(String, nullable=False)  # May be `analogies`.
     description = Column(Text, nullable=False)
@@ -194,8 +196,28 @@ class TestSet(Base):
         return "<TestSet('{}')>".format(self.name)
 
     @property
+    def file_name(self):
+        """Path relative to test folder."""
+        return "{}-{}.txt".format(self.name, self.test_type)
+
+    @property
     def full_path(self):
         return "{}{}".format(settings.TEST_PATH, self.file_name)
+
+    @property
+    def sample_entry(self):
+        # TODO: Generate an actual setting from the file.
+        return "A is to B what C is to..."
+
+    def clean_up(self):
+        """
+        Cleans up all data related to the TestSet.
+
+        Will delete all its files, cancel any ongoing tasks, and delete
+        Results, TrainingJobs and TestingJobs. After this method is called, the
+        Embedding will stay in an inconsistent state, be careful.
+        """
+        # TODO: Implement.
 
 
 class Result(Base):

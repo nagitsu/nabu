@@ -7,7 +7,7 @@ from nabu.web.serializers import serialize_embedding, deserialize_embedding
 bp = Blueprint('embeddings', __name__, url_prefix='/embeddings')
 
 
-@bp.route('/embeddings/', methods=['GET'])
+@bp.route('/', methods=['GET'])
 def list_embeddings():
     embeddings = db.query(Embedding).all()
 
@@ -17,7 +17,7 @@ def list_embeddings():
     return jsonify(data=data, meta=meta)
 
 
-@bp.route('/embeddings/', methods=['POST'])
+@bp.route('/', methods=['POST'])
 def create_embedding():
     data = request.get_json(force=True)
     embedding, error = deserialize_embedding(data)
@@ -31,7 +31,7 @@ def create_embedding():
     return jsonify(data=serialize_embedding(embedding, summary=False)), 201
 
 
-@bp.route('/embeddings/<embedding_id>/', methods=['GET'])
+@bp.route('/<embedding_id>/', methods=['GET'])
 def view_embedding(embedding_id):
     embedding = db.query(Embedding).get(embedding_id)
     if not embedding:
@@ -39,7 +39,7 @@ def view_embedding(embedding_id):
     return jsonify(data=serialize_embedding(embedding, summary=False))
 
 
-@bp.route('/embeddings/<embedding_id>/', methods=['POST'])
+@bp.route('/<embedding_id>/', methods=['POST'])
 def update_embedding(embedding_id):
     embedding = db.query(Embedding).get(embedding_id)
     if not embedding:
@@ -53,7 +53,7 @@ def update_embedding(embedding_id):
     return jsonify(data=serialize_embedding(embedding, summary=False))
 
 
-@bp.route('/embeddings/<embedding_id>/', methods=['DELETE'])
+@bp.route('/<embedding_id>/', methods=['DELETE'])
 def delete_embedding(embedding_id):
     embedding = db.query(Embedding).get(embedding_id)
     if not embedding:

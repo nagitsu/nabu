@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify
 bp = Blueprint('enums', __name__, url_prefix='/enums')
 
 
-@bp.route('/enums/models/')
+@bp.route('/models/')
 def model_enums():
     model_parameters = [
         {
@@ -27,8 +27,7 @@ def model_enums():
     return jsonify(data=model_parameters)
 
 
-
-@bp.route('/enums/corpus/')
+@bp.route('/corpus/')
 def corpus_enums():
     corpus_parameters = [
         {
@@ -74,7 +73,7 @@ def corpus_enums():
     return jsonify(data=corpus_parameters)
 
 
-@bp.route('/enums/tests/')
+@bp.route('/tests/')
 def tests_enums():
     tests_parameters = [
         {

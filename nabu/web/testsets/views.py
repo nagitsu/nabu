@@ -9,7 +9,7 @@ from nabu.web.serializers import serialize_testset, deserialize_testset
 bp = Blueprint('testsets', __name__, url_prefix='/testsets')
 
 
-@bp.route('/testsets/', methods=['GET'])
+@bp.route('/', methods=['GET'])
 def list_testsets():
     testsets = db.query(TestSet).all()
 
@@ -19,7 +19,7 @@ def list_testsets():
     return jsonify(data=data, meta=meta)
 
 
-@bp.route('/testsets/', methods=['POST'])
+@bp.route('/', methods=['POST'])
 def create_testset():
     full_data = chain(request.form.items(), request.files.items())
     data = {k: v for k, v in full_data}
@@ -34,7 +34,7 @@ def create_testset():
     return jsonify(data=serialize_testset(testset, summary=False)), 201
 
 
-@bp.route('/testsets/<testset_id>/', methods=['GET'])
+@bp.route('/<testset_id>/', methods=['GET'])
 def view_testset(testset_id):
     testset = db.query(TestSet).get(testset_id)
     if not testset:
@@ -42,7 +42,7 @@ def view_testset(testset_id):
     return jsonify(data=serialize_testset(testset, summary=False))
 
 
-@bp.route('/testsets/<testset_id>/', methods=['POST'])
+@bp.route('/<testset_id>/', methods=['POST'])
 def update_testset(testset_id):
     testset = db.query(TestSet).get(testset_id)
     if not testset:
@@ -57,7 +57,7 @@ def update_testset(testset_id):
     return jsonify(data=serialize_testset(testset, summary=False))
 
 
-@bp.route('/testsets/<testset_id>/', methods=['DELETE'])
+@bp.route('/<testset_id>/', methods=['DELETE'])
 def delete_testset(testset_id):
     testset = db.query(TestSet).get(testset_id)
     if not testset:

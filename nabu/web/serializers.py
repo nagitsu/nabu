@@ -97,3 +97,15 @@ def deserialize_testset(data):
         return None, str(e)
 
     return testset, None
+
+
+def serialize_result(result):
+    serialized = {
+        'embedding_id': result.embedding_id,
+        'testset_id': result.testset_id,
+        'creation_date': result.creation_date,
+        'elapsed_time': result.elapsed_time,
+        'accuracy': result.accuracy,
+        'extended': result.extended,
+    }
+    return serialized

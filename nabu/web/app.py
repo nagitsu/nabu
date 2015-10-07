@@ -3,7 +3,7 @@ import os
 from flask import Flask, jsonify
 from flask.ext.cors import CORS
 
-from nabu.web import corpus, embeddings, enums, jobs, testsets
+from nabu.web import corpus, embeddings, enums, jobs, results, testsets
 
 
 DEFAULT_BLUEPRINTS = (
@@ -12,6 +12,7 @@ DEFAULT_BLUEPRINTS = (
     enums.bp,
     jobs.bp,
     testsets.bp,
+    results.bp,
 )
 
 

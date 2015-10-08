@@ -9,61 +9,54 @@ from nabu.core import settings
 from nabu.core.index import es
 
 
-def word2vec_params(params):
-    existing_keys = set(params.keys())
-    needed_keys = {
-        'dimension', 'min_count', 'window', 'subsampling', 'algorithm',
-        'negative_sampling', 'hierarchical_softmax', 'epochs', 'alpha',
-    }
-    if existing_keys != needed_keys:
-        raise ValueError(
-            "Invalid parameters for word2vec: {}".format(existing_keys)
-        )
-
+def word2vec_params(parameters):
+    """
+    Turns the parameters as stored on the Embedding model to the Gensim
+    equivalents.
+    """
     model_params = {
-        'size': params['dimension'],
-        'min_count': params['min_count'],
-        'window': params['window'],
-        'sample': params['subsampling'],
-        'sg': 1 if params['algorithm'] == 'skipgram' else 0,
-        'hs': params['hierarchical_softmax'],
-        'negative': params['negative_sampling'],
-        'iter': params['epochs'],
-        'alpha': params['alpha'],
+        'size': parameters['dimension'],
+        'min_count': parameters['min_count'],
+        'window': parameters['window'],
+        'sample': parameters['subsampling'],
+        'sg': 1 if parameters['algorithm'] == 'skipgram' else 0,
+        'hs': parameters['hsoftmax'],
+        'negative': parameters['negative'],
+        'iter': parameters['epochs'],
+        'alpha': parameters['alpha'],
     }
 
     return model_params
 
 
-def _sentences(query, parameters=None, report=None):
+def _sentences(query, preprocessing, report=None):
     """
     Generator returning all the documents that match `query`.
 
-    Can receive additional parameters on `parameters` to indicate how to
-    process the documents when turning them into sentences.
+    Receives additional parameters on `preprocessing` indicating how to process
+    the documents when turning them into sentences.
 
     Optionally, a `report` callback may be specified, which will be called with
     the completion percentage 1000 times during the training.
     """
     # TODO: Should be a factory function for the preprocessing, so it may be
     # reused when evaluating.
-    parameters = parameters or {}
-    if parameters['word_tokenizer'] == 'alphanum':
+    if preprocessing['word_tokenizer'] == 'alphanum':
         word_tokenizer = RegexpTokenizer(r'\w+')
 
-    if parameters['lowercase_tokens']:
+    if preprocessing['lowercase_tokens']:
         lower = lambda d: d.lower()
     else:
         lower = lambda d: d
 
-    if parameters['remove_accents']:
+    if preprocessing['remove_accents']:
         accents = lambda d: unicodedata.normalize('NFKD', d)\
                                        .encode('ascii', 'ignore')\
                                        .decode('ascii')
     else:
         accents = lambda d: d
 
-    if parameters['sentence_tokenizer'] == 'periodspace':
+    if preprocessing['sentence_tokenizer'] == 'periodspace':
         sentence_tokenizer = lambda d: accents(lower(d)).split('. ')
 
     if report:
@@ -91,25 +84,19 @@ def _sentences(query, parameters=None, report=None):
             report(processed / count)
 
 
-def train(params, query, file_name, report=None):
-    sentences_params = {
-        'word_tokenizer': params.pop('word_tokenizer'),
-        'sentence_tokenizer': params.pop('sentence_tokenizer'),
-        'lowercase_tokens': params.pop('lowercase_tokens', False),
-        'remove_accents': params.pop('remove_accents', False),
-    }
-
+def train(query, preprocessing, parameters, file_name, report=None):
     # Gathering the vocabulary is around 20% of the total work.
     vocabulary_sentences = _sentences(
-        query, sentences_params,
+        query, preprocessing,
         lambda p: report(p * 0.2)
     )
     training_sentences = _sentences(
-        query, sentences_params,
+        query, preprocessing,
         lambda p: report(0.2 + p * 0.8)
     )
 
-    model_params = word2vec_params(params)
+    # TODO: Separate logic out for different models.
+    model_params = word2vec_params(parameters)
     model = gensim.models.Word2Vec(workers=12, **model_params)
     model.build_vocab(vocabulary_sentences)
     model.train(training_sentences)

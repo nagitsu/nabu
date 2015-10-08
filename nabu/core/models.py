@@ -1,5 +1,7 @@
 import gensim
 
+from celery.result import AsyncResult
+
 from datetime import datetime
 
 from sqlalchemy import (
@@ -11,6 +13,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship, sessionmaker, scoped_session
 
 from nabu.core import settings
+from nabu.core.index import es
 
 
 engine = create_engine(
@@ -105,6 +108,28 @@ class Entry(Base):
         return "<Entry('{}')>".format(self.id)
 
 
+def get_corpus_size(context):
+    """
+    Calculate the word count for a document.
+    """
+    corpus_query = context.current_parameters['query']
+    query = {
+        'query': corpus_query,
+        'aggs': {
+            'words': {
+                'sum': {
+                    'field': 'word_count'
+                }
+            }
+        }
+    }
+    response = es.search(
+        index='nabu', doc_type='document',
+        search_type='count', body=query
+    )
+    return response['aggregations']['words']['value']
+
+
 class Embedding(Base):
     __tablename__ = 'embeddings'
 
@@ -115,15 +140,12 @@ class Embedding(Base):
     model = Column(String, nullable=False)  # May be `word2vec` or `glove`.
     parameters = Column(JSONB, default={})
     query = Column(JSONB, default={})
-    # TODO: Add `preprocessing` field with preprocessing parameters from
-    # `parameters`.
-    # TODO: Add `corpus_size` with the size of the corpus used. Auto-filled on
-    # creation.
+    preprocessing = Column(JSONB, default={})
+    corpus_size = Column(Integer, nullable=False, default=get_corpus_size)
 
     creation_date = Column(DateTime, nullable=False, default=datetime.now)
-    elapsed_time = Column(Integer, nullable=True)  # In seconds.
-
-    task_id = Column(String, nullable=True)
+    # May be `UNTRAINED`, `TRAINING`, or `TRAINED`.
+    status = Column(String, nullable=False, default='UNTRAINED')
 
     def __repr__(self):
         return "<Embedding('{}', '{}')>".format(
@@ -280,6 +302,55 @@ class EvaluationTask(Base):
             self.embedding,
             self.test_type,
         )
+
+
+class TrainingJob(Base):
+    __tablename__ = 'trainingjobs'
+
+    id = Column(Integer, primary_key=True, nullable=False)
+
+    scheduled_date = Column(DateTime, nullable=False, default=datetime.now)
+    elapsed_time = Column(Integer, nullable=True, default=None)  # In seconds.
+    task_id = Column(String, nullable=True, default=None)
+
+    embedding_id = Column(Integer, ForeignKey('embeddings.id'), unique=True)
+    embedding = relationship(
+        'Embedding',
+        backref=backref('training_job', lazy='dynamic')
+    )
+
+    def __repr__(self):
+        return "<TrainingJob('{}')>".format(self.id)
+
+    @property
+    def status(self):
+        # `task_id` only when the task is actually running. If not present,
+        # it's either finished or not started yet.
+        if self.task_id:
+            result = AsyncResult(self.task_id)
+            status = result.state
+        elif self.elapsed_time:
+            status = 'SUCCESS'
+        else:
+            status = 'PENDING'
+
+        return status
+
+    @property
+    def progress(self):
+        if self.task_id:
+            result = AsyncResult(self.task_id)
+            # TODO: See if there's a cleaner way of obtaining the progress.
+            try:
+                progress = result.result.get('progress')
+            except AttributeError:
+                progress = 0.0
+        elif self.elapsed_time:
+            progress = 100.0
+        else:
+            progress = 0.0
+
+        return progress
 
 
 # TODO: Shouldn't be done like this. Should be done in alembic.

@@ -5,7 +5,7 @@ from functools import partial
 from celery import Celery
 
 from nabu.core import settings
-from nabu.core.models import db, Embedding, TestSet, Result, EvaluationTask
+from nabu.core.models import db, Embedding, TestSet, Result, EvaluationTask, TrainingJob
 from nabu.vectors.training import train as train_model
 from nabu.vectors.evaluation import evaluate
 
@@ -27,28 +27,34 @@ app.conf.CELERY_ROUTES = {
 
 
 @app.task(bind=True)
-def train(self, embedding_id):
+def train(self, training_job_id):
 
-    embedding = db.query(Embedding).get(embedding_id)
-    if not embedding:
-        raise Exception("Embedding doesn't exist")
+    training_job = db.query(TrainingJob).get(training_job_id)
+    if not training_job:
+        raise Exception("TrainingJob doesn't exist")
+
+    training_job.task_id = train.request.id
+    embedding = training_job.embedding
+    embedding.status = 'TRAINING'
+    db.commit()
 
     def report(progress):
         self.update_state(state='PROGRESS', meta={'progress': progress})
 
     start_time = time.time()
     train_model(
-        embedding.parameters,
         embedding.query,
+        embedding.preprocessing,
+        embedding.parameters,
         embedding.file_name,
         report
     )
     end_time = time.time()
 
-    # Update elapsed time and ready status on Embedding model.
-    embedding.task_id = None
-    embedding.elapsed_time = int(end_time - start_time)
-    db.merge(embedding)
+    training_job.task_id = None
+    training_job.elapsed_time = int(end_time - start_time)
+    embedding = training_job.embedding
+    embedding.status = 'TRAINED'
     db.commit()
 
 

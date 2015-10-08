@@ -15,7 +15,7 @@ def model_enums():
                 {'name': 'min_count', 'verbose_name': 'Minimum Count', 'type': 'int', 'description': "minimum times a word must appear on the corpus to be in the vocabulary", 'default': 5},
                 {'name': 'window', 'verbose_name': 'Window', 'type': 'int', 'description': "window size for the word's context", 'default': 5},
                 {'name': 'subsampling', 'verbose_name': 'Subsampling', 'type': 'float', 'description': "subsampling for words", 'default': 0.0},
-                {'name': 'algorithm', 'verbose_name': 'Algorithm', 'type': 'str', 'description': "whether to use cbow or skipgram", 'default': 'skipgram'},
+                {'name': 'algorithm', 'verbose_name': 'Algorithm', 'type': 'str', 'description': "whether to use `cbow` or `skipgram`", 'default': 'skipgram'},
                 {'name': 'hsoftmax', 'verbose_name': 'Hierarchical Softmax', 'type': 'bool', 'description': "whether to use hierarchical softmax", 'default': True},
                 {'name': 'negative', 'verbose_name': 'Negative Sampling', 'type': 'int', 'description': "number of words to use for negative sampling", 'default': 0},
                 {'name': 'epochs', 'verbose_name': 'Epochs', 'type': 'int', 'description': "number of epochs to train with", 'default': 1},

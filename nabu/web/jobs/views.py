@@ -1,66 +1,79 @@
 from flask import Blueprint, jsonify, abort, request
 
-from nabu.core.models import db, Embedding, TestSet, EvaluationTask
+from nabu.core.models import (
+    db, Embedding, TestSet, EvaluationTask, TrainingJob,
+)
 from nabu.vectors.tasks import (
     app as celery_app, train, test_full, test_missing, test_single,
 )
+from nabu.web.serializers import serialize_training_job
 
 
 bp = Blueprint('jobs', __name__, url_prefix='/jobs')
 
 
-@bp.route("/api/embedding/<embedding_id>/train-start", methods=['POST'])
-def training_start(embedding_id):
+@bp.route('/training/', methods=['POST'])
+def create_training_job():
+    embedding_id = request.get_json(force=True)['embedding_id']
     embedding = db.query(Embedding).get(embedding_id)
     if not embedding:
         abort(404)
 
-    result = train.delay(embedding_id)
+    # Check if it has been trained already first.
+    training_job = db.query(TrainingJob).get_by(embedding_id=embedding_id)
+    if training_job:
+        message = "The embedding is already trained or being trained."
+        return jsonify(error='Bad Request', message=message), 400
 
-    # Set the task ID for the embedding.
-    embedding.task_id = result.task_id
-    db.merge(embedding)
+    training_job = TrainingJob(embedding_id=embedding_id)
+    db.add(training_job)
     db.commit()
 
-    return jsonify(started=True)
+    train.delay(training_job.id)
+
+    return jsonify(data={'started': True})
 
 
-@bp.route("/api/embedding/<embedding_id>/train-status")
-def training_status(embedding_id):
-    embedding = db.query(Embedding).get(embedding_id)
-    if not embedding:
+@bp.route('/training/', methods=['GET'])
+def list_training_jobs():
+    status = request.args.get('status', None)
+
+    # Failed jobs are included in `queued`, as their `elapsed_time` will be
+    # None too.
+    query = db.query(TrainingJob)
+    if status == 'finished':
+        query = query.filter(~TrainingJob.elapsed_time.is_(None))
+    elif status == 'queued':
+        query = query.filter(TrainingJob.elapsed_time.is_(None))
+    training_jobs = query.all()
+
+    data = [serialize_training_job(tj) for tj in training_jobs]
+    meta = {'count': len(data)}
+
+    return jsonify(data=data, meta=meta)
+
+
+@bp.route('/training/<training_job_id>/', methods=['GET'])
+def view_training_job(training_job_id):
+    training_job = db.query(TrainingJob).get(training_job_id)
+    if not training_job:
+        abort(404)
+    return jsonify(data=serialize_training_job(training_job))
+
+
+@bp.route('/training/<training_job_id>/', methods=['DELETE'])
+def delete_training_job(training_job_id):
+    training_job = db.query(TrainingJob).get(training_job_id)
+    if not training_job:
         abort(404)
 
-    if embedding.trained:
-        return jsonify(state='SUCCESS')
+    if training_job.task_id:
+        celery_app.control.revoke(training_job.task_id, terminate=True)
 
-    task_id = embedding.task_id
-    result = train.AsyncResult(task_id)
-
-    try:
-        progress = result.result.get('progress')
-    except AttributeError:
-        progress = 0.0
-
-    return jsonify(
-        state=result.state,
-        progress=progress,
-    )
-
-
-@bp.route("/api/embedding/<embedding_id>/train-cancel", methods=['POST'])
-def training_cancel(embedding_id):
-    embedding = db.query(Embedding).get(embedding_id)
-    if not embedding or embedding.trained or not embedding.task_id:
-        abort(404)
-
-    celery_app.control.revoke(embedding.task_id, terminate=True)
-    embedding.task_id = None
-
-    db.merge(embedding)
+    db.delete(training_job)
     db.commit()
 
-    return jsonify(succes=True)
+    return '', 204
 
 
 @bp.route("/api/embedding/<embedding_id>/evaluate-start", methods=['POST'])

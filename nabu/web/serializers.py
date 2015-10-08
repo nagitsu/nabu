@@ -1,6 +1,21 @@
 from nabu.core.models import Embedding, TestSet
 
 
+def serialize_training_job(training_job):
+    serialized = {
+        'id': training_job.id,
+        'embedding_id': training_job.embedding.id,
+        'name': training_job.embedding.name,
+
+        'progress': training_job.progress,
+        'status': training_job.status,
+
+        'scheduled_date': training_job.scheduled_date,
+        'elapsed_time': training_job.elapsed_time,
+    }
+    return serialized
+
+
 def serialize_embedding(embedding, summary=True):
     if summary:
         serialized = {
@@ -12,6 +27,11 @@ def serialize_embedding(embedding, summary=True):
         }
 
     else:
+        if embedding.training_job:
+            training_job = serialize_training_job(embedding.training_job)
+        else:
+            training_job = None
+
         serialized = {
             'id': embedding.id,
             'name': embedding.name,
@@ -20,15 +40,13 @@ def serialize_embedding(embedding, summary=True):
             'model': embedding.model,
             'parameters': embedding.parameters,
             'corpus': {
-                'size': 12345678,  # TODO: Will be `corpus_size`.
+                'size': embedding.corpus_size,
                 'query': embedding.query,
-                'preprocessing': {},  # TODO: Will be `preprocessing`.
+                'preprocessing': embedding.preprocessing,
             },
 
             'status': embedding.status,
-            # TODO: Will be the TrainingJob model ID, which will never cease to
-            # exist.
-            'training_job_id': embedding.task_id,
+            'training_job': training_job,
             # TODO: Needs to add model downloading functionality.
             'download_link': 'not-available',
         }
@@ -44,6 +62,7 @@ def deserialize_embedding(data):
         return None, message
 
     # TODO: May raise exception once corpus_size is auto-filled.
+    # TODO: Validate query, parameters and/or preprocessing.
     embedding = Embedding(
         description=data['description'],
         model=data['model'],

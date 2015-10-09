@@ -1,7 +1,5 @@
 import unicodedata
 
-from time import time
-
 from nabu.core.models import db, Result
 
 
@@ -11,7 +9,6 @@ def evaluate(embedding, testset, model=None, report=None):
 
     If `model` is provided, use that instead of loading it from disk.
     """
-    start_time = time()
     if testset.test_type == 'analogies':
         # Open testset file and preprocess with embedding's options.
         with open(testset.full_path, 'r') as f:
@@ -75,20 +72,14 @@ def evaluate(embedding, testset, model=None, report=None):
     else:
         return
 
-    end_time = time()
-
     # Get or create a `Result` instance for the <embedding, testset> pair.
-    elapsed = int(end_time - start_time)
     result = Result(
         embedding=embedding,
         testset=testset,
         accuracy=accuracy,
         extended=extended,
-        elapsed_time=elapsed
     )
-
     result = db.merge(result)
-    db.commit()
 
     # Return the instance.
     return result

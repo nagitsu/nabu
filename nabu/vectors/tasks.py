@@ -1,11 +1,9 @@
 import time
 
-from functools import partial
-
 from celery import Celery
 
 from nabu.core import settings
-from nabu.core.models import db, Embedding, TestSet, Result, EvaluationTask, TrainingJob
+from nabu.core.models import db, Result, TrainingJob, TestingJob
 from nabu.vectors.training import train as train_model
 from nabu.vectors.evaluation import evaluate
 
@@ -59,11 +57,17 @@ def train(self, training_job_id):
 
 
 @app.task(bind=True)
-def test_single(self, evaluationtask_id, embedding_id, testset_id):
-    evaluationtask = db.query(EvaluationTask).get(evaluationtask_id)
-    embedding = db.query(Embedding).get(embedding_id)
-    testset = db.query(TestSet).get(testset_id)
+def test(self, testing_job_id):
+    testing_job = db.query(TestingJob).get(testing_job_id)
+    if not testing_job:
+        raise Exception("TestingJob doesn't exist")
 
+    # Update testing job's task_id.
+    testing_job.task_id = train.request.id
+    embedding = testing_job.embedding
+    testset = testing_job.testset
+
+    # Delete existing results, if any.
     existing_result = db.query(Result).filter(
         Result.testset == testset,
         Result.embedding == embedding
@@ -71,68 +75,17 @@ def test_single(self, evaluationtask_id, embedding_id, testset_id):
 
     if existing_result:
         db.delete(existing_result)
-        db.commit()
+
+    db.commit()
 
     def report(progress):
         self.update_state(state='PROGRESS', meta={'progress': progress})
 
-    evaluate(embedding, testset, report=report)
+    start_time = time.time()
+    result = evaluate(embedding, testset, report=report)
+    end_time = time.time()
 
-    # Delete the associated EvaluationTask when finished.
-    db.delete(evaluationtask)
-    db.commit()
-
-
-@app.task(bind=True)
-def test_full(self, evaluationtask_id, embedding_id):
-    evaluationtask = db.query(EvaluationTask).get(evaluationtask_id)
-    embedding = db.query(Embedding).get(embedding_id)
-
-    # Remove existing results for the embedding.
-    db.query(Result).filter(Result.embedding == embedding)\
-                    .delete(synchronize_session=False)
-    db.commit()
-
-    def report(base, scale, progress):
-        self.update_state(
-            state='PROGRESS',
-            meta={'progress': base + scale * progress}
-        )
-
-    testsets = db.query(TestSet).all()
-    model = embedding.load_model()  # Preload the model.
-    for idx, testset in enumerate(testsets):
-        report_func = partial(report, idx / len(testsets), 1 / len(testsets))
-        evaluate(embedding, testset, model=model, report=report_func)
-
-    # Delete the associated EvaluationTask when finished.
-    db.delete(evaluationtask)
-    db.commit()
-
-
-@app.task(bind=True)
-def test_missing(self, evaluationtask_id, embedding_id):
-    evaluationtask = db.query(EvaluationTask).get(evaluationtask_id)
-    embedding = db.query(Embedding).get(embedding_id)
-
-    existing = db.query(TestSet.id).join(Result).join(Embedding)\
-                 .filter(Embedding.id == embedding_id)
-    testsets = db.query(TestSet).filter(~TestSet.id.in_(existing))
-    if not testsets:
-        # Avoid loading the model if nothing to test.
-        return []
-
-    def report(base, scale, progress):
-        self.update_state(
-            state='PROGRESS',
-            meta={'progress': base + scale * progress}
-        )
-
-    model = embedding.load_model()  # Preload the model.
-    for idx, testset in enumerate(testsets):
-        report_func = partial(report, idx / len(testsets), 1 / len(testsets))
-        evaluate(embedding, testset, model=model, report=report_func)
-
-    # Delete the associated EvaluationTask when finished.
-    db.delete(evaluationtask)
+    result.testing_job = testing_job
+    testing_job.task_id = None
+    testing_job.elapsed_time = int(end_time - start_time)
     db.commit()

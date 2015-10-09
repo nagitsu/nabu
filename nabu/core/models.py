@@ -206,11 +206,7 @@ class TestSet(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
 
-    # TODO: Remove field.
-    # file_name = Column(String, nullable=False)
-
-    # TODO: Add uniqueness constraint.
-    name = Column(String, nullable=False)  # e.g. A01, <type><number>.
+    name = Column(String, nullable=False, unique=True)  # A01, <type><num>.
     test_type = Column(String, nullable=False)  # May be `analogies`.
     description = Column(Text, nullable=False)
 
@@ -265,7 +261,11 @@ class Result(Base):
     )
 
     creation_date = Column(DateTime, nullable=False, default=datetime.now)
-    elapsed_time = Column(Integer, nullable=True)  # In seconds.
+    testing_job_id = Column(Integer, ForeignKey('testingjobs.id'), unique=True)
+    testing_job = relationship(
+        'TestingJob',
+        backref=backref('results', lazy='dynamic')
+    )
 
     accuracy = Column(Float, nullable=False)
     # `extended` stores further evaluation results (e.g. F1 score, etc.).
@@ -274,34 +274,63 @@ class Result(Base):
     def __repr__(self):
         return "<Result('{}', '{}')>".format(
             self.embedding_id,
-            self.testset.name,
+            self.testset_id,
         )
 
-    @property
-    def trained(self):
-        return self.elapsed_time
 
-
-class EvaluationTask(Base):
-    """
-    The table is not normalized; since it's a model to keep track of
-    short-lived tasks, we don't even set the foreign keys.
-    """
-    __tablename__ = 'evaluationtasks'
+class TestingJob(Base):
+    __tablename__ = 'testingjobs'
 
     id = Column(Integer, primary_key=True, nullable=False)
 
-    embedding = Column(Integer, nullable=False)
-    # `type` may be 'full', 'missing', 'single'.
-    test_type = Column(String, nullable=False)
-
+    scheduled_date = Column(DateTime, nullable=False, default=datetime.now)
+    elapsed_time = Column(Integer, nullable=True, default=None)  # In seconds.
     task_id = Column(String, nullable=True, default=None)
 
+    testset_id = Column(Integer, ForeignKey('testsets.id'))
+    testset = relationship(
+        'TestSet',
+        backref=backref('test_jobs', lazy='dynamic')
+    )
+
+    embedding_id = Column(Integer, ForeignKey('embeddings.id'))
+    embedding = relationship(
+        'Embedding',
+        backref=backref('training_jobs', lazy='dynamic')
+    )
+
     def __repr__(self):
-        return "<EvaluationTask('{}', '{}')>".format(
-            self.embedding,
-            self.test_type,
-        )
+        return "<TestingJob('{}')>".format(self.id)
+
+    @property
+    def status(self):
+        # `task_id` only when the task is actually running. If not present,
+        # it's either finished or not started yet.
+        if self.task_id:
+            result = AsyncResult(self.task_id)
+            status = result.state
+        elif self.elapsed_time:
+            status = 'SUCCESS'
+        else:
+            status = 'PENDING'
+
+        return status
+
+    @property
+    def progress(self):
+        if self.task_id:
+            result = AsyncResult(self.task_id)
+            # TODO: See if there's a cleaner way of obtaining the progress.
+            try:
+                progress = result.result.get('progress')
+            except AttributeError:
+                progress = 0.0
+        elif self.elapsed_time:
+            progress = 100.0
+        else:
+            progress = 0.0
+
+        return progress
 
 
 class TrainingJob(Base):

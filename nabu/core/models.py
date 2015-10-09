@@ -14,6 +14,7 @@ from sqlalchemy.orm import backref, relationship, sessionmaker, scoped_session
 
 from nabu.core import settings
 from nabu.core.index import es
+from nabu.vectors.utils import read_analogies
 
 
 engine = create_engine(
@@ -233,8 +234,13 @@ class TestSet(Base):
 
     @property
     def sample_entry(self):
-        # TODO: Generate an actual setting from the file.
-        return "A is to B what C is to..."
+        if self.test_type == 'analogies':
+            first_analogy = next(read_analogies(self.full_path))
+            entry = "{} is to {} as {} is to... ({})".format(*first_analogy)
+        else:
+            entry = ""
+
+        return entry
 
     def clean_up(self):
         """

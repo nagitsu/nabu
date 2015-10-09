@@ -1,6 +1,23 @@
 from nabu.core.models import Embedding, TestSet
 
 
+def serialize_testing_job(testing_job):
+    serialized = {
+        'id': testing_job.id,
+        'embedding_id': testing_job.embedding.id,
+        'testset_id': testing_job.testset.id,
+        'embedding_name': testing_job.embedding.name,
+        'testset_name': testing_job.embedding.name,
+
+        'progress': testing_job.progress,
+        'status': testing_job.status,
+
+        'scheduled_date': testing_job.scheduled_date,
+        'elapsed_time': testing_job.elapsed_time,
+    }
+    return serialized
+
+
 def serialize_training_job(training_job):
     serialized = {
         'id': training_job.id,
@@ -28,6 +45,7 @@ def serialize_embedding(embedding, summary=True):
 
     else:
         if embedding.training_job:
+            # TODO: Does this work? Or is it an array?
             training_job = serialize_training_job(embedding.training_job)
         else:
             training_job = None

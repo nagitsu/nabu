@@ -1,12 +1,10 @@
 from flask import Blueprint, jsonify, abort, request
 
 from nabu.core.models import (
-    db, Embedding, TestSet, EvaluationTask, TrainingJob,
+    db, Embedding, Result, TestSet, TrainingJob, TestingJob,
 )
-from nabu.vectors.tasks import (
-    app as celery_app, train, test_full, test_missing, test_single,
-)
-from nabu.web.serializers import serialize_training_job
+from nabu.vectors.tasks import app as celery_app, train, test
+from nabu.web.serializers import serialize_training_job, serialize_testing_job
 
 
 bp = Blueprint('jobs', __name__, url_prefix='/jobs')
@@ -76,112 +74,131 @@ def delete_training_job(training_job_id):
     return '', 204
 
 
-@bp.route("/api/embedding/<embedding_id>/evaluate-start", methods=['POST'])
-def evaluation_start(embedding_id):
-    """
-    {
-      "testset": <id> | 'full' | 'missing'
-    }
-    """
-    embedding = db.query(Embedding).get(embedding_id)
-    if not embedding:
-        abort(404)
-
-    try:
-        test_type = request.get_json().get('testset')
-    except KeyError:
+@bp.route('/testing/', methods=['POST'])
+def create_testing_job():
+    data = request.get_json(force=True)
+    if 'embedding_id' not in data or 'testset_id' not in data:
         abort(400)
 
-    if test_type != 'full' and test_type != 'missing':
-        testset = db.query(TestSet).get(test_type)
+    embedding_id = data['embedding_id']
+    testset_id = data['testset_id']
+
+    if not (embedding_id.isdigit() or testset_id.isdigit):
+        return jsonify({
+            'message': "At least one ID must be specified",
+            'error': 'Bad Request'
+        }), 400
+
+    # Build a list of embeddings and testsets to test.
+    embeddings = []
+    testsets = []
+    if embedding_id.isdigit():
+        embedding = db.query(Embedding).get(embedding_id)
+        if not embedding:
+            abort(404)
+        embeddings.append(embedding)
+
+        if testset_id.isdigit():
+            testset = db.query(TestSet).get(testset_id)
+            testsets.append(testset)
+        elif testset_id == 'full':
+            testsets.extend(db.query(TestSet).all())
+        elif testset_id == 'missing':
+            existing = db.query(TestSet.id).join(Result).join(Embedding)\
+                         .filter(Embedding.id == embedding_id)
+            query = db.query(TestSet).filter(~TestSet.id.in_(existing))
+            testsets.extend(query.all())
+
+    elif testset_id.isdigit():
+        testset = db.query(TestSet).get(testset_id)
         if not testset:
             abort(404)
-        else:
-            test_type = 'single'
+        testsets.append(testset)
 
-    task = EvaluationTask(embedding=embedding.id, test_type=test_type)
-    db.add(task)
-    db.commit()
+        if embedding_id.isdigit():
+            embedding = db.query(Embedding).get(embedding_id)
+            embeddings.append(embedding)
+        elif embedding_id == 'full':
+            embeddings.extend(db.query(Embedding.id).all())
+        elif embedding_id == 'missing':
+            existing = db.query(Embedding.id).join(Result).join(TestSet)\
+                         .filter(TestSet.id == testset_id)
+            query = db.query(Embedding).filter(~Embedding.id.in_(existing))
+            embeddings.extend(query.all())
 
-    if test_type == 'full':
-        result = test_full.delay(task.id, embedding.id)
-    elif testset == 'missing':
-        result = test_missing.delay(task.id, embedding.id)
-    else:
-        result = test_single.delay(task.id, embedding.id, testset.id)
-
-    # Set the task ID for the EvaluationTask.
-    task.task_id = result.task_id
-    db.merge(task)
-    db.commit()
-
-    return jsonify(task_id=task.id)
-
-
-@bp.route("/api/evaluate-status/<task_id>")
-def evaluation_status(task_id):
-    task = db.query(EvaluationTask).get(task_id)
-    if not task:
-        # May be due to it never existing or due to it having finished.
+    # Make sure there are no Nones (i.e. all the models exist).
+    if any([emb is None for emb in embeddings]):
+        abort(404)
+    if any([ts is None for ts in testsets]):
         abort(404)
 
-    if task.test_type == 'full':
-        result = test_full.AsyncResult(task.task_id)
-    elif task.test_type == 'missing':
-        result = test_missing.AsyncResult(task.task_id)
-    else:
-        result = test_single.AsyncResult(task.task_id)
+    # Make sure the embeddings are trained already.
+    embeddings = filter(lambda e: e.status == 'TRAINED', embeddings)
 
-    try:
-        progress = result.result.get('progress')
-    except AttributeError:
-        progress = 0.0
+    # For each pair <embedding, testset>, create the necessary TestingJob,
+    # deleting it first if it already exists. The result will be deleted inside
+    # the task, so no need to do it here.
+    jobs = []
+    for embedding in embeddings:
+        for testset in testsets:
+            job = db.query(TestingJob)\
+                    .get_by(embedding=embedding, testset=testset)
+            if job and job.status in ['PENDING', 'PROGRESS']:
+                # Only overwrite TestingJobs that have already run. If it's
+                # still pending or running right now, we want to keep it.
+                continue
+            elif job:
+                db.delete(job)
 
-    return jsonify(
-        state=result.state,
-        progress=progress,
-    )
+            job = TestingJob(testset=testset, embedding=embedding)
+            jobs.append(job)
+            db.add(job)
 
-
-@bp.route("/api/evaluate-status")
-def evaluation_status_list():
-    results = []
-
-    tasks = db.query(EvaluationTask).all()
-    for task in tasks:
-        if task.test_type == 'full':
-            result = test_full.AsyncResult(task.task_id)
-        elif task.test_type == 'missing':
-            result = test_missing.AsyncResult(task.task_id)
-        else:
-            result = test_single.AsyncResult(task.task_id)
-
-        try:
-            progress = result.result.get('progress')
-        except AttributeError:
-            progress = 0.0
-
-        results.append({
-            'id': task.id,
-            'test_type': task.test_type,
-            'embedding_id': task.embedding,
-            'state': result.state,
-            'progress': progress
-        })
-
-    return jsonify(data=results)
-
-
-@bp.route("/api/evaluate-cancel/<task_id>", methods=['POST'])
-def evaluation_cancel(task_id):
-    task = db.query(EvaluationTask).get(task_id)
-    if not task or not task.task_id:
-        abort(404)
-
-    celery_app.control.revoke(task.task_id, terminate=True)
-
-    # Delete the associated EvaluationTask.
-    db.delete(task)
     db.commit()
 
-    return jsonify(succes=True)
+    for job in jobs:
+        test.delay(job.id)
+
+    return jsonify(data={'started': True})
+
+
+@bp.route('/testing/', methods=['GET'])
+def list_testing_jobs():
+    status = request.args.get('status', None)
+
+    # Failed jobs are included in `queued`, as their `elapsed_time` will be
+    # None too.
+    query = db.query(TestingJob)
+    if status == 'finished':
+        query = query.filter(~TestingJob.elapsed_time.is_(None))
+    elif status == 'queued':
+        query = query.filter(TestingJob.elapsed_time.is_(None))
+    testing_jobs = query.all()
+
+    data = [serialize_testing_job(tj) for tj in testing_jobs]
+    meta = {'count': len(data)}
+
+    return jsonify(data=data, meta=meta)
+
+
+@bp.route('/testing/<testing_job_id>/', methods=['GET'])
+def view_testing_job(testing_job_id):
+    testing_job = db.query(TestingJob).get(testing_job_id)
+    if not testing_job:
+        abort(404)
+    return jsonify(data=serialize_testing_job(testing_job))
+
+
+@bp.route('/testing/<testing_job_id>/', methods=['DELETE'])
+def delete_testing_job(testing_job_id):
+    testing_job = db.query(TestingJob).get(testing_job_id)
+    if not testing_job:
+        abort(404)
+
+    if testing_job.task_id:
+        celery_app.control.revoke(testing_job.task_id, terminate=True)
+
+    db.delete(testing_job)
+    db.commit()
+
+    return '', 204

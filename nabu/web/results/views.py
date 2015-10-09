@@ -9,8 +9,6 @@ bp = Blueprint('results', __name__, url_prefix='/results')
 
 @bp.route('/', methods=['GET'])
 def list_results():
-    # TODO: Some are untrained; that will probably change with the refactor,
-    # though.
     embedding_id = request.args.get('embedding', None)
     testset_id = request.args.get('testset', None)
 

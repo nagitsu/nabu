@@ -155,11 +155,20 @@ class Embedding(Base):
 
     @property
     def name(self):
-        # TODO: Actually generate a useful name.
-        return "{} dim={}".format(
-            self.model,
-            self.parameters.get('dimension', 'N/A')
-        )
+        if self.model == 'word2vec':
+            name = "{} algo={} dim={} win={} alpha={} hs={} neg={}".format(
+                self.model,
+                self.parameters.get('algorithm'),
+                self.parameters.get('dimension'),
+                self.parameters.get('window'),
+                self.parameters.get('alpha'),
+                self.parameters.get('hsoftmax'),
+                self.parameters.get('negative'),
+            )
+        else:
+            name = self.model
+
+        return name
 
     @property
     def file_name(self):

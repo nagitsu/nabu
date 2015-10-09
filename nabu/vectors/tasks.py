@@ -41,6 +41,7 @@ def train(self, training_job_id):
 
     start_time = time.time()
     train_model(
+        embedding.model,
         embedding.query,
         embedding.preprocessing,
         embedding.parameters,

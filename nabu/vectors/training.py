@@ -46,14 +46,18 @@ def sentence_generator(query, preprocessing_params, report=None):
 
     if report:
         # Get the approximate number of results.
-        result = es.search(index='nabu', search_type='count', body=query)
+        result = es.search(
+            index='nabu', search_type='count',
+            body={'query': query}
+        )
         count = result['hits']['total']
-        step = int(count / 1000)
+        # If there aren't even 1000 results, report for every document.
+        step = int(count / 1000) if count > 1000 else 1
 
     documents = scan(
         es, index='nabu',
         scroll='30m', fields='content',
-        query=query
+        query={'query': query}
     )
 
     processed = 0

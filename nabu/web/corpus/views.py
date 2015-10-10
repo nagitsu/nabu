@@ -1,5 +1,11 @@
+import io
+import json
+import zipstream
+
 from elasticsearch import ElasticsearchException
-from flask import Blueprint, jsonify, request, abort
+from elasticsearch.helpers import scan
+
+from flask import Blueprint, jsonify, request, abort, Response
 
 from nabu.core.index import es
 
@@ -232,3 +238,49 @@ def document_detail(document_id):
     }
 
     return jsonify(data=document)
+
+
+@bp.route('/download/', methods=['GET'])
+def download_search():
+    # TODO: Sanitize the query somehow? Or make less powerful.
+    query = json.loads(request.args.get('query'))
+    if not query:
+        query = {'match_all': {}}
+
+    documents = scan(
+        es, index='nabu',
+        scroll='30m', fields='content',
+        query={'query': query}
+    )
+
+    def content_streamer():
+        z = zipstream.ZipFile(
+            mode='w',
+            compression=zipstream.ZIP_DEFLATED
+        )
+
+        for document in documents:
+            doc_id = document['_id']
+            content = document['fields']['content'][0]
+
+            def _it():
+                yield content.encode('utf-8')
+
+            # We need to make use of the private functions of zipstream,
+            # because we need to feed the zipfile documents from ES while we
+            # send them to the user. Since we want every document on a separate
+            # file, we have no alternative than to call the `__write` method
+            # manually.
+            file_name = "{}.txt".format(doc_id)
+            for data in z._ZipFile__write(iterable=_it(), arcname=file_name):
+                yield data
+
+        # Yield the rest of the data the zipfile might have (corresponding to
+        # the `__close` method).
+        for chunk in z:
+            yield chunk
+
+    response = Response(content_streamer(), mimetype="application/zip")
+    disposition = "attachment; filename=corpus.zip"
+    response.headers['Content-Disposition'] = disposition
+    return response

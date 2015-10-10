@@ -1,3 +1,5 @@
+from flask import url_for
+
 from nabu.core.models import Embedding, TestSet
 
 
@@ -101,14 +103,14 @@ def serialize_testset(testset, summary=True):
         }
 
     else:
+        url = url_for('.download_testset', testset_id=testset.id)
         serialized = {
             'id': testset.id,
             'name': testset.name,
             'description': testset.description,
             'type': testset.test_type,
             'sample_entry': testset.sample_entry,
-            # TODO: Needs to point to the correct link.
-            'download_link': 'not-available',
+            'download_link': url,
         }
 
     return serialized

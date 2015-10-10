@@ -1,6 +1,6 @@
 from itertools import chain
 
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, jsonify, request, abort, Response
 
 from nabu.core.models import db, TestSet
 from nabu.web.serializers import serialize_testset, deserialize_testset
@@ -40,6 +40,23 @@ def view_testset(testset_id):
     if not testset:
         abort(404)
     return jsonify(data=serialize_testset(testset, summary=False))
+
+
+@bp.route('/<testset_id>/download/', methods=['GET'])
+def download_testset(testset_id):
+    testset = db.query(TestSet).get(testset_id)
+    if not testset:
+        abort(404)
+
+    def content_streamer():
+        with open(testset.full_path) as f:
+            for line in f:
+                yield line
+
+    response = Response(content_streamer(), mimetype="text/plain")
+    content_disposition = "attachment; filename={}".format(testset.file_name)
+    response.headers['Content-Disposition'] = content_disposition
+    return response
 
 
 @bp.route('/<testset_id>/', methods=['POST'])

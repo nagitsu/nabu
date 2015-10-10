@@ -1,11 +1,10 @@
-import io
 import json
 import zipstream
 
 from elasticsearch import ElasticsearchException
 from elasticsearch.helpers import scan
 
-from flask import Blueprint, jsonify, request, abort, Response
+from flask import Blueprint, jsonify, request, abort, Response, url_for
 
 from nabu.core.index import es
 
@@ -163,7 +162,6 @@ def clean_doc(doc):
 
 @bp.route('/search/', methods=['POST'])
 def search():
-    # TODO: Download link.
     # TODO: Sanitize the query somehow? Or make less powerful.
     offset = int(request.args.get('offset', 0))
     user_query = request.get_json(force=True)['query']
@@ -191,8 +189,8 @@ def search():
         return jsonify(message=e.error, error='Bad Request'), 400
 
     word_count = response['aggregations']['words']['value']
-    download_link = 'not-available-yet'
     hits = [clean_doc(hit) for hit in response['hits']['hits']]
+    download_link = url_for('.download_search', query=json.dumps(user_query))
 
     data = {
         'word_count': word_count,

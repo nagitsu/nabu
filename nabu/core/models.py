@@ -270,7 +270,9 @@ class TestSet(Base):
     def sample_entry(self):
         if self.test_type == 'analogies':
             first_analogy = next(read_analogies(self.full_path))
-            entry = "{} is to {} as {} is to... ({})".format(*first_analogy)
+            entry = "'{}' is to '{}' as '{}' is to... ('{}')".format(
+                *first_analogy
+            )
         else:
             entry = ""
 

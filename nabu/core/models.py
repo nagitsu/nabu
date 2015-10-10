@@ -278,11 +278,27 @@ class TestSet(Base):
         """
         Cleans up all data related to the TestSet.
 
-        Will delete all its files, cancel any ongoing tasks, and delete
-        Results, TrainingJobs and TestingJobs. After this method is called, the
-        Embedding will stay in an inconsistent state, be careful.
+        Will delete all its files, cancel any ongoing tasks, and delete Results
+        and TestingJobs. After this method is called, the TestSet will stay in
+        an inconsistent state, be careful.
         """
-        # TODO: Implement.
+        # Delete the test's file.
+        os.remove(self.full_path)
+
+        from nabu.vectors.tasks import app as celery_app
+
+        # If it's being tested, stop it.
+        testing_jobs = self.testing_jobs.all()
+        for testing_job in testing_jobs:
+            task_id = self.testing_job.task_id
+            if task_id:
+                celery_app.control.revoke(task_id, terminate=True)
+            db.delete(testing_job)
+
+        # Finally, delete all the results.
+        self.results.delete(synchronize_session=False)
+
+        db.commit()
 
 
 class Result(Base):
@@ -337,7 +353,7 @@ class TestingJob(Base):
     testset_id = Column(Integer, ForeignKey('testsets.id'))
     testset = relationship(
         'TestSet',
-        backref=backref('test_jobs', lazy='dynamic')
+        backref=backref('testing_jobs', lazy='dynamic')
     )
 
     embedding_id = Column(Integer, ForeignKey('embeddings.id'))

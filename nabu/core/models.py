@@ -384,7 +384,6 @@ class TestingJob(Base):
         if self.task_id:
             from nabu.vectors.tasks import app as celery_app
             result = celery_app.AsyncResult(self.task_id)
-            # TODO: See if there's a cleaner way of obtaining the progress.
             try:
                 progress = result.result.get('progress')
             except AttributeError:
@@ -435,7 +434,6 @@ class TrainingJob(Base):
         if self.task_id:
             from nabu.vectors.tasks import app as celery_app
             result = celery_app.AsyncResult(self.task_id)
-            # TODO: See if there's a cleaner way of obtaining the progress.
             try:
                 progress = result.result.get('progress')
             except AttributeError:

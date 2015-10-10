@@ -162,7 +162,6 @@ def clean_doc(doc):
 
 @bp.route('/search/', methods=['POST'])
 def search():
-    # TODO: Sanitize the query somehow? Or make less powerful.
     offset = int(request.args.get('offset', 0))
     user_query = request.get_json(force=True)['query']
 
@@ -240,7 +239,6 @@ def document_detail(document_id):
 
 @bp.route('/download/', methods=['GET'])
 def download_search():
-    # TODO: Sanitize the query somehow? Or make less powerful.
     query = json.loads(request.args.get('query'))
     if not query:
         query = {'match_all': {}}

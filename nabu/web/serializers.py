@@ -1,3 +1,4 @@
+from elasticsearch import ElasticsearchException
 from flask import url_for
 
 from nabu.core.models import Embedding, TestSet
@@ -80,15 +81,17 @@ def deserialize_embedding(data):
         message = "missing keys: {}".format(needed - existing)
         return None, message
 
-    # TODO: May raise exception once corpus_size is auto-filled.
-    # TODO: Validate query, parameters and/or preprocessing.
-    embedding = Embedding(
-        description=data['description'],
-        model=data['model'],
-        parameters=data['parameters'],
-        query=data['query'],
-        preprocessing=data['preprocessing'],
-    )
+    # TODO: Validate parameters and/or preprocessing.
+    try:
+        embedding = Embedding(
+            description=data['description'],
+            model=data['model'],
+            parameters=data['parameters'],
+            query=data['query'],
+            preprocessing=data['preprocessing'],
+        )
+    except ElasticsearchException:
+        return None, "invalid query"
 
     return embedding, None
 

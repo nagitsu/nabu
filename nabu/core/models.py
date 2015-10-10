@@ -1,8 +1,6 @@
 import gensim
 import os
 
-from celery.result import AsyncResult
-
 from datetime import datetime
 
 from sqlalchemy import (
@@ -374,7 +372,8 @@ class TestingJob(Base):
         # `task_id` only when the task is actually running. If not present,
         # it's either finished or not started yet.
         if self.task_id:
-            result = AsyncResult(self.task_id)
+            from nabu.vectors.tasks import app as celery_app
+            result = celery_app.AsyncResult(self.task_id)
             status = result.state
         elif self.elapsed_time:
             status = 'SUCCESS'
@@ -386,7 +385,8 @@ class TestingJob(Base):
     @property
     def progress(self):
         if self.task_id:
-            result = AsyncResult(self.task_id)
+            from nabu.vectors.tasks import app as celery_app
+            result = celery_app.AsyncResult(self.task_id)
             # TODO: See if there's a cleaner way of obtaining the progress.
             try:
                 progress = result.result.get('progress')
@@ -423,7 +423,8 @@ class TrainingJob(Base):
         # `task_id` only when the task is actually running. If not present,
         # it's either finished or not started yet.
         if self.task_id:
-            result = AsyncResult(self.task_id)
+            from nabu.vectors.tasks import app as celery_app
+            result = celery_app.AsyncResult(self.task_id)
             status = result.state
         elif self.elapsed_time:
             status = 'SUCCESS'
@@ -435,7 +436,8 @@ class TrainingJob(Base):
     @property
     def progress(self):
         if self.task_id:
-            result = AsyncResult(self.task_id)
+            from nabu.vectors.tasks import app as celery_app
+            result = celery_app.AsyncResult(self.task_id)
             # TODO: See if there's a cleaner way of obtaining the progress.
             try:
                 progress = result.result.get('progress')

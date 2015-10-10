@@ -212,13 +212,15 @@ class Embedding(Base):
         Cleans up all data related to the Embedding.
 
         Will delete all its files, cancel any ongoing tasks, and delete
-        Results, TrainingJobs and TestingJobs. After this method is called, the
-        Embedding will stay in an inconsistent state, be careful.
+        Results, TrainingJobs and TestingJobs.
         """
         # Delete all the embedding files.
         files = self.get_all_files()
         for f in files:
             os.remove(f)
+
+        # Mark as untrained again.
+        self.status = 'UNTRAINED'
 
         from nabu.vectors.tasks import app as celery_app
 
@@ -281,8 +283,7 @@ class TestSet(Base):
         Cleans up all data related to the TestSet.
 
         Will delete all its files, cancel any ongoing tasks, and delete Results
-        and TestingJobs. After this method is called, the TestSet will stay in
-        an inconsistent state, be careful.
+        and TestingJobs.
         """
         # Delete the test's file.
         os.remove(self.full_path)

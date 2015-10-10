@@ -18,7 +18,8 @@ def create_training_job():
         abort(404)
 
     # Check if it has been trained already first.
-    training_job = db.query(TrainingJob).get_by(embedding_id=embedding_id)
+    training_job = db.query(TrainingJob)\
+                     .filter_by(embedding_id=embedding_id).first()
     if training_job:
         message = "The embedding is already trained or being trained."
         return jsonify(error='Bad Request', message=message), 400
@@ -29,7 +30,7 @@ def create_training_job():
 
     train.delay(training_job.id)
 
-    return jsonify(data={'started': True})
+    return jsonify(data={'training_job_id': training_job.id})
 
 
 @bp.route('/training/', methods=['GET'])
@@ -65,11 +66,10 @@ def delete_training_job(training_job_id):
     if not training_job:
         abort(404)
 
-    if training_job.task_id:
-        celery_app.control.revoke(training_job.task_id, terminate=True)
-
-    db.delete(training_job)
-    db.commit()
+    # Use the embedding's `clean_up` function, which will take care of
+    # everything, including the deletion of the training job.
+    embedding = training_job.embedding
+    embedding.clean_up()
 
     return '', 204
 
@@ -142,7 +142,8 @@ def create_testing_job():
     for embedding in embeddings:
         for testset in testsets:
             job = db.query(TestingJob)\
-                    .get_by(embedding=embedding, testset=testset)
+                    .filter_by(embedding=embedding, testset=testset)\
+                    .first()
             if job and job.status in ['PENDING', 'PROGRESS']:
                 # Only overwrite TestingJobs that have already run. If it's
                 # still pending or running right now, we want to keep it.
@@ -159,7 +160,7 @@ def create_testing_job():
     for job in jobs:
         test.delay(job.id)
 
-    return jsonify(data={'started': True})
+    return jsonify(data={'testing_job_id': [job.id for job in jobs]})
 
 
 @bp.route('/testing/', methods=['GET'])
@@ -194,6 +195,14 @@ def delete_testing_job(testing_job_id):
     testing_job = db.query(TestingJob).get(testing_job_id)
     if not testing_job:
         abort(404)
+
+    # If it has any result associated, delete it.
+    result = db.query(Result).get(
+        embedding_id=testing_job.embedding_id,
+        testset_id=testing_job.testset_id
+    )
+    if result:
+        db.delete(result)
 
     if testing_job.task_id:
         celery_app.control.revoke(testing_job.task_id, terminate=True)

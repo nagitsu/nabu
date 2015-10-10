@@ -83,7 +83,7 @@ def create_testing_job():
     embedding_id = data['embedding_id']
     testset_id = data['testset_id']
 
-    if not (embedding_id.isdigit() or testset_id.isdigit):
+    if not (isinstance(embedding_id, int) or isinstance(testset_id, int)):
         return jsonify({
             'message': "At least one ID must be specified",
             'error': 'Bad Request'
@@ -92,13 +92,13 @@ def create_testing_job():
     # Build a list of embeddings and testsets to test.
     embeddings = []
     testsets = []
-    if embedding_id.isdigit():
+    if isinstance(embedding_id, int):
         embedding = db.query(Embedding).get(embedding_id)
         if not embedding:
             abort(404)
         embeddings.append(embedding)
 
-        if testset_id.isdigit():
+        if isinstance(testset_id, int):
             testset = db.query(TestSet).get(testset_id)
             testsets.append(testset)
         elif testset_id == 'full':
@@ -109,17 +109,17 @@ def create_testing_job():
             query = db.query(TestSet).filter(~TestSet.id.in_(existing))
             testsets.extend(query.all())
 
-    elif testset_id.isdigit():
+    elif isinstance(testset_id, int):
         testset = db.query(TestSet).get(testset_id)
         if not testset:
             abort(404)
         testsets.append(testset)
 
-        if embedding_id.isdigit():
+        if isinstance(embedding_id, int):
             embedding = db.query(Embedding).get(embedding_id)
             embeddings.append(embedding)
         elif embedding_id == 'full':
-            embeddings.extend(db.query(Embedding.id).all())
+            embeddings.extend(db.query(Embedding).all())
         elif embedding_id == 'missing':
             existing = db.query(Embedding.id).join(Result).join(TestSet)\
                          .filter(TestSet.id == testset_id)

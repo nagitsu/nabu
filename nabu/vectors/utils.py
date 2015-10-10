@@ -19,10 +19,10 @@ def read_analogies(path, preprocessor=lambda x: x):
 def build_token_preprocessor(params):
 
     def preprocessor(text):
-        if params['lowercase_tokens']:
+        if params['lowercase_tokens'] == 'true':
             text = text.lower()
 
-        if params['remove_accents']:
+        if params['remove_accents'] == 'true':
             text = unicodedata.normalize('NFKD', text)\
                               .encode('ascii', 'ignore')\
                               .decode('ascii')

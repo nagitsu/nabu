@@ -7,7 +7,7 @@ def evaluate_analogies(embedding, testset, report=None):
     Evaluates the given embedding against an analogies testset.
     """
     model = embedding.load_model()
-    preprocessor = build_token_preprocessor(embedding.parameters)
+    preprocessor = build_token_preprocessor(embedding.preprocessing)
     analogies = list(read_analogies(testset.full_path, preprocessor))
 
     # Run the test and fill `accuracy`, `extended_results`. Report every
@@ -36,9 +36,12 @@ def evaluate_analogies(embedding, testset, report=None):
         if report and (idx + 1) % 25 == 0:
             report(idx / len(analogies))
 
-    top1 = len(list(filter(lambda r: r[0], results))) / len(results)
-    top5 = len(list(filter(lambda r: r[1], results))) / len(results)
-    top10 = len(list(filter(lambda r: r[2], results))) / len(results)
+    if results:
+        top1 = len(list(filter(lambda r: r[0], results))) / len(results)
+        top5 = len(list(filter(lambda r: r[1], results))) / len(results)
+        top10 = len(list(filter(lambda r: r[2], results))) / len(results)
+    else:
+        top1 = top5 = top10 = 0
 
     accuracy = top1
     extended = {

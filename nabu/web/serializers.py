@@ -7,7 +7,7 @@ def serialize_testing_job(testing_job):
         'embedding_id': testing_job.embedding.id,
         'testset_id': testing_job.testset.id,
         'embedding_name': testing_job.embedding.name,
-        'testset_name': testing_job.embedding.name,
+        'testset_name': testing_job.testset.name,
 
         'progress': testing_job.progress,
         'status': testing_job.status,
@@ -140,7 +140,7 @@ def serialize_result(result):
         'embedding_id': result.embedding_id,
         'testset_id': result.testset_id,
         'creation_date': result.creation_date,
-        'elapsed_time': result.elapsed_time,
+        'elapsed_time': result.testing_job.elapsed_time,
         'accuracy': result.accuracy,
         'extended': result.extended,
     }

@@ -18,9 +18,7 @@ app = Celery(
 # Task routing configuration.
 app.conf.CELERY_ROUTES = {
     'nabu.vectors.tasks.train': {'queue': 'training'},
-    'nabu.vectors.tasks.test_single': {'queue': 'testing'},
-    'nabu.vectors.tasks.test_full': {'queue': 'testing'},
-    'nabu.vectors.tasks.test_missing': {'queue': 'testing'},
+    'nabu.vectors.tasks.test': {'queue': 'testing'},
 }
 
 
@@ -64,7 +62,7 @@ def test(self, testing_job_id):
         raise Exception("TestingJob doesn't exist")
 
     # Update testing job's task_id.
-    testing_job.task_id = train.request.id
+    testing_job.task_id = test.request.id
     embedding = testing_job.embedding
     testset = testing_job.testset
 

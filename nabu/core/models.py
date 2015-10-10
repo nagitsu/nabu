@@ -181,11 +181,13 @@ class Embedding(Base):
     def full_path(self):
         return '{}{}'.format(settings.EMBEDDING_PATH, self.file_name)
 
-    @property
     def get_all_files(self):
         directory = os.listdir(settings.EMBEDDING_PATH)
         own_files = filter(lambda f: f.startswith(self.file_name), directory)
-        full_file_paths = map(lambda f: '{}{}'.format(directory, f), own_files)
+        full_file_paths = map(
+            lambda f: '{}{}'.format(settings.EMBEDDING_PATH, f),
+            own_files
+        )
         return list(full_file_paths)
 
     @property

@@ -1,4 +1,7 @@
-from flask import Blueprint, jsonify, request, abort
+import os
+import zipstream
+
+from flask import Blueprint, jsonify, request, abort, Response
 
 from nabu.core.models import db, Embedding
 from nabu.web.serializers import serialize_embedding, deserialize_embedding
@@ -37,6 +40,39 @@ def view_embedding(embedding_id):
     if not embedding:
         abort(404)
     return jsonify(data=serialize_embedding(embedding, summary=False))
+
+
+@bp.route('/<embedding_id>/download/', methods=['GET'])
+def download_embedding(embedding_id):
+    embedding = db.query(Embedding).get(embedding_id)
+    if not embedding:
+        abort(404)
+
+    def content_streamer():
+        z = zipstream.ZipFile(
+            mode='w',
+            compression=zipstream.ZIP_DEFLATED
+        )
+
+        open_files = []
+        for path in embedding.get_all_files():
+            current_file = open(path, 'rb')
+            open_files.append(current_file)
+
+            # Get the actual file name.
+            file_name = os.path.split(path)[-1]
+            z.write_iter(file_name, current_file)
+
+        for chunk in z:
+            yield chunk
+
+        for f in open_files:
+            f.close()
+
+    response = Response(content_streamer(), mimetype="application/zip")
+    disposition = "attachment; filename={}.zip".format(embedding.file_name)
+    response.headers['Content-Disposition'] = disposition
+    return response
 
 
 @bp.route('/<embedding_id>/', methods=['POST'])

@@ -51,6 +51,7 @@ def serialize_embedding(embedding, summary=True):
         else:
             training_job = None
 
+        url = url_for('.download_embedding', embedding_id=embedding.id)
         serialized = {
             'id': embedding.id,
             'name': embedding.name,
@@ -66,8 +67,7 @@ def serialize_embedding(embedding, summary=True):
 
             'status': embedding.status,
             'training_job': training_job,
-            # TODO: Needs to add model downloading functionality.
-            'download_link': 'not-available',
+            'download_link': url,
         }
 
     return serialized

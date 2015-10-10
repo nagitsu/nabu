@@ -9,6 +9,7 @@ Flask
 click
 elasticsearch
 dataset
+zipstream
 
 # Development
 ipython

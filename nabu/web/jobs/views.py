@@ -197,10 +197,10 @@ def delete_testing_job(testing_job_id):
         abort(404)
 
     # If it has any result associated, delete it.
-    result = db.query(Result).get(
-        embedding_id=testing_job.embedding_id,
-        testset_id=testing_job.testset_id
-    )
+    result = db.query(Result).get((
+        testing_job.embedding_id,
+        testing_job.testset_id
+    ))
     if result:
         db.delete(result)
 

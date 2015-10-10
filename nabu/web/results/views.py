@@ -25,23 +25,17 @@ def list_results():
     return jsonify(data=data, meta=meta)
 
 
-@bp.route('/<embedding_id>/<testset_id>', methods=['GET'])
+@bp.route('/<embedding_id>/<testset_id>/', methods=['GET'])
 def view_result(embedding_id, testset_id):
-    result = db.query(Result).get(
-        embedding_id=embedding_id,
-        testset_id=testset_id
-    )
+    result = db.query(Result).get((embedding_id, testset_id))
     if not result:
         abort(404)
     return jsonify(data=serialize_result(result))
 
 
-@bp.route('/<embedding_id>/<testset_id>', methods=['DELETE'])
+@bp.route('/<embedding_id>/<testset_id>/', methods=['DELETE'])
 def delete_result(embedding_id, testset_id):
-    result = db.query(Result).get(
-        embedding_id=embedding_id,
-        testset_id=testset_id
-    )
+    result = db.query(Result).get((embedding_id, testset_id))
     if not result:
         abort(404)
 

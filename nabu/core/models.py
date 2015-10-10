@@ -189,10 +189,6 @@ class Embedding(Base):
         return list(full_file_paths)
 
     @property
-    def trained(self):
-        return self.elapsed_time
-
-    @property
     def training_job(self):
         """
         Returns the embedding's training job. There cannot be more than one, as
@@ -307,15 +303,6 @@ class TestSet(Base):
 class Result(Base):
     __tablename__ = 'results'
 
-    testset_id = Column(
-        Integer,
-        ForeignKey('testsets.id'),
-        primary_key=True
-    )
-    testset = relationship(
-        'TestSet',
-        backref=backref('results', lazy='dynamic')
-    )
     embedding_id = Column(
         Integer,
         ForeignKey('embeddings.id'),
@@ -323,6 +310,15 @@ class Result(Base):
     )
     embedding = relationship(
         'Embedding',
+        backref=backref('results', lazy='dynamic')
+    )
+    testset_id = Column(
+        Integer,
+        ForeignKey('testsets.id'),
+        primary_key=True
+    )
+    testset = relationship(
+        'TestSet',
         backref=backref('results', lazy='dynamic')
     )
 
@@ -376,7 +372,7 @@ class TestingJob(Base):
             from nabu.vectors.tasks import app as celery_app
             result = celery_app.AsyncResult(self.task_id)
             status = result.state
-        elif self.elapsed_time:
+        elif self.elapsed_time is not None:
             status = 'SUCCESS'
         else:
             status = 'PENDING'
@@ -393,7 +389,7 @@ class TestingJob(Base):
                 progress = result.result.get('progress')
             except AttributeError:
                 progress = 0.0
-        elif self.elapsed_time:
+        elif self.elapsed_time is not None:
             progress = 100.0
         else:
             progress = 0.0
@@ -427,7 +423,7 @@ class TrainingJob(Base):
             from nabu.vectors.tasks import app as celery_app
             result = celery_app.AsyncResult(self.task_id)
             status = result.state
-        elif self.elapsed_time:
+        elif self.elapsed_time is not None:
             status = 'SUCCESS'
         else:
             status = 'PENDING'
@@ -444,7 +440,7 @@ class TrainingJob(Base):
                 progress = result.result.get('progress')
             except AttributeError:
                 progress = 0.0
-        elif self.elapsed_time:
+        elif self.elapsed_time is not None:
             progress = 100.0
         else:
             progress = 0.0

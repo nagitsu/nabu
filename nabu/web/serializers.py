@@ -45,7 +45,6 @@ def serialize_embedding(embedding, summary=True):
 
     else:
         if embedding.training_job:
-            # TODO: Does this work? Or is it an array?
             training_job = serialize_training_job(embedding.training_job)
         else:
             training_job = None

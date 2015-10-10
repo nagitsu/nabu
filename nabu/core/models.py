@@ -139,7 +139,8 @@ class Embedding(Base):
 
     description = Column(Text, nullable=False)
 
-    model = Column(String, nullable=False)  # May be `word2vec` or `glove`.
+    # May be `word2vec`, `glove`, or `lsa`.
+    model = Column(String, nullable=False)
     parameters = Column(JSONB, default={})
     query = Column(JSONB, default={})
     preprocessing = Column(JSONB, default={})
@@ -188,17 +189,16 @@ class Embedding(Base):
         return list(full_file_paths)
 
     @property
-    def status(self):
-        if self.elapsed_time:
-            return 'TRAINED'
-        elif self.task_id:
-            return 'TRAINING'
-        else:
-            return 'UNTRAINED'
-
-    @property
     def trained(self):
         return self.elapsed_time
+
+    @property
+    def training_job(self):
+        """
+        Returns the embedding's training job. There cannot be more than one, as
+        the other side of the relation has a unique=True constraint.
+        """
+        return self.training_jobs.first()
 
     def load_model(self):
         if self.model == 'word2vec':
@@ -359,7 +359,7 @@ class TestingJob(Base):
     embedding_id = Column(Integer, ForeignKey('embeddings.id'))
     embedding = relationship(
         'Embedding',
-        backref=backref('training_jobs', lazy='dynamic')
+        backref=backref('testing_jobs', lazy='dynamic')
     )
 
     def __repr__(self):
@@ -408,7 +408,7 @@ class TrainingJob(Base):
     embedding_id = Column(Integer, ForeignKey('embeddings.id'), unique=True)
     embedding = relationship(
         'Embedding',
-        backref=backref('training_job', lazy='dynamic')
+        backref=backref('training_jobs', lazy='dynamic')
     )
 
     def __repr__(self):

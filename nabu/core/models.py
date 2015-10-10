@@ -1,4 +1,5 @@
 import gensim
+import os
 
 from celery.result import AsyncResult
 
@@ -180,8 +181,14 @@ class Embedding(Base):
         return '{}{}'.format(settings.EMBEDDING_PATH, self.file_name)
 
     @property
+    def get_all_files(self):
+        directory = os.listdir(settings.EMBEDDING_PATH)
+        own_files = filter(lambda f: f.startswith(self.file_name), directory)
+        full_file_paths = map(lambda f: '{}{}'.format(directory, f), own_files)
+        return list(full_file_paths)
+
+    @property
     def status(self):
-        # TODO: Return the status correctly.
         if self.elapsed_time:
             return 'TRAINED'
         elif self.task_id:
@@ -208,7 +215,32 @@ class Embedding(Base):
         Results, TrainingJobs and TestingJobs. After this method is called, the
         Embedding will stay in an inconsistent state, be careful.
         """
-        # TODO: Implement.
+        # Delete all the embedding files.
+        files = self.get_all_files()
+        for f in files:
+            os.remove(f)
+
+        from nabu.vectors.tasks import app as celery_app
+
+        # If it's being trained, stop it and delete the TrainingJob.
+        if self.training_job:
+            if self.training_job.task_id:
+                task_id = self.training_job.task_id
+                celery_app.control.revoke(task_id, terminate=True)
+            db.delete(self.training_job)
+
+        # If it's being tested, stop it.
+        testing_jobs = self.testing_jobs.all()
+        for testing_job in testing_jobs:
+            task_id = self.testing_job.task_id
+            if task_id:
+                celery_app.control.revoke(task_id, terminate=True)
+            db.delete(testing_job)
+
+        # Finally, delete all the results.
+        self.results.delete(synchronize_session=False)
+
+        db.commit()
 
 
 class TestSet(Base):

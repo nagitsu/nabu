@@ -20,7 +20,8 @@ angular
     'ngMaterial',
     'ui.router',
     'ui.bootstrap',
-    'md.data.table'
+    'md.data.table',
+    'restangular'
   ])
   .config(function($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise("/dashboard");
@@ -101,4 +102,7 @@ angular
     $mdThemingProvider.theme('default')
       .primaryPalette('light-blue')
       .accentPalette('orange');
+  })
+  .run(function(Restangular){
+    Restangular.setBaseUrl('http://golbat.ydns.eu/api');
   });

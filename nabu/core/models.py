@@ -5,7 +5,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     create_engine, Boolean, Column, DateTime, ForeignKey, Integer, String,
-    Text, Float,
+    Text, Float, BigInteger,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
@@ -142,7 +142,7 @@ class Embedding(Base):
     parameters = Column(JSONB, default={})
     query = Column(JSONB, default={})
     preprocessing = Column(JSONB, default={})
-    corpus_size = Column(Integer, nullable=False, default=get_corpus_size)
+    corpus_size = Column(BigInteger, nullable=False, default=get_corpus_size)
 
     creation_date = Column(DateTime, nullable=False, default=datetime.now)
     # May be `UNTRAINED`, `TRAINING`, or `TRAINED`.

@@ -25,6 +25,9 @@ module.exports = function (grunt) {
     dist: 'dist'
   };
 
+  // Load grunt-connect-proxy module
+  grunt.loadNpmTasks('grunt-connect-proxy');
+
   // Define the configuration for all the tasks
   grunt.initConfig({
 
@@ -75,11 +78,18 @@ module.exports = function (grunt) {
         hostname: '0.0.0.0',
         livereload: 35729
       },
+      proxies: [
+        {
+          context: '/api',  // When the url contains this...
+          host: "http://golbat.ydns.eu", // Proxy to this host
+          port: 80
+        },
+      ],
       livereload: {
         options: {
           open: true,
-          middleware: function (connect) {
-            return [
+          middleware: function (connect, options) {
+            var middlewares = [
               connect.static('.tmp'),
               connect().use(
                 '/bower_components',
@@ -91,6 +101,18 @@ module.exports = function (grunt) {
               ),
               connect.static(appConfig.app)
             ];
+            if (!Array.isArray(options.base)) {
+              options.base = [options.base];
+            }
+
+            // Setup proxy
+            middlewares.push(require('grunt-connect-proxy/lib/utils').proxyRequest);
+
+            options.base.forEach(function(base) {
+              middlewares.push(connect.static(base));
+            });
+
+            return middlewares;
           }
         }
       },
@@ -452,6 +474,7 @@ module.exports = function (grunt) {
       'wiredep',
       'concurrent:server',
       'autoprefixer:server',
+      'configureProxies:server',
       'connect:livereload',
       'watch'
     ]);

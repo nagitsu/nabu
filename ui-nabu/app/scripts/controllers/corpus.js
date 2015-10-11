@@ -8,32 +8,31 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('CorpusCtrl', function ($scope) {
+  .controller('CorpusCtrl', function ($scope, Corpus) {
     $scope.query = {
         page: 1,
-        limit: 10
+        limit: 25 // This is hard-coded in the server
     };
-    $scope.results = {
-        meta: {
-            total: 10,
-        },
-        data: [
-            {
-                text: "Cosa muy cososa",
-                source: "180.com.uy"
-            },
-            {
-                text: "Otro",
-                source: "180.com.uy"
-            },
-            {
-                text: "Tres",
-                source: "180.com.uy"
-            },
-            {
-                text: "Cuatro",
-                source: "180.com.uy"
+
+    $scope.basicQuery = {
+        'query': {
+            'match' : {
+                'content' : ''
             }
-        ]
+        }
+    };
+
+    $scope.search = function () {
+        Corpus.search($scope.basicQuery).then(function(results){
+            $scope.query.page = 1;
+            $scope.results = results;
+        });
+    };
+
+    $scope.onPaginationChange = function (page, limit) {
+        var offset = (page - 1) * $scope.query.limit;
+        Corpus.search($scope.basicQuery, offset).then(function(results){
+            $scope.results = results;
+        });
     };
   });

@@ -1,0 +1,72 @@
+<div class="tab-container">
+  <div layout="row">
+    <div flex="5" layout="column" layout-align="center center">
+      <i class="fa fa-search fa-2x"></i>
+    </div>
+    <form flex="100" name="search-form">
+      <div layout="row">
+        <md-input-container flex="50">
+          <label>Search</label>
+          <input type="text" ng-model="basicQuery.query.match.content">
+        </md-input-container>
+        <md-input-container>
+          <md-button class="md-raised corpus-search md-primary md-hue-4"
+            ng-click="search()">
+          SEARCH
+          </md-button>
+        </md-input-container>
+      </div>
+    </form>
+  </div>
+  <div layout="row">
+    <accordion flex class="advanced-options">
+      <accordion-group is-open="status.open">
+        <accordion-heading>
+          <div layout="row" layout-align="space-between center">
+            <md-divider flex="45" flex-md="40" flex-sm="30"></md-divider>
+            <div layout="column" layout-align="center center">
+              <i class="fa" ng-class="{'fa-chevron-up': status.open, 'fa-chevron-down': !status.open}">
+                <md-tooltip md-direction="top">
+                Advanced Option
+                </md-tooltip>
+              </i>
+            </div>
+            <md-divider flex="45"  flex-md="40" flex-sm="30"></md-divider>
+          </div>
+        </accordion-heading>
+        <md-input-container>
+          <label>Elasticsearch Query</label>
+          <textarea rows="5" id="elasticsearch" ng-model="elasticsearch" ng-change="prettyJSON()"></textarea>
+        </md-input-container>
+      </accordion-group>
+    </accordion>
+  </div>
+  <div ng-show="results.data.hits.length">
+    <md-data-table-toolbar>
+      <h2 class="md-title">Results</h2>
+    </md-data-table-toolbar>
+    <md-data-table-container>
+      <table md-data-table md-progress="deferred" class="corpus-search-results">
+        <thead md-order="query.order" md-trigger="onOrderChange">
+          <tr>
+            <th name="Date Scraped" order-by="date_scraped"></th>
+            <th name="Snippet" order-by="snippet"></th>
+            <th name="Source" order-by="source"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr md-auto-select ng-repeat="result in results.data.hits">
+            <td>{{result.date_scraped | date:'dd/MM/yyyy'}}</td>
+            <td ng-bind-html="result.snippet"></td>
+            <td>{{result.source}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </md-data-table-container>
+
+    <md-data-table-pagination md-limit="query.limit" md-page="query.page"
+      md-total="{{results.meta.count}}" md-trigger="onPaginationChange"
+      md-row-select="[query.limit]">
+    </md-data-table-pagination>
+  </div>
+</div>

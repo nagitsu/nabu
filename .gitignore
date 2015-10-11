@@ -1,5 +1,11 @@
 *.pyc
+.DS_Store
 /observador.log
 /frontend/src/styles/.sass-cache/
 /frontend/node_modules/
 /.projectile
+/ui-nabu/node_modules
+/ui-nabu/dist
+/ui-nabu/.tmp
+/ui-nabu/.sass-cache
+/ui-nabu/bower_components

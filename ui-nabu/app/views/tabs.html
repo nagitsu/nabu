@@ -1,0 +1,22 @@
+<md-tabs md-center-tabs md-dynamic-height md-stretch-tabs="always" md-swipe-content md-selected="getSelected()">
+	<md-tab label="Dashboard" ng-click="changeTab('dashboard')">
+		<md-content>
+			<div ui-view="dashboard"></div>
+		</md-content>
+	</md-tab>
+	<md-tab label="Corpus" ng-click="changeTab('corpus')">
+		<md-content>
+			<div ui-view="corpusSearch"></div>
+		</md-content>
+	</md-tab>
+	<md-tab label="Embeddings" ng-click="changeTab('embeddings')">
+		<md-content>
+			<div ui-view="embeddings"></div>
+		</md-content>
+	</md-tab>
+	<md-tab label="Tests" ng-click="changeTab('tests')">
+		<md-content>
+			<div ui-view="tests"></div>
+		</md-content>
+	</md-tab>
+</md-tabs>

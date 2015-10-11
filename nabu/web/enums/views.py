@@ -19,7 +19,7 @@ def model_enums():
                 {'name': 'hsoftmax', 'verbose_name': 'Hierarchical Softmax', 'type': 'bool', 'description': "whether to use hierarchical softmax", 'default': True},
                 {'name': 'negative', 'verbose_name': 'Negative Sampling', 'type': 'int', 'description': "number of words to use for negative sampling", 'default': 0},
                 {'name': 'epochs', 'verbose_name': 'Epochs', 'type': 'int', 'description': "number of epochs to train with", 'default': 1},
-                {'name': 'alpha', 'verbose_name': 'Alpha', 'type': 'float', 'description': "learning rate for sgd", 'default': 0.25},
+                {'name': 'alpha', 'verbose_name': 'Alpha', 'type': 'float', 'description': "learning rate for sgd", 'default': 0.025},
             ]
         }
     ]

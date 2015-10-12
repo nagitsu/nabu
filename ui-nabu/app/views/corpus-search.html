@@ -55,7 +55,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr md-auto-select ng-repeat="result in results.data.hits">
+          <tr md-auto-select ng-repeat="result in results.data.hits"
+            ng-click="documentDetailDialog($event, result.document_id)">
             <td>{{result.date_scraped | date:'dd/MM/yyyy'}}</td>
             <td ng-bind-html="result.snippet"></td>
             <td>{{result.source}}</td>

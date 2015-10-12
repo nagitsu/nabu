@@ -8,7 +8,7 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('CorpusCtrl', function ($scope, Corpus) {
+  .controller('CorpusCtrl', function ($scope, $mdDialog, Corpus) {
     $scope.resultsTable = {
         page: 1,
         limit: 25 // This is hard-coded in the server
@@ -33,6 +33,21 @@ angular.module('nabuApp')
         var offset = (page - 1) * $scope.resultsTable.limit;
         Corpus.search($scope.basicQuery, offset).then(function(results){
             $scope.results = results;
+        });
+    };
+
+    $scope.documentDetailDialog = function(ev, docId) {
+        $mdDialog.show({
+            controller: 'DocumentDetailDialogCtrl',
+            templateUrl: 'views/document-detail.html',
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true,
+            resolve: {
+                docData: function(Corpus){
+                    return Corpus.documentRetrieve(docId);
+                }
+            }
         });
     };
   });

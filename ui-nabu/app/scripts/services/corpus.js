@@ -14,7 +14,7 @@ angular.module('nabuApp')
         if (!offset) {
           offset = 0;
         }
-        return Restangular.all('corpus').all('search/').post(
+        return Restangular.all('corpus').all('search').post(
           query, {offset: offset}
         );
       }

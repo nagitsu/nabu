@@ -105,4 +105,5 @@ angular
   })
   .run(function(Restangular){
     Restangular.setBaseUrl('http://golbat.ydns.eu/api');
+    Restangular.setRequestSuffix('/'); // The server expects a trailing slash
   });

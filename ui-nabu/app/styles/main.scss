@@ -128,6 +128,19 @@ a:hover {
   }
 }
 
+.doc-detail-dialog {
+  .md-dialog-content {
+    max-width: 950px;
+    max-height: 975px;
+  }
+  .doc-content {
+    white-space: pre-line;
+  }
+  md-divider {
+    margin: 15px;
+  }
+}
+
 .advanced-options{
   .panel-default {
     border-color: transparent;

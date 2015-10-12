@@ -1,0 +1,38 @@
+<md-dialog class="doc-detail-dialog" aria-label="{{corpusDoc.metadata.title}}" ng-cloak>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>{{corpusDoc.metadata.title}}</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="cancel()">
+        <i aria-label="Close" class="fa fa-close"></i>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-dialog-content>
+    <div class="md-dialog-content">
+      <div layout="row">
+        <div flex>
+          <h5>Source: <i>{{corpusDoc.data_source}}</i></h5>
+          <h5 ng-show="corpusDoc.tags.length">Tags: <i>{{corpusDoc.tags.join(', ')}}</i></h5>
+          <h5>Word count: <i>{{corpusDoc.word_count}}</i></h5>
+        </div>
+        <div flex>
+          <h5 ng-show="corpusDoc.metadata.date">
+            Date: <i>{{corpusDoc.metadata.date | date:'dd/MM/yyyy'}}</i>
+          </h5>
+          <h5>Date scraped: <i>{{corpusDoc.date_scraped | date:'dd/MM/yyyy'}}</i></h5>
+        </div>
+      </div>
+
+      <md-divider></md-divider>
+      <span class="doc-content">{{corpusDoc.content}}</span>
+    </div>
+  </md-dialog-content>
+
+  <div class="md-actions" layout="row">
+    <md-button href="{{corpusDoc.permalink}}" target="_blank" md-autofocus>
+      View source
+    </md-button>
+  </div>
+</md-dialog>

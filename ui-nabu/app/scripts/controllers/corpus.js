@@ -13,6 +13,7 @@ angular.module('nabuApp')
         page: 1,
         limit: 25 // This is hard-coded in the server
     };
+    $scope.loading = false;
 
     $scope.basicQuery = {
         'query': {
@@ -23,9 +24,11 @@ angular.module('nabuApp')
     };
 
     $scope.search = function () {
+        $scope.loading = true;
         Corpus.search($scope.basicQuery).then(function(results){
             $scope.resultsTable.page = 1;
             $scope.results = results;
+            $scope.loading = false;
         });
     };
 

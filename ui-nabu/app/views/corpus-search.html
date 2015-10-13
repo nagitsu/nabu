@@ -41,7 +41,7 @@
       </accordion-group>
     </accordion>
   </div>
-  <div ng-show="results.data.hits.length">
+  <div ng-show="results.data.hits.length && !loading">
     <md-data-table-toolbar>
       <h2 class="md-title">Results</h2>
     </md-data-table-toolbar>
@@ -69,5 +69,8 @@
       md-total="{{results.meta.count}}" md-trigger="onPaginationChange"
       md-row-select="[resultsTable.limit]">
     </md-data-table-pagination>
+  </div>
+  <div ng-if="loading" layout="row" layout-align="center center">
+    <md-progress-circular md-mode="indeterminate"></md-progress-circular>
   </div>
 </div>

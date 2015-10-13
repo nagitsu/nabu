@@ -8,12 +8,13 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('CorpusCtrl', function ($scope, $mdDialog, Corpus) {
+  .controller('CorpusCtrl', function ($rootScope, $scope, $mdDialog, Corpus) {
     $scope.resultsTable = {
         page: 1,
         limit: 25 // This is hard-coded in the server
     };
     $scope.loading = false;
+    $scope.dialogLoading = false;
 
     $scope.basicQuery = {
         'query': {
@@ -40,16 +41,22 @@ angular.module('nabuApp')
     };
 
     $scope.documentDetailDialog = function(ev, docId) {
+        if ($scope.dialogLoading) {
+            return;
+        }
+        $scope.dialogLoading = true;
         $mdDialog.show({
             controller: 'DocumentDetailDialogCtrl',
             templateUrl: 'views/document-detail.html',
-            parent: angular.element(document.body),
             targetEvent: ev,
             clickOutsideToClose: true,
             resolve: {
                 docData: function(Corpus){
                     return Corpus.documentRetrieve(docId);
                 }
+            },
+            onComplete: function() {
+                $scope.dialogLoading = false;
             }
         });
     };

@@ -129,6 +129,8 @@ a:hover {
 }
 
 .doc-detail-dialog {
+  overflow: visible;
+
   .md-dialog-content {
     max-width: 950px;
     max-height: 975px;

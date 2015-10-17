@@ -18,6 +18,7 @@
       </div>
     </form>
   </div>
+
   <div layout="row">
     <accordion flex class="advanced-options">
       <accordion-group is-open="status.open">
@@ -41,10 +42,12 @@
       </accordion-group>
     </accordion>
   </div>
+
   <div ng-show="results.data.hits.length > 0 && !loading">
     <md-data-table-toolbar>
       <h2 class="md-title">Results</h2>
     </md-data-table-toolbar>
+
     <md-data-table-container>
       <table md-data-table md-progress="deferred" class="corpus-search-results">
         <thead md-order="resultsTable.order" md-trigger="onOrderChange">
@@ -70,9 +73,11 @@
       md-row-select="[resultsTable.limit]">
     </md-data-table-pagination>
   </div>
+
   <div ng-if="loading" layout="row" layout-align="center center">
     <md-progress-circular md-mode="indeterminate"></md-progress-circular>
   </div>
+
   <div ng-if="results.data.hits.length == 0 && !loading" layout="row">
     <div layout="column" layout-align="start center">
       <h2 class="md-title no-results">No results</h2>

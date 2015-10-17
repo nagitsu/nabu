@@ -8,7 +8,7 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('CorpusCtrl', function ($rootScope, $scope, $mdDialog, Corpus) {
+  .controller('CorpusCtrl', function ($scope, $mdDialog, Corpus) {
     $scope.resultsTable = {
         page: 1,
         limit: 25 // This is hard-coded in the server
@@ -35,9 +35,16 @@ angular.module('nabuApp')
 
     $scope.onPaginationChange = function (page, limit) {
         var offset = (page - 1) * $scope.resultsTable.limit;
-        Corpus.search($scope.basicQuery, offset).then(function(results){
+        return Corpus.search($scope.basicQuery, offset).then(function(results){
             $scope.results = results;
         });
+    };
+
+    $scope.onOrderChange = function (order) {
+        /* The server doesn't support ordering at the moment. We leave this
+         * placeholder here in case ordering is implemented in the future.
+         */
+         return null;
     };
 
     $scope.documentDetailDialog = function(ev, docId) {

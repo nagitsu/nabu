@@ -32,22 +32,19 @@ angular.module('nabuApp')
 
     $scope.filterSourceQuery = {
         'query': {
-          'bool': {
-             'must': [
-                {
-                   'terms': {
-                      'data_source': [],
-                      'minimum_should_match' : 1
-                   }
+            'filtered': {
+                'filter': {
+                    'terms': {
+                        'data_source': []
+                    }
                 },
-                {
-                   'match': {
-                      'content': ''
-                   }
+                'query': {
+                    'match': {
+                        'content': ''
+                    }
                 }
-             ]
-          }
-       }
+            }
+        }
     };
 
     $scope.search = function () {
@@ -57,8 +54,8 @@ angular.module('nabuApp')
         if ($scope.searchQuery.sources.length){
             // We must filter by data source
             q = $scope.filterSourceQuery;
-            q.query.bool.must[1].match.content = $scope.searchQuery.query;
-            q.query.bool.must[0].terms.data_source = $scope.searchQuery.sources;
+            q.query.filtered.query.match.content = $scope.searchQuery.query;
+            q.query.filtered.filter.terms.data_source = $scope.searchQuery.sources;
         } else {
             q = $scope.basicQuery;
             q.query.match.content = $scope.searchQuery.query;

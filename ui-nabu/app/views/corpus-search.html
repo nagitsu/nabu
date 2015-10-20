@@ -5,9 +5,15 @@
     </div>
     <form flex="100" name="search-form">
       <div layout="row">
-        <md-input-container flex="50">
+        <md-input-container flex="30">
           <label>Search</label>
-          <input type="text" ng-model="basicQuery.query.match.content">
+          <input type="text" ng-model="searchQuery.query">
+        </md-input-container>
+        <md-input-container flex="25">
+          <label>Filter source</label>
+          <md-select ng-model="searchQuery.sources" multiple>
+            <md-option ng-repeat="source in sourceList" value="{{source}}">{{source}}</md-option>
+          </md-select>
         </md-input-container>
         <md-input-container>
           <md-button class="md-raised corpus-search md-primary md-hue-4"

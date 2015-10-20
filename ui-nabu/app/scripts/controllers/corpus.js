@@ -8,13 +8,19 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('CorpusCtrl', function ($scope, $mdDialog, Corpus) {
+  .controller('CorpusCtrl', function ($scope, $mdDialog, Corpus, sourceList) {
     $scope.resultsTable = {
         page: 1,
         limit: 25 // This is hard-coded in the server
     };
     $scope.loading = false;
     $scope.dialogLoading = false;
+    $scope.sourceList = sourceList;
+
+    $scope.searchQuery = {
+        query: '',
+        sources: []
+    };
 
     $scope.basicQuery = {
         'query': {
@@ -24,9 +30,41 @@ angular.module('nabuApp')
         }
     };
 
+    $scope.filterSourceQuery = {
+        'query': {
+          'bool': {
+             'must': [
+                {
+                   'terms': {
+                      'data_source': [],
+                      'minimum_should_match' : 1
+                   }
+                },
+                {
+                   'match': {
+                      'content': ''
+                   }
+                }
+             ]
+          }
+       }
+    };
+
     $scope.search = function () {
+        var q;
         $scope.loading = true;
-        Corpus.search($scope.basicQuery).then(function(results){
+
+        if ($scope.searchQuery.sources.length){
+            // We must filter by data source
+            q = $scope.filterSourceQuery;
+            q.query.bool.must[1].match.content = $scope.searchQuery.query;
+            q.query.bool.must[0].terms.data_source = $scope.searchQuery.sources;
+        } else {
+            q = $scope.basicQuery;
+            q.query.match.content = $scope.searchQuery.query;
+        }
+
+        Corpus.search(q).then(function(results){
             $scope.resultsTable.page = 1;
             $scope.results = results;
             $scope.loading = false;

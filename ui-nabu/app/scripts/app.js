@@ -40,7 +40,18 @@ angular
         views: {
           'corpusSearch': {
             templateUrl: "views/corpus-search.html",
-            controller: 'CorpusCtrl'
+            controller: 'CorpusCtrl',
+            resolve: {
+              sourceList: function (Corpus) {
+                return Corpus.stats().then(function(response) {
+                  var sources = [];
+                  _.each(response.data.by_source, function(item) {
+                    sources.push(item.source);
+                  });
+                  return sources;
+                });
+              }
+            }
           }
         }
       })

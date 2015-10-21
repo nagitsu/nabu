@@ -157,7 +157,8 @@ class Embedding(Base):
     @property
     def name(self):
         if self.model == 'word2vec':
-            name = "{} algo={} dim={} win={} alpha={} hs={} neg={}".format(
+            name = "{} algo={} dim={} win={} alpha={} hs={} neg={} epochs={}"
+            name = name.format(
                 self.model,
                 self.parameters.get('algorithm'),
                 self.parameters.get('dimension'),
@@ -165,6 +166,7 @@ class Embedding(Base):
                 self.parameters.get('alpha'),
                 self.parameters.get('hsoftmax'),
                 self.parameters.get('negative'),
+                self.parameters.get('epochs'),
             )
         else:
             name = self.model

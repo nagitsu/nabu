@@ -23,7 +23,6 @@ def word2vec_params(parameters):
         'sg': 1 if parameters['algorithm'] == 'skipgram' else 0,
         'hs': parameters['hsoftmax'],
         'negative': parameters['negative'],
-        'iter': parameters['epochs'],
         'alpha': parameters['alpha'],
     }
 
@@ -74,21 +73,36 @@ def sentence_generator(query, preprocessing_params, report=None):
 
 
 def train(model, query, preprocessing, parameters, file_name, report=None):
-    # Gathering the vocabulary is around 20% of the total work.
-    vocabulary_sentences = sentence_generator(
-        query, preprocessing,
-        lambda p: report(p * 0.2)
-    )
-    training_sentences = sentence_generator(
-        query, preprocessing,
-        lambda p: report(0.2 + p * 0.8)
-    )
 
     if model == 'word2vec':
         model_params = word2vec_params(parameters)
         model = gensim.models.Word2Vec(workers=12, **model_params)
+
+        # Gathering the vocabulary is around 20% of the total work.
+        vocabulary_sentences = sentence_generator(
+            query, preprocessing,
+            lambda p: report(p * 0.2)
+        )
         model.build_vocab(vocabulary_sentences)
-        model.train(training_sentences)
+
+        # Multiple epochs is not correctly supported by gensim, must be done
+        # manually.
+        base_alpha = model.alpha
+        min_alpha = model.min_alpha
+        total_epochs = parameters['epochs']
+
+        for epoch in range(1, total_epochs + 1):
+            lower_ratio = (epoch - 1) / total_epochs
+            upper_ratio = epoch / total_epochs
+
+            model.alpha = base_alpha - (base_alpha - min_alpha) * lower_ratio
+            model.min_alpha = base_alpha - (base_alpha - min_alpha) * upper_ratio
+
+            training_sentences = sentence_generator(
+                query, preprocessing,
+                lambda p: report(0.2 + p * 0.8 * upper_ratio)
+            )
+            model.train(training_sentences)
 
     if file_name:
         model_path = os.path.join(settings.EMBEDDING_PATH, file_name)

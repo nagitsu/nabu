@@ -9,7 +9,7 @@ def read_analogies(path, preprocessor=lambda x: x):
 
     May receive a `preprocessor` function to process the test contents.
     """
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         for line in f.readlines():
             line = preprocessor(line)
             w1, w2, w3, w4 = line.strip().split()

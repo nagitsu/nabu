@@ -49,7 +49,7 @@ def download_testset(testset_id):
         abort(404)
 
     def content_streamer():
-        with open(testset.full_path) as f:
+        with open(testset.full_path, encoding='utf-8') as f:
             for line in f:
                 yield line
 

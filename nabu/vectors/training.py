@@ -100,7 +100,7 @@ def train(model, query, preprocessing, parameters, file_name, report=None):
 
             training_sentences = sentence_generator(
                 query, preprocessing,
-                lambda p: report(0.2 + p * 0.8 * upper_ratio)
+                lambda p: report(0.2 + 0.8 * (lower_ratio + p / total_epochs))
             )
             model.train(training_sentences)
 

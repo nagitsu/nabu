@@ -4,6 +4,8 @@ from itertools import islice
 from os.path import join
 from subprocess import Popen, PIPE
 
+from nabu.core import settings
+
 
 class Glove:
     """
@@ -108,7 +110,7 @@ class GloveFactory:
 
         # Set up the running environment.
         env = env or {}
-        self.executable_path = env.get('executable_path', '.')
+        self.executable_path = settings.GLOVE_PATH
         self.vocab_path = env.get('vocab_path', 'vocab.txt')
         self.cooccur_path = env.get('cooccur_path', 'cooccurrence.bin')
         self.shuf_cooccur_path = env.get('shuf_cooccur_path',
@@ -143,6 +145,9 @@ class GloveFactory:
         )
 
         for document in corpus:
+            # Accept either a list of tokens or a string.
+            if isinstance(document, list):
+                document = " ".join(document)
             process.stdin.write(document)
 
         process.stdin.close()
@@ -155,10 +160,13 @@ class GloveFactory:
         base_command = join(self.executable_path, 'cooccur')
         process = Popen([
             base_command, '-window-size', str(self.window_size), '-memory',
-            str(self.memory)
+            str(self.memory), '-vocab-file', self.vocab_path,
         ], stdin=PIPE, stdout=output, stderr=None, universal_newlines=True)
 
         for document in corpus:
+            # Accept either a list of tokens or a string.
+            if isinstance(document, list):
+                document = " ".join(document)
             process.stdin.write(document)
 
         process.stdin.close()

@@ -16,11 +16,9 @@ def evaluate_analogies(embedding, testset, report=None):
     for idx, analogy in enumerate(analogies):
         if not all(w in model for w in analogy):
             # One of the words is not present, ignore test.
-            # TODO: Is it OK to ignore it?
             continue
 
         w1, w2, w3, w4 = analogy
-        # TODO: Make sure the GloVe model has a similar interface.
         result, _ = zip(*model.most_similar(
             positive=[w2, w3],
             negative=[w1],

@@ -5,6 +5,9 @@ BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 EMBEDDING_PATH = '/home/nabu/vector_store/'
 TEST_PATH = '/home/nabu/test_store/'
+GLOVE_PATH = '/home/nabu/nabu/libs/glove/'
+TRAINING_WORKERS = 12
+TRAINING_MEMORY = 16
 
 MAX_RETRIES = 5
 REQUEST_TIMEOUT = 20

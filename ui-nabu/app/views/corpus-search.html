@@ -1,13 +1,13 @@
 <div class="tab-container">
-  <div layout="row">
-    <div flex="5" layout="column" layout-align="center center">
-      <i class="fa fa-search fa-2x"></i>
-    </div>
-    <form flex="100" name="search-form">
-      <div layout="row">
+  <form flex name="search-form">
+    <div layout="column">
+      <div layout="row" collapse="useAdvancedQuery">
+        <div flex="5" layout="row" layout-align="center center">
+          <i class="fa fa-search fa-2x"></i>
+        </div>
         <md-input-container flex="30">
           <label>Search</label>
-          <input type="text" ng-model="searchQuery.query">
+          <input type="text" required ng-model="searchQuery.query">
         </md-input-container>
         <md-input-container flex="25">
           <label>Filter source</label>
@@ -15,39 +15,38 @@
             <md-option ng-repeat="source in sourceList" value="{{source}}">{{source}}</md-option>
           </md-select>
         </md-input-container>
-        <md-input-container>
-          <md-button class="md-raised corpus-search md-primary md-hue-4"
+      </div>
+
+      <div layout="column" layout-padding collapse="!useAdvancedQuery">
+          <label flex>Elasticsearch query</label>
+          <div class="es-query-code-box" ng-model="advancedQuery" flex
+            ui-ace="{
+              useWrapMode : true,
+              showGutter: true,
+              mode: 'json',
+              onLoad: aceLoaded,
+              onChange: aceChanged
+            }">
+          </div>
+      </div>
+
+      <div layout="row">
+        <md-switch ng-model="useAdvancedQuery" aria-label="Use advanced query">
+        Use advanced query
+        </md-switch>
+      </div>
+
+      <div layout="row">
+        <md-input-container flex="15">
+          <md-button class="md-raised corpus-search-btn md-primary md-hue-4"
             ng-click="search()">
           SEARCH
           </md-button>
         </md-input-container>
+        <span flex></span>
       </div>
-    </form>
-  </div>
-
-  <div layout="row">
-    <accordion flex class="advanced-options">
-      <accordion-group is-open="status.open">
-        <accordion-heading>
-          <div layout="row" layout-align="space-between center">
-            <md-divider flex="45" flex-md="40" flex-sm="30"></md-divider>
-            <div layout="column" layout-align="center center">
-              <i class="fa" ng-class="{'fa-chevron-up': status.open, 'fa-chevron-down': !status.open}">
-                <md-tooltip md-direction="top">
-                Advanced Option
-                </md-tooltip>
-              </i>
-            </div>
-            <md-divider flex="45"  flex-md="40" flex-sm="30"></md-divider>
-          </div>
-        </accordion-heading>
-        <md-input-container>
-          <label>Elasticsearch Query</label>
-          <textarea rows="5" id="elasticsearch" ng-model="elasticsearch" ng-change="prettyJSON()"></textarea>
-        </md-input-container>
-      </accordion-group>
-    </accordion>
-  </div>
+    </div>
+  </form>
 
   <div ng-show="results.data.hits.length > 0 && !loading">
     <md-data-table-toolbar>

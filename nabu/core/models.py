@@ -212,7 +212,7 @@ class Embedding(Base):
         if self.model == 'word2vec':
             model = gensim.models.Word2Vec.load(self.full_path)
         elif self.model == 'glove':
-            model = GloveFactory.load(self.full_path)
+            model = GloveFactory().load(self.full_path)
         else:
             raise Exception("Cannot load model type.")
         return model

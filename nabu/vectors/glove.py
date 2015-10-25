@@ -33,6 +33,9 @@ class Glove:
             return self.vectors[self.vocab[words]]
         return np.vstack([self.vectors[self.vocab[word]] for word in words])
 
+    def __contains__(self, word):
+        return word in self.vocab
+
     def most_similar(self, positive=[], negative=[], topn=10):
         if isinstance(positive, str) and not negative:
             positive = [positive]

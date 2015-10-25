@@ -9,3 +9,7 @@
 /ui-nabu/.tmp
 /ui-nabu/.sass-cache
 /ui-nabu/bower_components
+/libs/glove/cooccur
+/libs/glove/glove
+/libs/glove/shuffle
+/libs/glove/vocab_count

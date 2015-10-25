@@ -1,13 +1,16 @@
 import gensim
+import json
 import os
 
 from elasticsearch.helpers import scan
+from hashlib import sha512
 
 from nabu.core import settings
 from nabu.core.index import es
 from nabu.vectors.utils import (
     build_token_preprocessor, build_word_tokenizer, build_sentence_tokenizer,
 )
+from nabu.vectors.glove import GloveFactory
 
 
 def word2vec_params(parameters):
@@ -24,6 +27,25 @@ def word2vec_params(parameters):
         'hs': parameters['hsoftmax'],
         'negative': parameters['negative'],
         'alpha': parameters['alpha'],
+    }
+
+    return model_params
+
+
+def glove_params(parameters):
+    """
+    Turns the parameters as stored on the Embedding model to the GloveFactory
+    equivalents.
+    """
+    model_params = {
+        'vector_size': parameters['dimension'],
+        'min_count': parameters['min_count'],
+        'max_count': parameters['max_count'],
+        'window_size': parameters['window'],
+        'alpha': parameters['alpha'],
+        'eta': parameters['eta'],
+        'x_max': parameters['x_max'],
+        'epochs': parameters['epochs'],
     }
 
     return model_params
@@ -73,10 +95,14 @@ def sentence_generator(query, preprocessing_params, report=None):
 
 
 def train(model, query, preprocessing, parameters, file_name, report=None):
+    model_path = os.path.join(settings.EMBEDDING_PATH, file_name)
 
     if model == 'word2vec':
         model_params = word2vec_params(parameters)
-        model = gensim.models.Word2Vec(workers=12, **model_params)
+        model = gensim.models.Word2Vec(
+            workers=settings.TRAINING_WORKERS,
+            **model_params
+        )
 
         # Gathering the vocabulary is around 20% of the total work.
         vocabulary_sentences = sentence_generator(
@@ -104,8 +130,49 @@ def train(model, query, preprocessing, parameters, file_name, report=None):
             )
             model.train(training_sentences)
 
-    if file_name:
-        model_path = os.path.join(settings.EMBEDDING_PATH, file_name)
         model.save(model_path)
+
+    elif model == 'glove':
+        model_params = glove_params(parameters)
+
+        # Obtain the query's hash, so we don't create repeated cooccurrence
+        # matrices the same query.
+        query_hash = sha512(json.dumps(query).encode('utf-8')).hexdigest()[:20]
+        base_path = '{}{}'.format(settings.EMBEDDING_PATH, query_hash)
+        env = {
+            'vocab_path': '{}.vocab.txt'.format(base_path),
+            'cooccur_path': '{}.cooccur.bin'.format(base_path),
+            'shuf_cooccur_path': '{}.cooccur.shuf.bin'.format(base_path),
+        }
+
+        factory = GloveFactory(
+            env=env,
+            threads=settings.TRAINING_WORKERS,
+            memory=settings.TRAINING_MEMORY,
+            **model_params
+        )
+
+        # Check if the shuffled cooccurrence matrix and vocabulary files exists
+        # for this query. If they do, don't create them again.
+        if not (os.path.exists(env['vocab_path']) and
+                os.path.exists(env['shuf_cooccur_path'])):
+
+            vocabulary_sentences = sentence_generator(
+                query, preprocessing,
+                lambda p: report(p * 0.05)
+            )
+            factory.build_vocabulary(vocabulary_sentences)
+
+            matrix_sentences = sentence_generator(
+                query, preprocessing,
+                lambda p: report(0.05 + 0.2 * p)
+            )
+            factory.build_cooccurrence_matrix(matrix_sentences)
+
+            # Delete the non-shuffled cooccurrence matrix.
+            os.remove(env['cooccur_path'])
+
+        report(0.35)
+        model = factory.train(model_path)
 
     return model

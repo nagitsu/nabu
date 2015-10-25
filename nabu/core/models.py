@@ -14,6 +14,7 @@ from sqlalchemy.orm import backref, relationship, sessionmaker, scoped_session
 from nabu.core import settings
 from nabu.core.index import es
 from nabu.vectors.utils import read_analogies
+from nabu.vectors.glove import GloveFactory
 
 
 engine = create_engine(
@@ -168,6 +169,15 @@ class Embedding(Base):
                 self.parameters.get('negative'),
                 self.parameters.get('epochs'),
             )
+        elif self.model == 'glove':
+            name = "{} dim={} win={} alpha={} epochs={}"
+            name = name.format(
+                self.model,
+                self.parameters.get('dimension'),
+                self.parameters.get('window'),
+                self.parameters.get('alpha'),
+                self.parameters.get('epochs'),
+            )
         else:
             name = self.model
 
@@ -201,6 +211,8 @@ class Embedding(Base):
     def load_model(self):
         if self.model == 'word2vec':
             model = gensim.models.Word2Vec.load(self.full_path)
+        elif self.model == 'glove':
+            model = GloveFactory.load(self.full_path)
         else:
             raise Exception("Cannot load model type.")
         return model

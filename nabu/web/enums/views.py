@@ -21,6 +21,20 @@ def model_enums():
                 {'name': 'epochs', 'verbose_name': 'Epochs', 'type': 'int', 'description': "number of epochs to train with", 'default': 1},
                 {'name': 'alpha', 'verbose_name': 'Alpha', 'type': 'float', 'description': "learning rate for sgd", 'default': 0.025},
             ]
+        },
+        {
+            'model': 'glove',
+            'verbose_name': 'GloVe',
+            'parameters': [
+                {'name': 'dimension', 'verbose_name': 'Dimension', 'type': 'int', 'description': "size of word vectors", 'default': 100},
+                {'name': 'min_count', 'verbose_name': 'Minimum Count', 'type': 'int', 'description': "minimum times a word must appear on the corpus to be in the vocabulary", 'default': 10},
+                {'name': 'max_count', 'verbose_name': 'Maximum Count', 'type': 'int', 'description': "upper bound for the vocabulary size (i.e. keep top N words)", 'default': None},
+                {'name': 'x_max', 'verbose_name': 'X Max', 'type': 'float', 'description': "cutoff for weighting function", 'default': 100.0},
+                {'name': 'window', 'verbose_name': 'Window', 'type': 'int', 'description': "window size for the word's context", 'default': 15},
+                {'name': 'alpha', 'verbose_name': 'Alpha', 'type': 'float', 'description': "exponent for weighting function", 'default': 0.75},
+                {'name': 'eta', 'verbose_name': 'Eta', 'type': 'float', 'description': "learning rate for sgd", 'default': 0.05},
+                {'name': 'epochs', 'verbose_name': 'Epochs', 'type': 'int', 'description': "number of epochs to train with", 'default': 15},
+            ]
         }
     ]
 

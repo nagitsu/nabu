@@ -136,8 +136,12 @@ def train(model, query, preprocessing, parameters, file_name, report=None):
         model_params = glove_params(parameters)
 
         # Obtain the query's hash, so we don't create repeated cooccurrence
-        # matrices the same query.
-        query_hash = sha512(json.dumps(query).encode('utf-8')).hexdigest()[:20]
+        # matrices the same query and parameter combinations.
+        content = json.dumps(query) + " " + \
+            str(parameters['min_count']) + " " + \
+            str(parameters['max_count']) + " " + \
+            str(parameters['window'])
+        query_hash = sha512(content.encode('utf-8')).hexdigest()[:20]
         base_path = '{}{}'.format(settings.EMBEDDING_PATH, query_hash)
         env = {
             'vocab_path': '{}.vocab.txt'.format(base_path),

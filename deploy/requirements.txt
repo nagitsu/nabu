@@ -19,3 +19,4 @@ ipdb
 gensim
 nltk
 celery[redis]
+sparsesvd

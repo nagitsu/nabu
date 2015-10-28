@@ -25,7 +25,8 @@ def read_corpus():
         es, index='nabu',
         scroll='30m', fields='content',
         # query={'query': {'match_all': {}}}
-        query={'query': {'match': {'data_source': '180.com.uy'}}}
+        # query={'query': {'match': {'data_source': '180.com.uy'}}}
+        query={'query': {'match': {'data_source': 'lanacion.com.ar'}}}
     )
 
     for document in documents:
@@ -51,8 +52,6 @@ def build_vocab(corpus, min_count=10, max_count=None):
 
 
 def build_pairs(vocab, corpus, window=5, subsample=10e-5, dynamic_window=True):
-    pairs = Counter()
-
     # Calculate the probability of removing each word in the vocabulary.
     # If count <= subsample, the probability will be negative, keep positives
     # only.
@@ -93,12 +92,12 @@ def build_pairs(vocab, corpus, window=5, subsample=10e-5, dynamic_window=True):
             for j in range(start, end):
                 if j == i:
                     continue
-                pairs[(token, tokens[j])] += 1
-
-    return dict(pairs)
+                yield (token, tokens[j])
 
 
-def build_cooccurrence(vocab, pairs):
+def build_cooccurrence(vocab, corpus, window=5, subsample=10e-5):
+    pairs = build_pairs(vocab, corpus, window=window, subsample=subsample)
+
     words = sorted(list(vocab.keys()))
     w2i = {w: i for i, w in enumerate(words)}
     vocab_size = len(words)
@@ -107,10 +106,15 @@ def build_cooccurrence(vocab, pairs):
     tmp_counts = dok_matrix((vocab_size, vocab_size), dtype=np.float32)
 
     idx = 0
-    update_threshold = 100000
-    for (word, context), count in pairs.items():
+    update_threshold = 300000  # TODO: See how much bigger this can be.
+    for word, context in pairs:
         if word in w2i and context in w2i:
-            tmp_counts[w2i[word], w2i[context]] = count
+            key = (w2i[word], w2i[context])
+            if key in tmp_counts:
+                tmp_counts[key] += 1
+            else:
+                tmp_counts[key] = 1
+
         idx += 1
 
         # Check if the main cooccurrence matrix must be updated.
@@ -125,12 +129,10 @@ def build_cooccurrence(vocab, pairs):
 
 
 def build_ppmi(cooccur, cds=0.75):
-    # TODO: What to do with words that don't appear in any pair?
     sum_w = np.array(cooccur.sum(axis=1))[:, 0]
     sum_c = np.array(cooccur.sum(axis=0))[0, :]
-    if cds:
+    if cds != 1:
         sum_c = sum_c ** cds
-    # TODO: Is this OK? Should the sum be done with the cds'ed counts?
     sum_total = sum_c.sum()
 
     sum_w = np.reciprocal(sum_w)
@@ -169,7 +171,10 @@ def multiply_by_columns(matrix, col_coefs):
 def build_svd(ppmi, dim=100, sum_context=True, eig_weight=0, normalize=True):
     ut, s, vt = sparsesvd(ppmi.tocsc(), dim)
 
-    u = np.dot(ut.T, np.diag(s ** eig_weight))
+    u = ut.T
+    if eig_weight:
+        u = np.dot(u, np.diag(s ** eig_weight))
+
     if sum_context:
         u += vt.T
 
@@ -183,7 +188,7 @@ def build_svd(ppmi, dim=100, sum_context=True, eig_weight=0, normalize=True):
 def main():
     min_count = 10
     max_count = None
-    dim = 100
+    dim = 200
     window = 5
     subsample = 10e-5
     sum_context = True
@@ -196,16 +201,12 @@ def main():
     )
     logger.debug('%s words found', len(vocab))
 
-    logger.debug('building the pair counts')
-    pairs = build_pairs(
+    logger.debug('building the cooccurrence matrix')
+    cooccur, words, w2i = build_cooccurrence(
         vocab, read_corpus(),
         window=window,
-        subsample=subsample,
+        subsample=subsample
     )
-    logger.debug('%s pairs generated', len(pairs))
-
-    logger.debug('building the cooccurrence matrix')
-    cooccur, words, w2i = build_cooccurrence(vocab, pairs)
     logger.debug('%s non-zero entries', cooccur.nnz)
 
     logger.debug('building the explicit PPMI matrix of the coocc matrix')
@@ -217,11 +218,17 @@ def main():
     logger.debug('SVD representation obtained')
 
     # Sanity check.
-    vec = u[w2i['uruguay']]
-    dists = np.dot(u, vec) / np.linalg.norm(u, axis=1) / np.linalg.norm(vec)
-    word_ids = np.argsort(-dists)
-    for idx in word_ids[:15]:
-        print(words[idx], dists[idx])
+    def nearest(vec):
+        dists = np.dot(u, vec) / np.linalg.norm(vec)
+        word_ids = np.argsort(-dists)
+        for idx in word_ids[:15]:
+            print(words[idx], dists[idx])
+    # vec = u[w2i['uruguay']]
+    vec = u[w2i['rey']] - u[w2i['reina']] + u[w2i['mujer']]
+    nearest(vec)
+
+    # mul = (np.dot(u, a_) * np.dot(u, b)) * np.reciprocal(np.dot(u, a) + 0.001
+    # word_ids = np.argsort(mul)[::-1]
 
     from IPython import embed
     embed(display_banner=False)

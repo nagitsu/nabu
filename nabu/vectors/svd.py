@@ -46,7 +46,11 @@ def build_vocab(corpus, min_count=10, max_count=None):
     vocab = Counter()
 
     for sentence in corpus:
-        vocab.update(Counter(sentence.split()))
+        tokens = sentence.split()
+        if len(tokens) < 2:
+            # Discard sentences that are too short.
+            continue
+        vocab.update(Counter(tokens))
 
     return {k: v for k, v in vocab.most_common(max_count) if v >= min_count}
 
@@ -168,29 +172,29 @@ def multiply_by_columns(matrix, col_coefs):
     return matrix.dot(normalizer.tocsr())
 
 
-def build_svd(ppmi, dim=100, sum_context=True, eig_weight=0, normalize=True):
+def build_svd(ppmi, dim=100, sum_context=True, eig=0, normalize=True):
     ut, s, vt = sparsesvd(ppmi.tocsc(), dim)
 
-    u = ut.T
-    if eig_weight:
-        u = np.dot(u, np.diag(s ** eig_weight))
+    m = ut.T
+    if eig:
+        m = np.dot(m, np.diag(s ** eig))
 
     if sum_context:
-        u += vt.T
+        m += vt.T
 
     if normalize:
-        norm = np.linalg.norm(u, axis=1)
-        u = u / norm.reshape(-1, 1)
+        norm = np.linalg.norm(m, axis=1)
+        m = m / norm.reshape(-1, 1)
 
-    return u
+    return m
 
 
 def main():
-    min_count = 10
+    min_count = 30
     max_count = None
-    dim = 200
+    dim = 300
     window = 5
-    subsample = 10e-5
+    subsample = 1e-5
     sum_context = True
 
     logger.debug('building vocabulary from corpus')
@@ -214,20 +218,20 @@ def main():
     logger.debug('%s non-zero entries', ppmi.nnz)
 
     logger.debug('building the SVD representation of the PPMI matrix')
-    u = build_svd(ppmi, dim=dim, sum_context=sum_context)
+    m = build_svd(ppmi, dim=dim, sum_context=sum_context)
     logger.debug('SVD representation obtained')
 
     # Sanity check.
     def nearest(vec):
-        dists = np.dot(u, vec) / np.linalg.norm(vec)
+        dists = np.dot(m, vec) / np.linalg.norm(vec)
         word_ids = np.argsort(-dists)
         for idx in word_ids[:15]:
             print(words[idx], dists[idx])
-    # vec = u[w2i['uruguay']]
-    vec = u[w2i['rey']] - u[w2i['reina']] + u[w2i['mujer']]
+    # vec = m[w2i['uruguay']]
+    vec = m[w2i['rey']] - m[w2i['reina']] + m[w2i['mujer']]
     nearest(vec)
 
-    # mul = (np.dot(u, a_) * np.dot(u, b)) * np.reciprocal(np.dot(u, a) + 0.001
+    # mul = (np.dot(m, a_) * np.dot(m, b)) * np.reciprocal(np.dot(m, a) + 0.001)
     # word_ids = np.argsort(mul)[::-1]
 
     from IPython import embed

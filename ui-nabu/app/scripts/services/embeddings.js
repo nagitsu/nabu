@@ -14,15 +14,20 @@ angular.module('nabuApp')
         return Restangular.one('embeddings').get();
       },
 
+      create: function (newEmbedding) {
+        return Restangular.all('embeddings').post(newEmbedding);
+      },
+
       retrieve: function (embeddingId) {
-        // After the data object is retrieved we get an object that we can use
-        // for updating by changing any part of it and then calling the save()
-        // method. We can also delete it using the remove() method.
         return Restangular.one('embeddings', embeddingId).get();
       },
 
-      create: function (newEmbedding) {
-        return Restangular.all('embeddings').post(newEmbedding);
+      update: function (embeddingId, data) {
+        return Restangular.one('embeddings', embeddingId).post('', data);
+      },
+
+      delete: function (embeddingId) {
+        return Restangular.one('embeddings', embeddingId).remove();
       },
     };
   });

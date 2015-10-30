@@ -35,7 +35,20 @@ def model_enums():
                 {'name': 'eta', 'verbose_name': 'Eta', 'type': 'float', 'description': "learning rate for sgd", 'default': 0.05},
                 {'name': 'epochs', 'verbose_name': 'Epochs', 'type': 'int', 'description': "number of epochs to train with", 'default': 15},
             ]
-        }
+        },
+        {
+            'model': 'svd',
+            'verbose_name': 'SVD',
+            'parameters': [
+                {'name': 'dimension', 'verbose_name': 'Dimension', 'type': 'int', 'description': "size of word vectors", 'default': 300},
+                {'name': 'min_count', 'verbose_name': 'Minimum Count', 'type': 'int', 'description': "minimum times a word must appear on the corpus to be in the vocabulary", 'default': 10},
+                {'name': 'max_count', 'verbose_name': 'Maximum Count', 'type': 'int', 'description': "upper bound for the vocabulary size (i.e. keep top N words)", 'default': None},
+                {'name': 'window', 'verbose_name': 'Window', 'type': 'int', 'description': "window size for the word's context", 'default': 5},
+                {'name': 'subsampling', 'verbose_name': 'Subsampling', 'type': 'float', 'description': "subsampling for words", 'default': 1e-5},
+                {'name': 'cds', 'verbose_name': 'Context Distribution Smoothing', 'type': 'float', 'description': "apply smoothing to counts for PMI", 'default': 0.75},
+                {'name': 'sum_context', 'verbose_name': 'Sum Context', 'type': 'bool', 'description': "sum context vectors to main vectors", 'default': True},
+            ]
+        },
     ]
 
     return jsonify(data=model_parameters)

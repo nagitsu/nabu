@@ -11,6 +11,7 @@ from nabu.vectors.utils import (
     build_token_preprocessor, build_word_tokenizer, build_sentence_tokenizer,
 )
 from nabu.vectors.glove import GloveFactory
+from nabu.vectors.svd import SVDFactory
 
 
 def word2vec_params(parameters):
@@ -46,6 +47,24 @@ def glove_params(parameters):
         'eta': parameters['eta'],
         'x_max': parameters['x_max'],
         'epochs': parameters['epochs'],
+    }
+
+    return model_params
+
+
+def svd_params(parameters):
+    """
+    Turns the parameters as stored on the Embedding model to the SVDFactory
+    equivalents.
+    """
+    model_params = {
+        'dim': parameters['dimension'],
+        'min_count': parameters['min_count'],
+        'max_count': parameters['max_count'],
+        'window': parameters['window'],
+        'subsample': parameters['subsampling'],
+        'cds': parameters['cds'],
+        'sum_context': parameters['sum_context'],
     }
 
     return model_params
@@ -178,5 +197,24 @@ def train(model, query, preprocessing, parameters, file_name, report=None):
 
         report(0.35)
         model = factory.train(model_path)
+
+    elif model == 'svd':
+        model_params = svd_params(parameters)
+        factory = SVDFactory(**model_params)
+
+        vocabulary_sentences = sentence_generator(
+            query, preprocessing,
+            lambda p: report(p * 0.1)
+        )
+        factory.build_vocab(vocabulary_sentences)
+
+        matrix_sentences = sentence_generator(
+            query, preprocessing,
+            lambda p: report(0.1 + 0.7 * p)
+        )
+        factory.build_svd(matrix_sentences)
+
+        model = factory.train()
+        factory.save(model_path)
 
     return model

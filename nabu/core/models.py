@@ -15,6 +15,7 @@ from nabu.core import settings
 from nabu.core.index import es
 from nabu.vectors.utils import read_analogies
 from nabu.vectors.glove import GloveFactory
+from nabu.vectors.svd import SVDFactory
 
 
 engine = create_engine(
@@ -178,6 +179,15 @@ class Embedding(Base):
                 self.parameters.get('alpha'),
                 self.parameters.get('epochs'),
             )
+        elif self.model == 'svd':
+            name = "{} dim={} win={} cds={} context={}"
+            name = name.format(
+                self.model,
+                self.parameters.get('dimension'),
+                self.parameters.get('window'),
+                self.parameters.get('cds'),
+                self.parameters.get('sum_context'),
+            )
         else:
             name = self.model
 
@@ -212,7 +222,9 @@ class Embedding(Base):
         if self.model == 'word2vec':
             model = gensim.models.Word2Vec.load(self.full_path)
         elif self.model == 'glove':
-            model = GloveFactory().load(self.full_path)
+            model = GloveFactory.load(self.full_path)
+        elif self.model == 'svd':
+            model = SVDFactory.load(self.full_path)
         else:
             raise Exception("Cannot load model type.")
         return model

@@ -15,7 +15,8 @@ def evaluate_analogies(embedding, testset, report=None):
     results = []
     for idx, analogy in enumerate(analogies):
         if not all(w in model for w in analogy):
-            # One of the words is not present, ignore test.
+            # One of the words is not present, count as a failed test.
+            results.append((False, False, False))
             continue
 
         w1, w2, w3, w4 = analogy

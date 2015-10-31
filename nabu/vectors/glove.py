@@ -81,6 +81,12 @@ class GloveFactory:
             # Accept either a list of tokens or a string.
             if isinstance(document, list):
                 document = " ".join(document)
+
+            # Add a final newline if missing, so context windows don't go over
+            # sentencens.
+            if not document.endswith('\n'):
+                document += '\n'
+
             process.stdin.write(document)
 
         process.stdin.close()
@@ -100,6 +106,12 @@ class GloveFactory:
             # Accept either a list of tokens or a string.
             if isinstance(document, list):
                 document = " ".join(document)
+
+            # Add a final newline if missing, so context windows don't go over
+            # sentencens.
+            if not document.endswith('\n'):
+                document += '\n'
+
             process.stdin.write(document)
 
         process.stdin.close()

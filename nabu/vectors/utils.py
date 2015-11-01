@@ -16,6 +16,23 @@ def read_analogies(path, preprocessor=lambda x: x):
             yield (w1, w2, w3, w4)
 
 
+def read_similarities(path, preprocessor=lambda x: x):
+    """
+    Generator that yields similarity pairs from the file at `path`.
+
+    May receive a `preprocessor` function to process the test contents.
+    """
+    with open(path, 'r', encoding='utf-8') as f:
+        for line in f.readlines():
+            w1, w2, sim = line.strip().split()
+
+            sim = float(sim)
+            w1 = preprocessor(w1)
+            w2 = preprocessor(w2)
+
+            yield ((w1, w2), sim)
+
+
 def build_token_preprocessor(params):
 
     def preprocessor(text):

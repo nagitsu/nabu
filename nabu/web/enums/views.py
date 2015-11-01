@@ -103,10 +103,8 @@ def corpus_enums():
 @bp.route('/tests/')
 def tests_enums():
     tests_parameters = [
-        {
-            'type': 'analogies',
-            'verbose_name': 'Analogies',
-        }
+        {'type': 'analogies', 'verbose_name': 'Analogies'},
+        {'type': 'similarity', 'verbose_name': 'Word Similarity'}
     ]
 
     return jsonify(data=tests_parameters)

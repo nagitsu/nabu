@@ -1,5 +1,11 @@
+import numpy as np
+
+from scipy.stats.stats import spearmanr
+
 from nabu.core.models import db, Result
-from nabu.vectors.utils import read_analogies, build_token_preprocessor
+from nabu.vectors.utils import (
+    read_analogies, read_similarities, build_token_preprocessor,
+)
 
 
 def evaluate_analogies(embedding, testset, report=None):
@@ -13,10 +19,12 @@ def evaluate_analogies(embedding, testset, report=None):
     # Run the test and fill `accuracy`, `extended_results`. Report every
     # 25 analogies tested.
     results = []
+    missing = 0
     for idx, analogy in enumerate(analogies):
         if not all(w in model for w in analogy):
             # One of the words is not present, count as a failed test.
             results.append((False, False, False, False, False, False))
+            missing += 1
             continue
 
         w1, w2, w3, w4 = analogy
@@ -60,11 +68,44 @@ def evaluate_analogies(embedding, testset, report=None):
         'top5_add': top5_add,
         'top10_add': top10_add,
 
-        'tested': len(results),
+        'missing': missing,
         'total': len(analogies),
     }
 
     return accuracy, extended
+
+
+def evaluate_similarities(embedding, testset, report=None):
+    model = embedding.load_model()
+    preprocessor = build_token_preprocessor(embedding.preprocessing)
+    word_pairs, expected_sims = list(zip(*read_similarities(
+        testset.full_path, preprocessor
+    )))
+
+    results = []
+    missing = 0
+    for idx, pair in enumerate(word_pairs):
+        try:
+            sim = np.dot(*model[pair])
+        except KeyError:
+            # If one of the words is missing, similarity is zero.
+            missing += 1
+            sim = 0.0
+
+        results.append(sim)
+
+        if report and (idx + 1) % 25 == 0:
+            report(idx / len(word_pairs))
+
+    rho = spearmanr(results, expected_sims)[0]
+    rho = 0.0 if np.isnan(rho) else rho
+
+    extended = {
+        'missing': missing,
+        'total': len(word_pairs),
+    }
+
+    return rho, extended
 
 
 def evaluate(embedding, testset, report=None):
@@ -73,6 +114,8 @@ def evaluate(embedding, testset, report=None):
     """
     if testset.test_type == 'analogies':
         evaluator = evaluate_analogies
+    elif testset.test_type == 'similarity':
+        evaluator = evaluate_similarities
 
     accuracy, extended = evaluator(embedding, testset, report=report)
 

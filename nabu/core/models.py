@@ -13,7 +13,7 @@ from sqlalchemy.orm import backref, relationship, sessionmaker, scoped_session
 
 from nabu.core import settings
 from nabu.core.index import es
-from nabu.vectors.utils import read_analogies
+from nabu.vectors.utils import read_analogies, read_similarities
 from nabu.vectors.glove import GloveFactory
 from nabu.vectors.svd import SVDFactory
 
@@ -273,7 +273,8 @@ class TestSet(Base):
     id = Column(Integer, primary_key=True, nullable=False)
 
     name = Column(String, nullable=False, unique=True)  # A01, <type><num>.
-    test_type = Column(String, nullable=False)  # May be `analogies`.
+    # `test_type` may be `analogies` or `similarity`.
+    test_type = Column(String, nullable=False)
     description = Column(Text, nullable=False)
 
     def __repr__(self):
@@ -294,6 +295,11 @@ class TestSet(Base):
             first_analogy = next(read_analogies(self.full_path))
             entry = "'{}' is to '{}' as '{}' is to... ('{}')".format(
                 *first_analogy
+            )
+        elif self.test_type == 'similarity':
+            first_sim = next(read_similarities(self.full_path))
+            entry = "'{}' and '{}' are similar with score {}".format(
+                first_sim[0][0], first_sim[0][1], first_sim[1]
             )
         else:
             entry = ""

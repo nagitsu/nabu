@@ -119,6 +119,9 @@ class Embedding:
     def doesnt_match(self, words):
         # Filter words that aren't in the vocabulary.
         words = [word for word in words if word in self.vocab]
+        if not words:
+            raise ValueError("None of the words is in the vocabulary")
+
         vectors = self[words]
         mean = np.mean(vectors, axis=0)
 

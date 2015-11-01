@@ -4,7 +4,8 @@ from scipy.stats.stats import spearmanr
 
 from nabu.core.models import db, Result
 from nabu.vectors.utils import (
-    read_analogies, read_similarities, build_token_preprocessor,
+    read_analogies, read_odd_one_outs, read_similarities,
+    build_token_preprocessor,
 )
 
 
@@ -108,6 +109,37 @@ def evaluate_similarities(embedding, testset, report=None):
     return rho, extended
 
 
+def evaluate_odd_one_outs(embedding, testset, report=None):
+    model = embedding.load_model()
+    preprocessor = build_token_preprocessor(embedding.preprocessing)
+    odd_one_outs = list(read_odd_one_outs(
+        testset.full_path, preprocessor
+    ))
+
+    results = []
+    missing = 0
+    for idx, (odd, rest) in enumerate(odd_one_outs):
+        try:
+            result = model.doesnt_match([odd] + rest) == odd
+        except ValueError:
+            # If all of the words are missing, the test failed.
+            result = False
+            missing += 1
+
+        results.append(result)
+
+        if report and (idx + 1) % 25 == 0:
+            report(idx / len(odd_one_outs))
+
+    accuracy = len(list(filter(lambda r: r, results))) / len(results)
+    extended = {
+        'missing': missing,
+        'total': len(odd_one_outs),
+    }
+
+    return accuracy, extended
+
+
 def evaluate(embedding, testset, report=None):
     """
     Tests the given embedding against the given testset.
@@ -116,6 +148,8 @@ def evaluate(embedding, testset, report=None):
         evaluator = evaluate_analogies
     elif testset.test_type == 'similarity':
         evaluator = evaluate_similarities
+    elif testset.test_type == 'odd-one-out':
+        evaluator = evaluate_odd_one_outs
 
     accuracy, extended = evaluator(embedding, testset, report=report)
 

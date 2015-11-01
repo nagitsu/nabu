@@ -104,7 +104,8 @@ def corpus_enums():
 def tests_enums():
     tests_parameters = [
         {'type': 'analogies', 'verbose_name': 'Analogies'},
-        {'type': 'similarity', 'verbose_name': 'Word Similarity'}
+        {'type': 'odd-one-out', 'verbose_name': 'Odd One Out'},
+        {'type': 'similarity', 'verbose_name': 'Word Similarity'},
     ]
 
     return jsonify(data=tests_parameters)

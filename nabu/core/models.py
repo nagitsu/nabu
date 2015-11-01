@@ -318,15 +318,18 @@ class TestSet(Base):
         Will delete all its files, cancel any ongoing tasks, and delete Results
         and TestingJobs.
         """
-        # Delete the test's file.
-        os.remove(self.full_path)
+        # Delete the test's file, if it exists.
+        try:
+            os.remove(self.full_path)
+        except FileNotFoundError:
+            pass
 
         from nabu.vectors.tasks import app as celery_app
 
         # If it's being tested, stop it.
         testing_jobs = self.testing_jobs.all()
         for testing_job in testing_jobs:
-            task_id = self.testing_job.task_id
+            task_id = testing_job.task_id
             if task_id:
                 celery_app.control.revoke(task_id, terminate=True)
             db.delete(testing_job)

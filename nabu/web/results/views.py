@@ -39,7 +39,10 @@ def delete_result(embedding_id, testset_id):
     if not result:
         abort(404)
 
+    # Delete its testing_job first.
+    db.delete(result.testing_job)
     db.delete(result)
+
     db.commit()
 
     return '', 204

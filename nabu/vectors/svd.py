@@ -12,7 +12,6 @@ from nabu.vectors.embedding import Embedding
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 def multiply_by_rows(matrix, row_coefs):
@@ -56,9 +55,9 @@ class SVDFactory:
         matrix_file = '{}.npy'.format(path)
 
         with open(vocab_file, 'r', encoding='utf-8') as f:
-            words = {word: idx for idx, word in enumerate(f)}
+            words = {word.strip(): idx for idx, word in enumerate(f)}
 
-        vectors = np.load(matrix_file, allow_pickle=False)
+        vectors = np.load(matrix_file)
 
         return SVD(words, vectors)
 
@@ -66,8 +65,7 @@ class SVDFactory:
         logger.debug('building vocabulary from corpus')
         vocab = Counter()
 
-        for sentence in corpus:
-            tokens = sentence.split()
+        for tokens in corpus:
             if len(tokens) < 2:
                 # Discard sentences that are too short.
                 continue
@@ -109,10 +107,10 @@ class SVDFactory:
         vocab_file = '{}.txt'.format(path)
         matrix_file = '{}.npy'.format(path)
 
-        with open(vocab_file, 'w') as f:
-            f.write('\n'.join(self.words).encode('utf-8'))
+        with open(vocab_file, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(self.words))
 
-        np.save(matrix_file, self.vectors, allow_picke=False)
+        np.save(matrix_file, self.vectors)
 
     def _build_ppmi(self, corpus):
         cooccur = self._build_cooccurrence(corpus)
@@ -132,6 +130,9 @@ class SVDFactory:
         ppmi = multiply_by_rows(ppmi, sum_w)
         ppmi = multiply_by_columns(ppmi, sum_c)
         ppmi = ppmi * sum_total
+
+        # Apply log to non-zero entries.
+        ppmi.data = np.log(ppmi.data)
 
         # We want the positive PMI matrix.
         ppmi.data[ppmi.data < 0] = 0
@@ -193,7 +194,7 @@ class SVDFactory:
 
         for sentence in corpus:
 
-            tokens = [t for t in sentence.split() if t in self.vocab]
+            tokens = [t for t in sentence if t in self.vocab]
             if self.subsample:
                 # If the token is in the list of tokens to subsample, draw a
                 # random number and see if we should keep it.

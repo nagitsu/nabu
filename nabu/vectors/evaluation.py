@@ -16,37 +16,50 @@ def evaluate_analogies(embedding, testset, report=None):
     for idx, analogy in enumerate(analogies):
         if not all(w in model for w in analogy):
             # One of the words is not present, count as a failed test.
-            results.append((False, False, False))
+            results.append((False, False, False, False, False, False))
             continue
 
         w1, w2, w3, w4 = analogy
-        result, _ = zip(*model.most_similar(
-            positive=[w2, w3],
-            negative=[w1],
-            topn=10,
+
+        # Calculate the results both with 3CosAdd and 3CosMul.
+        result_mul, _ = zip(*model.most_similar_cosmul(
+            positive=[w2, w3], negative=[w1], topn=10,
+        ))
+        result_add, _ = zip(*model.most_similar(
+            positive=[w2, w3], negative=[w1], topn=10,
         ))
 
         results.append((
-            w4 in result[:1],
-            w4 in result[:5],
-            w4 in result[:10],
+            w4 in result_mul[:1], w4 in result_mul[:5], w4 in result_mul[:10],
+            w4 in result_add[:1], w4 in result_add[:5], w4 in result_add[:10],
         ))
 
         if report and (idx + 1) % 25 == 0:
             report(idx / len(analogies))
 
     if results:
-        top1 = len(list(filter(lambda r: r[0], results))) / len(results)
-        top5 = len(list(filter(lambda r: r[1], results))) / len(results)
-        top10 = len(list(filter(lambda r: r[2], results))) / len(results)
-    else:
-        top1 = top5 = top10 = 0
+        top1_mul = len(list(filter(lambda r: r[0], results))) / len(results)
+        top5_mul = len(list(filter(lambda r: r[1], results))) / len(results)
+        top10_mul = len(list(filter(lambda r: r[2], results))) / len(results)
 
-    accuracy = top1
+        top1_add = len(list(filter(lambda r: r[3], results))) / len(results)
+        top5_add = len(list(filter(lambda r: r[4], results))) / len(results)
+        top10_add = len(list(filter(lambda r: r[5], results))) / len(results)
+    else:
+        top1_mul = top5_mul = top10_mul = 0
+        top1_add = top5_add = top10_add = 0
+
+    # We use 3CosMul as default accuracy, as it's the state-of-the-art.
+    accuracy = top1_mul
     extended = {
-        'top1': top1,
-        'top5': top5,
-        'top10': top10,
+        'top1_mul': top1_mul,
+        'top5_mul': top5_mul,
+        'top10_mul': top10_mul,
+
+        'top1_add': top1_add,
+        'top5_add': top5_add,
+        'top10_add': top10_add,
+
         'tested': len(results),
         'total': len(analogies),
     }

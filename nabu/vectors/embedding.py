@@ -70,6 +70,49 @@ class Embedding:
 
         return list(islice(result, topn))
 
+    def most_similar_cosmul(self, positive=[], negative=[], topn=10):
+        if isinstance(positive, str) and not negative:
+            positive = [positive]
+
+        all_words = set()
+
+        def word_vec(word):
+            if isinstance(word, np.ndarray):
+                return word
+            elif word in self.vocab:
+                all_words.add(self.vocab[word])
+                return self[word]
+            else:
+                raise KeyError("Word '{}' not in vocabulary".format(word))
+
+        positive = [word_vec(word) for word in positive]
+        negative = [word_vec(word) for word in negative]
+
+        if not positive:
+            raise ValueError("Cannot compute similarity with no input")
+
+        def distance(vector):
+            return np.dot(self.vectors, vector)\
+                / np.linalg.norm(self.vectors, axis=1)\
+                / np.linalg.norm(vector)
+
+        # Shift to [0, 1] so we don't have negative distances.
+        pos_dists = [((1 + distance(vector)) / 2) for vector in positive]
+        neg_dists = [((1 + distance(vector)) / 2) for vector in negative]
+        distances = (
+            np.prod(pos_dists, axis=0) /
+            (np.prod(neg_dists, axis=0) + 0.0001)
+        )
+        word_ids = np.argsort(-distances)
+
+        result = (
+            (self.inv_vocab[idx], distances[idx])
+            for idx in word_ids
+            if idx not in all_words
+        )
+
+        return list(islice(result, topn))
+
     def analogy(self, w1, w2, w3):
         return self.most_similar(positive=[w2, w3], negative=[w1])
 

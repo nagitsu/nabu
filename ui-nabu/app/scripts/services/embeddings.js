@@ -1,3 +1,5 @@
+(function () {
+
 'use strict';
 
 /**
@@ -31,3 +33,4 @@ angular.module('nabuApp')
       },
     };
   });
+})(angular);

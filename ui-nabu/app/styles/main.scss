@@ -15,6 +15,7 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
 
 /* ---- Variables ---- */
 
+$md-theme-orange: #ffab40;
 $status-color-ok: #90ee90;
 $status-color-warn: #ffffe0;
 $status-color-error: #f08080;
@@ -132,6 +133,12 @@ a:hover {
   padding: 10px 5px 10px 5px;
 }
 
+.fab-btn-icon {
+  color: white !important;
+  height: 24px;
+  font-size: 24px !important;
+}
+
 // Corpus
 
 .corpus-search-btn {
@@ -153,7 +160,7 @@ a:hover {
 
 .corpus-search-results {
   td em {
-    background-color: #FFAB40;
+    background-color: $md-theme-orange;
   }
 }
 

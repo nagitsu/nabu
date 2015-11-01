@@ -52,14 +52,10 @@
     <md-data-table-toolbar>
       <h2 class="md-title">Results</h2>
       <span flex></span>
-      <md-button class="md-fab" aria-label="Download corpus"
+      <md-button class="md-fab md-mini" aria-label="Download corpus"
         href="{{results.data.download_link}}" download>
-        <md-icon md-font-icon="fa fa-download fa-2x"
-          ng-style="{color: 'white', 'font-size':'36px', height:'36px'}">
-        </md-icon>
-        <md-tooltip md-direction="top">
-        Download Corpus
-        </md-tooltip>
+        <md-icon class="fab-btn-icon" md-font-icon="fa fa-download"></md-icon>
+        <md-tooltip md-direction="left">Download Corpus</md-tooltip>
       </md-button>
     </md-data-table-toolbar>
 

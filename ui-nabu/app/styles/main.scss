@@ -4,6 +4,23 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
 @import "font-awesome/scss/font-awesome.scss";
 // endbower
 
+/* ---- Mixins ---- */
+
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+     -moz-border-radius: $radius;
+      -ms-border-radius: $radius;
+          border-radius: $radius;
+}
+
+/* ---- Variables ---- */
+
+$status-color-ok: #90ee90;
+$status-color-warn: #ffffe0;
+$status-color-error: #f08080;
+
+/* ---- Style ---- */
+
 .browsehappy {
   margin: 0.2em 0;
   background: #ccc;
@@ -115,6 +132,8 @@ a:hover {
   padding: 10px 5px 10px 5px;
 }
 
+// Corpus
+
 .corpus-search-btn {
   margin-top: 13px;
   span {
@@ -173,4 +192,35 @@ a:hover {
 
 .no-results {
   padding: 0px 24px;
+}
+
+// Embeddings
+
+.embedding-card {
+  .md-title {
+    font-family: monospace;
+  }
+}
+
+.embedding-status {
+    width: 20px;
+    height: 20px;
+    @include border-radius(15px);
+    box-shadow: 0 2px 4px #e6e6e6;
+    border: 1px solid rgba(99, 91, 91, 0.38);
+}
+
+.trained {
+  @extend .embedding-status;
+  background-color: $status-color-ok;
+}
+
+.training {
+  @extend .embedding-status;
+  background-color: $status-color-warn;
+}
+
+.untrained {
+  @extend .embedding-status;
+  background-color: $status-color-error;
 }

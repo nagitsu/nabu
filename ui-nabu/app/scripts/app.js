@@ -1,3 +1,5 @@
+(function () {
+
 'use strict';
 
 /**
@@ -72,8 +74,13 @@ angular
         views: {
           'embeddings': {
             templateUrl: "views/embeddings.html",
-            controller: function($scope) {
-              $scope.items = ["A", "List", "Of", "Items"];
+            controller: 'EmbeddingsCtrl',
+            resolve: {
+              embeddingList: function (Embeddings) {
+                return Embeddings.list().then(function(response) {
+                  return response.data;
+                });
+              }
             }
           }
         }
@@ -119,3 +126,4 @@ angular
     Restangular.setBaseUrl('http://golbat.ydns.eu/api');
     Restangular.setRequestSuffix('/'); // The server expects a trailing slash
   });
+})(angular, _);

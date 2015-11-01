@@ -1,3 +1,17 @@
 <div class="tab-container">
-	<p>This is the EMBEDDINGS view.</p>
+  <md-card class="embedding-card" ng-repeat="embedding in embeddings">
+    <md-card-content>
+      <div class="md-title" layout="row" layout-wrap>
+        <p>{{embedding.name}}</p>
+        <span flex></span>
+        <div ng-class="embedding.status | lowercase">
+          <md-tooltip md-direction="left">{{embedding.status | titlecase}}</md-tooltip>
+        </div>
+      </div>
+      <p>{{embedding.description}}</p>
+    </md-card-content>
+    <div class="md-actions" layout="row" layout-align="end center">
+      <md-button>{{embedding.model}}</md-button>
+    </div>
+  </md-card>
 </div>

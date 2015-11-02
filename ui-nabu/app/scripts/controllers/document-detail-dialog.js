@@ -1,3 +1,5 @@
+(function () {
+
 'use strict';
 
 /**
@@ -15,3 +17,4 @@ angular.module('nabuApp')
         $mdDialog.cancel();
     };
   });
+})(angular);

@@ -1,4 +1,13 @@
 <div class="tab-container">
+  <div layout="row">
+    <span flex></span>
+    <md-button class="md-fab md-mini" aria-label="New embedding"
+      ng-click="newEmbeddingDialog($event)">
+      <md-icon class="fab-btn-icon" md-font-icon="fa fa-plus"></md-icon>
+      <md-tooltip md-direction="left">New Embedding</md-tooltip>
+    </md-button>
+  </div>
+
   <md-card class="embedding-card" ng-repeat="embedding in embeddings">
     <md-card-content>
       <div class="md-title" layout="row" layout-wrap>

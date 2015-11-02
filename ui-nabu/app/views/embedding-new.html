@@ -1,0 +1,48 @@
+<md-dialog flex="85" class="embedding-new-dialog" aria-label="Create new embedding" ng-cloak>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Create new embedding</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="cancel()">
+        <i aria-label="Close" class="fa fa-close"></i>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-dialog-content>
+    <div class="md-dialog-content">
+        <form name="newEmbeddingForm">
+
+          <div layout="row" layout-sm="column">
+            <md-input-container flex=20 flex-sm=100>
+              <label>Model</label>
+              <md-select ng-model="newEmb.model">
+                <md-option ng-repeat="model in models" value="{{model.model}}">
+                  {{model.verbose_name}}
+                </md-option>
+              </md-select>
+            </md-input-container>
+            <md-input-container flex=80 flex-sm=100>
+              <label>Description</label>
+              <textarea ng-model="newEmb.description" columns="1"></textarea>
+            </md-input-container>
+          </div>
+
+          <div layout="row" layout-sm="column" layout-wrap>
+            <md-input-container class="md-block" flex=50 flex-sm=100
+              ng-repeat="param in currentParams">
+              <label>{{param.verbose_name}}</label>
+              <input ng-model="newEmb.parameters[param.name]">
+              <md-tooltip md-direction="top">{{param.description}}</md-tooltip>
+            </md-input-container>
+          </div>
+        </form>
+    </div>
+  </md-dialog-content>
+
+  <div class="md-actions" layout="row">
+    <md-button href="{{corpusDoc.permalink}}" target="_blank" md-autofocus>
+      Create
+    </md-button>
+  </div>
+</md-dialog>

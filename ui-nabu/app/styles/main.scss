@@ -231,3 +231,7 @@ a:hover {
   @extend .embedding-status;
   background-color: $status-color-error;
 }
+
+.embedding-new-dialog {
+  overflow: visible;
+}

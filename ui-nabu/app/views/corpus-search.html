@@ -17,9 +17,10 @@
         </md-input-container>
       </div>
 
-      <div layout="column" layout-padding collapse="!useAdvancedQuery">
-          <label flex>Elasticsearch query</label>
-          <div class="es-query-code-box" ng-model="advancedQuery" flex
+      <div layout="row" layout-sm="column" layout-wrap collapse="!useAdvancedQuery">
+        <md-input-container class="md-block es-query-box-block" flex=40 flex-sm=80>
+          <span class="md-label-sim">Elasticsearch query</label>
+          <div class="es-query-box" ng-model="advancedQuery"
             ui-ace="{
               useWrapMode : true,
               showGutter: true,
@@ -28,6 +29,7 @@
               onChange: aceChanged
             }">
           </div>
+        </md-input-container>
       </div>
 
       <div layout="row">

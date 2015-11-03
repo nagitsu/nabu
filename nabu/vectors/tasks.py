@@ -21,6 +21,11 @@ app.conf.CELERY_ROUTES = {
     'nabu.vectors.tasks.test': {'queue': 'testing'},
 }
 
+# (Almost) disable visibility timeout.
+app.conf.BROKER_TRANSPORT_OPTIONS = {
+    'visibility_timeout': 432000
+}
+
 
 @app.task(bind=True)
 def train(self, training_job_id):
@@ -79,6 +84,9 @@ def test(self, testing_job_id):
 
     def report(progress):
         self.update_state(state='PROGRESS', meta={'progress': progress})
+
+    # Initial progress report so it happens before loading the model.
+    report(0.0)
 
     start_time = time.time()
     result = evaluate(embedding, testset, report=report)

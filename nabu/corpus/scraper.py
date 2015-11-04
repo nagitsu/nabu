@@ -248,7 +248,11 @@ def scrape_entry(entry_id):
         # `get_metadata` must return the same number of documents as
         # `get_content`.
         metadata = module.get_metadata(response)
-        metadata['url'] = response.url
+        if isinstance(metadata, list):
+            for md in metadata:
+                md['url'] = response.url
+        else:
+            metadata['url'] = response.url
 
         if outcome == 'success':
             results = [content]
@@ -260,7 +264,8 @@ def scrape_entry(entry_id):
         new_docs = []
         for content, metadata in zip(results, metadatas):
             min_words = settings.MIN_WORDS_PER_DOCUMENT
-            if not content['content'] or len(content['content']) < min_words:
+            word_count = len(content['content'].split())
+            if not content['content'] or word_count < min_words:
                 continue
 
             doc = prepare_document(content, metadata, entry)

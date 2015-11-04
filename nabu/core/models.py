@@ -48,43 +48,6 @@ class DataSource(Base):
         return "<DataSource('{}')>".format(self.domain)
 
 
-def document_word_count(context):
-    """
-    Calculate the word count for a document.
-    """
-    return len(context.current_parameters['content'].split())
-
-
-# TODO: Will live in ElasticSearch in the future.
-class Document(Base):
-    """
-    A document with usable data.
-    """
-    __tablename__ = 'documents'
-
-    id = Column(Integer, primary_key=True, nullable=False)
-    # The document's actual content.
-    content = Column(Text, nullable=False)
-    # May be `clean`, `html`. State the content is in.
-    content_type = Column(String, nullable=False)
-    # Metadata for the Document, may have a date, an author, a title, etc.
-    # TODO: Use some kind of JSONField, or PostgreSQL's json field.
-    metadata_ = Column(Text, nullable=False, default="{}")
-    # E.g. `['news', 'Uruguay']`.
-    tags = Column(Text, nullable=False, default="[]")
-
-    # Document derived from this Entry, if any.
-    entry_id = Column(Integer, ForeignKey('entries.id'),
-                      nullable=False, index=True)
-    entry = relationship('Entry', backref=backref('documents', lazy='dynamic'))
-
-    # Denormalized fields.
-    word_count = Column(Integer, nullable=False, default=document_word_count)
-
-    def __repr__(self):
-        return "<Document('{}')>".format(self.id)
-
-
 class Entry(Base):
     """
     An entry for an online document to be scraped.

@@ -86,34 +86,25 @@ def create_index(force=False):
     es.indices.create(index="nabu", body=INDEX_BODY, ignore=400)
 
 
-def prepare_document(doc):
+def prepare_document(content, metadata, entry):
     """
-    Transforms a `Document` instance into a dictionary ready to be sent to
-    Elasticsearch.
+    Transforms the data returned from a scraper into a dictionary ready to be
+    sent to Elasticsearch.
     """
-    payload = json.loads(doc.metadata_)
-    domain = doc.entry.data_source.domain
-    source_id = doc.entry.source_id
-
-    # Calculate the document's URL and add it to the metadata if it isn't
-    # there already.
-    if 'url' not in payload:
-        url = sources.SOURCES[domain].DOCUMENT_URL.format(source_id)
-        payload['url'] = url
-
-    # Update the `date` field, if present.
-    if 'date' in payload:
-        payload['date'] = datetime.fromtimestamp(payload['date'])
+    payload = metadata
+    domain = entry.data_source.domain
+    source_id = entry.source_id
+    word_count = len(content['content'].split())
 
     payload.update({
-        "content": doc.content,
-        "content_type": doc.content_type,
-        "word_count": doc.word_count,
-        "tags": json.loads(doc.tags),
+        "content": content['content'],
+        "content_type": content.get('content_type', 'clean'),
+        "word_count": word_count,
+        "tags": content.get('tags', []),
         "data_source": domain,
         "entry": {
-            "entry_id": doc.entry.id,
-            "date_scraped": doc.entry.last_tried,
+            "entry_id": entry.id,
+            "date_scraped": entry.last_tried,
             "source_id": source_id,
         }
     })

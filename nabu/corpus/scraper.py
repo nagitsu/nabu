@@ -1,16 +1,15 @@
 import asyncio
 import concurrent
-import json
 import logging
 
 from datetime import datetime
 
 from nabu.core import settings
 from nabu.core.index import es, prepare_document
-from nabu.core.models import db, DataSource, Document, Entry
+from nabu.core.models import db, DataSource, Entry
 
 from nabu.corpus import sources
-from nabu.corpus.utils import custom_encoder, get
+from nabu.corpus.utils import get
 
 
 logger = logging.getLogger(__name__)
@@ -151,7 +150,7 @@ def scrape_entries(data_source_id):
 def scrape_entry(entry_id):
     """
     Scrapes the Entry identified by `entry_id` and updates its info, also
-    creating a Document if successful.
+    storing the document in Elasticsearch if successful.
     """
     entry = db.query(Entry).get(entry_id)
     module = sources.SOURCES[entry.data_source.domain]
@@ -243,8 +242,8 @@ def scrape_entry(entry_id):
                 entry_id, outcome
             )
 
-    # If successful, fetch the metadata of the entry and create the Document
-    # instance.
+    # If successful, fetch the metadata of the entry and store in
+    # Elasticsearch.
     if outcome in ['multiple', 'success']:
         # `get_metadata` must return the same number of documents as
         # `get_content`.
@@ -264,24 +263,15 @@ def scrape_entry(entry_id):
             if not content['content'] or len(content['content']) < min_words:
                 continue
 
-            doc = Document(
-                content=content['content'],
-                # If a `content_type` was provided, use it; else assume
-                # `clean`.
-                content_type=content.get('content_type', 'clean'),
-                metadata_=json.dumps(metadata, default=custom_encoder),
-                tags=json.dumps(content.get('tags', [])),
-                entry=entry
-            )
-            new_docs.append(db.merge(doc))
+            doc = prepare_document(content, metadata, entry)
+            new_docs.append(doc)
 
     logger.info("entry_id = %s finished with outcome = %s", entry_id, outcome)
     db.commit()
 
     # Finally, store document on Elasticsearch too.
     for doc in new_docs:
-        payload = prepare_document(doc)
-        es.index(index='nabu', doc_type='document', id=doc.id, body=payload)
+        es.index(index='nabu', doc_type='document', body=doc)
 
 
 def scrape():

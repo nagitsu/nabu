@@ -10,17 +10,20 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('EmbeddingNewDialogCtrl', function ($scope, $mdDialog, modelEnums) {
+  .controller('EmbeddingNewDialogCtrl', function ($scope, $mdDialog, modelEnums, corpusEnums) {
     // Transform the list of models data into a map that has model names as
     // keys and model parameters as values.
     $scope.models = _.object(_.map(modelEnums.data, function(item) {
         return [item.model, item];
     }));
 
+    $scope.corpusPreprocessors = corpusEnums.data;
+
     $scope.newEmb = {
         'model': modelEnums.data[0].model,
         'description': '',
-        'parameters': {}
+        'parameters': {},
+        'preprocessing': {}
     };
     $scope.currentParams = [];
 

@@ -27,6 +27,9 @@ angular.module('nabuApp')
             resolve: {
                 modelEnums: function(Enums) {
                     return Enums.models();
+                },
+                corpusEnums: function(Enums) {
+                    return Enums.corpus();
                 }
             },
             onComplete: function() {

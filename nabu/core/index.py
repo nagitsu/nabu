@@ -1,9 +1,4 @@
-import json
-
-from datetime import datetime
 from elasticsearch import Elasticsearch
-
-from nabu.corpus import sources
 
 
 INDEX_BODY = {

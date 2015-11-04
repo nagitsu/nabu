@@ -15,7 +15,16 @@ def model_enums():
                 {'name': 'min_count', 'verbose_name': 'Minimum Count', 'type': 'int', 'description': "Minimum times a word must appear on the corpus to be in the vocabulary", 'default': 5},
                 {'name': 'window', 'verbose_name': 'Window', 'type': 'int', 'description': "Window size for the word's context", 'default': 5},
                 {'name': 'subsampling', 'verbose_name': 'Subsampling', 'type': 'float', 'description': "Subsampling for words", 'default': 0.0},
-                {'name': 'algorithm', 'verbose_name': 'Algorithm', 'type': 'str', 'description': "Whether to use `cbow` or `skipgram`", 'default': 'skipgram'},
+                {
+                    'name': 'algorithm',
+                    'verbose_name': 'Algorithm',
+                    'type': 'options',
+                    'values': [
+                        {'name': 'skipgram', 'verbose_name': 'Skipgram'},
+                        {'name': 'cbow', 'verbose_name': 'CBOW'}
+                    ],
+                    'description': "Whether to use `cbow` or `skipgram`", 'default': 'skipgram'
+                },
                 {'name': 'hsoftmax', 'verbose_name': 'Hierarchical Softmax', 'type': 'bool', 'description': "Whether to use hierarchical softmax", 'default': True},
                 {'name': 'negative', 'verbose_name': 'Negative Sampling', 'type': 'int', 'description': "Number of words to use for negative sampling", 'default': 0},
                 {'name': 'epochs', 'verbose_name': 'Epochs', 'type': 'int', 'description': "Number of epochs to train with", 'default': 1},
@@ -61,6 +70,7 @@ def corpus_enums():
             'name': 'sentence_tokenizer',
             'verbose_name': 'Sentence Tokenizer',
             'description': "Tokenizer to use to create sentences from a document",
+            'type': 'options',
             'values': [
                 {'name': 'periodspace', 'description': "Separate sentences by splitting on `. `"},
             ],
@@ -70,6 +80,7 @@ def corpus_enums():
             'name': 'word_tokenizer',
             'verbose_name': 'Word Tokenizer',
             'description': "Tokenizer to use to obtain tokens from a sentence",
+            'type': 'options',
             'values': [
                 {'name': 'alphanum', 'description': "Split the sentence into alphanumeric tokens, i.e. matching the regexp `\\w+`"},
             ],
@@ -79,21 +90,15 @@ def corpus_enums():
             'name': 'lowercase_tokens',
             'verbose_name': 'Lowercase Tokens',
             'description': "Whether to lowercase tokens when building tokens",
-            'values': [
-                {'name': 'true', 'description': "Lowercase tokens"},
-                {'name': 'false', 'description': "Don't lowercase tokens"},
-            ],
-            'default': 'true',
+            'type': 'bool',
+            'default': True,
         },
         {
             'name': 'remove_accents',
             'verbose_name': 'Remove Accents',
             'description': "Whether to remove accents when building tokens",
-            'values': [
-                {'name': 'true', 'description': "Remove accents"},
-                {'name': 'false', 'description': "Don't remove accents"},
-            ],
-            'default': 'true',
+            'type': 'bool',
+            'default': True,
         },
     ]
 

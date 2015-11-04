@@ -49,10 +49,10 @@ def read_similarities(path, preprocessor=lambda x: x):
 def build_token_preprocessor(params):
 
     def preprocessor(text):
-        if params['lowercase_tokens'] == 'true':
+        if params['lowercase_tokens']:
             text = text.lower()
 
-        if params['remove_accents'] == 'true':
+        if params['remove_accents']:
             text = unicodedata.normalize('NFKD', text)\
                               .encode('ascii', 'ignore')\
                               .decode('ascii')

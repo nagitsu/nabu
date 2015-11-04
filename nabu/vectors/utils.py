@@ -78,6 +78,9 @@ def build_sentence_tokenizer(params):
     if params['sentence_tokenizer'] == 'periodspace':
 
         def sentence_tokenizer(d):
-            return d.split('. ')
+            lines = []
+            for line in d.split('\n'):
+                lines.extend(line.split('. '))
+            return lines
 
     return sentence_tokenizer

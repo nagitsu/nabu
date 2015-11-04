@@ -28,14 +28,76 @@
             </md-input-container>
           </div>
 
+          <h5>Model parameters</h5>
           <div layout="row" layout-sm="column" layout-wrap>
-            <md-input-container class="md-block" flex=50 flex-sm=100
-              ng-repeat="param in currentParams">
-              <label>{{param.verbose_name}}</label>
-              <input ng-model="newEmb.parameters[param.name]">
+            <md-input-container class="md-block" flex=50 flex-sm=100 ng-repeat="param in currentParams">
+
+              <div ng-if="param.type == 'bool'">
+                <span class="md-label-sim">{{param.verbose_name}}</span>
+                <md-switch ng-model="newEmb.parameters[param.name]"
+                aria-label="{{param.description}}" layout-align="start end">
+                </md-switch>
+              </div>
+
+              <label ng-if="param.type != 'bool'">{{param.verbose_name}}</label>
+              <input ng-if="param.type == 'str'" ng-model="newEmb.parameters[param.name]">
+              <input ng-if="param.type == 'float' || param.type == 'int'"
+                type="number" ng-model="newEmb.parameters[param.name]">
+              <md-select ng-if="param.type == 'options'" ng-model="newEmb.parameters[param.name]">
+                <md-option ng-repeat="opt in param.values" value="{{opt.name}}">
+                  {{opt.verbose_name}}
+                </md-option>
+              </md-select>
+
               <md-tooltip md-direction="top">{{param.description}}</md-tooltip>
             </md-input-container>
           </div>
+
+          <h5>Query</h5>
+          <div layout="row" layout-sm="column" layout-wrap>
+            <md-input-container class="md-block" flex=50 flex-sm=100>
+              <span class="md-label-sim">Elasticsearch query</span>
+              <div class="es-query-box" ng-model="advancedQuery"
+                ui-ace="{
+                  useWrapMode : true,
+                  showGutter: true,
+                  mode: 'json',
+                  onLoad: aceLoaded,
+                  onChange: aceChanged
+                }">
+              </div>
+            </md-input-container>
+          </div>
+
+          <h5>Preprocessing</h5>
+          <div layout="row" layout-sm="column" layout-wrap>
+            <md-input-container class="md-block" flex=50 flex-sm=100 ng-repeat="prep in corpusPreprocessors">
+
+              <div ng-if="prep.type == 'bool'">
+                <span class="md-label-sim">{{prep.verbose_name}}</span>
+                <md-switch ng-model="newEmb.preprocessing[prep.name]"
+                aria-label="{{prep.description}}" layout-align="start end"
+                ng-init="newEmb.preprocessing[prep.name] = prep.default">
+                </md-switch>
+              </div>
+
+              <label ng-if="prep.type != 'bool'">{{prep.verbose_name}}</label>
+              <input ng-if="prep.type == 'str'" ng-model="newEmb.preprocessing[prep.name]"
+                ng-init="newEmb.preprocessing[prep.name] = prep.default">
+              <input ng-if="prep.type == 'float' || prep.type == 'int'"
+                type="number" ng-model="newEmb.preprocessing[prep.name]"
+                ng-init="newEmb.preprocessing[prep.name] = prep.default">
+              <md-select ng-if="prep.type == 'options'" ng-model="newEmb.preprocessing[prep.name]"
+                ng-init="newEmb.preprocessing[prep.name] = prep.default">
+                <md-option ng-repeat="opt in prep.values" value="{{opt.name}}">
+                  {{opt.name}}
+                </md-option>
+              </md-select>
+
+              <md-tooltip md-direction="top">{{prep.description}}</md-tooltip>
+            </md-input-container>
+          </div>
+
         </form>
     </div>
   </md-dialog-content>

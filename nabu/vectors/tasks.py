@@ -36,7 +36,6 @@ def train(self, training_job_id):
 
     training_job.task_id = train.request.id
     embedding = training_job.embedding
-    embedding.status = 'TRAINING'
     db.commit()
 
     def report(progress):

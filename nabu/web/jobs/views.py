@@ -24,6 +24,7 @@ def create_training_job():
         message = "The embedding is already trained or being trained."
         return jsonify(error='Bad Request', message=message), 400
 
+    embedding.status = 'TRAINING'
     training_job = TrainingJob(embedding_id=embedding_id)
     db.add(training_job)
     db.commit()

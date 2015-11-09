@@ -219,9 +219,8 @@ class Embedding(Base):
             db.delete(self.training_job)
 
         # If it's being tested, stop it.
-        testing_jobs = self.testing_jobs.all()
-        for testing_job in testing_jobs:
-            task_id = self.testing_job.task_id
+        for testing_job in self.testing_jobs.all():
+            task_id = testing_job.task_id
             if task_id:
                 celery_app.control.revoke(task_id, terminate=True)
             db.delete(testing_job)
@@ -290,8 +289,7 @@ class TestSet(Base):
         from nabu.vectors.tasks import app as celery_app
 
         # If it's being tested, stop it.
-        testing_jobs = self.testing_jobs.all()
-        for testing_job in testing_jobs:
+        for testing_job in self.testing_jobs.all():
             task_id = testing_job.task_id
             if task_id:
                 celery_app.control.revoke(task_id, terminate=True)

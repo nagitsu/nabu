@@ -4,6 +4,7 @@ from flask import Flask, jsonify
 from flask.ext.cors import CORS
 
 from nabu.web import corpus, embeddings, enums, jobs, results, testsets
+from nabu.core.models import db
 
 
 DEFAULT_BLUEPRINTS = (
@@ -21,6 +22,7 @@ def create_app(config=None):
 
     app = Flask(__name__)
     configure_app(app, config)
+    configure_db(app)
     configure_extensions(app)
     configure_blueprints(app, blueprints)
     configure_error_handlers(app)
@@ -34,6 +36,13 @@ def configure_app(app, config):
 
     if app.config['ENV'] == 'DEV':
         app.debug = True
+
+
+def configure_db(app):
+    @app.teardown_request
+    def shutdown_session(response_or_exc):
+        db.remove()
+        return response_or_exc
 
 
 def configure_extensions(app):

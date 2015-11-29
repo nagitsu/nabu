@@ -129,6 +129,11 @@ a:hover {
   color: white;
 }
 
+.error-message {
+  color: $status-color-error;
+  font-weight: 300;
+}
+
 .md-label-sim {
   color: rgba(0, 0, 0, 0.541176);
   cursor: default;

@@ -10,7 +10,8 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('EmbeddingNewDialogCtrl', function ($scope, $mdDialog, modelEnums, corpusEnums) {
+  .controller('EmbeddingNewDialogCtrl', function ($scope, $mdDialog, Embeddings, modelEnums, corpusEnums) {
+    $scope.showErrors = false;
     // Transform the list of models data into a map that has model names as
     // keys and model parameters as values.
     $scope.models = _.object(_.map(modelEnums.data, function(item) {
@@ -23,7 +24,8 @@ angular.module('nabuApp')
         'model': modelEnums.data[0].model,
         'description': '',
         'parameters': {},
-        'preprocessing': {}
+        'preprocessing': {},
+        'query': {}
     };
     $scope.currentParams = [];
 
@@ -37,6 +39,23 @@ angular.module('nabuApp')
           $scope.newEmb.parameters[param.name] = param.default;
         });
     });
+
+    $scope.$watch('searchQuery', function(){
+        // Transform text query into JSON object.
+        $scope.newEmb.query = angular.fromJson($scope.searchQuery);
+    });
+    $scope.searchQuery = angular.toJson({'match': {'content': ''}}, true);
+
+    $scope.create = function() {
+        $scope.showErrors = false;
+        Embeddings.create($scope.newEmb).then(function(createdEmb) {
+            // Successful creation, notify parent controller.
+            $mdDialog.hide(true);
+        }, function() {
+            // There was an error creating the new embedding.
+            $scope.showErrors = true;
+        });
+    };
 
     $scope.cancel = function() {
         $mdDialog.cancel();

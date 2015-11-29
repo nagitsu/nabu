@@ -57,7 +57,7 @@
           <div layout="row" layout-sm="column" layout-wrap>
             <md-input-container class="md-block" flex=50 flex-sm=100>
               <span class="md-label-sim">Elasticsearch query</span>
-              <div class="es-query-box" ng-model="advancedQuery"
+              <div class="es-query-box" ng-model="searchQuery"
                 ui-ace="{
                   useWrapMode : true,
                   showGutter: true,
@@ -100,9 +100,13 @@
 
         </form>
     </div>
+    <pre>{{newEmb}}</pre>
   </md-dialog-content>
 
-  <div class="md-actions" layout="row">
-    <md-button md-autofocus>Create</md-button>
+  <div class="md-actions" layout-align="space-between center" layout="row">
+    <span ng-show="showErrors" class="error-message" flex>There was an error creating the embedding.</span>
+    <div layout="row" layout-align="end center" flex>
+      <md-button md-autofocus ng-click="create()">Create</md-button>
+    </div>
   </div>
 </md-dialog>

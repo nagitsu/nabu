@@ -32,8 +32,19 @@ angular.module('nabuApp')
                     return Enums.corpus();
                 }
             },
+            locals: {
+                Embeddings: Embeddings
+            },
             onComplete: function() {
                 $scope.dialogLoading = false;
+            }
+        }).then(function(newObjCreated) {
+            // If we get here, the new embedding was created successfully.
+            if (newObjCreated) {
+                // Refresh embeddings list.
+                Embeddings.list().then(function(response) {
+                    $scope.embeddings = response.data;
+                });
             }
         });
     };

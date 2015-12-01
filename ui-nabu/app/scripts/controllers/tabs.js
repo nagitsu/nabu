@@ -1,3 +1,5 @@
+(function () {
+
 'use strict';
 
 /**
@@ -16,12 +18,11 @@ angular.module('nabuApp')
         'initial.tabs.tests'
     ];
 
-    $scope.changeTab = function(tab){
+    $scope.changeTab = function(tab) {
         var stateToGo = 'initial.tabs.' + tab;
         $state.go(stateToGo);
     };
 
-    $scope.getSelected = function(){
-        return $scope.tabs.indexOf($state.current.name);
-    };
+    $scope.selectedTab = $scope.tabs.indexOf($state.current.name);
   });
+})(angular);

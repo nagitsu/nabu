@@ -1,3 +1,43 @@
 <div class="tab-container">
-	<p>This is the TESTS view.</p>
+  <div layout="row">
+    <span flex></span>
+    <md-button class="md-fab md-mini" aria-label="New Test set"
+      ng-click="newEmbeddingDialog($event)">
+      <md-icon class="fab-btn-icon" md-font-icon="fa fa-plus"></md-icon>
+      <md-tooltip md-direction="left">New Test set</md-tooltip>
+    </md-button>
+  </div>
+
+  <md-data-table-container>
+    <table md-data-table md-progress="deferred" class="corpus-search-results">
+      <thead md-order="resultsTable.order" md-trigger="onOrderChange">
+        <tr>
+          <th name="Name" order-by="name"></th>
+          <th name="Description" order-by="description"></th>
+          <th name="Type" order-by="type"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr md-auto-select ng-repeat="testcase in tests">
+          <td>{{testcase.name}}</td>
+          <td>{{testcase.description}}</td>
+          <td>{{testcase.type}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </md-data-table-container>
+
+  <md-card class="embedding-card" ng-repeat="testcase in tests">
+    <md-card-content>
+      <div class="md-title" layout="row" layout-wrap>
+        <p>{{testcase.name}}</p>
+        <span flex></span>
+        <div ng-class="testcase.status | lowercase"><small>#{{testcase.id}}</small></div>
+      </div>
+      <p>{{testcase.description}}</p>
+    </md-card-content>
+    <div class="md-actions" layout="row" layout-align="end center">
+      <md-button>{{testcase.type}}</md-button>
+    </div>
+  </md-card>
 </div>

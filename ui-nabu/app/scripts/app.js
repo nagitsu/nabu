@@ -90,8 +90,13 @@ angular
         views: {
           'tests': {
             templateUrl: "views/tests.html",
-            controller: function($scope) {
-              $scope.items = ["A", "List", "Of", "Items"];
+            controller: 'TestsCtrl',
+            resolve: {
+              testsList: function (TestSets) {
+                return TestSets.list().then(function(response) {
+                  return response.data;
+                });
+              }
             }
           }
         }

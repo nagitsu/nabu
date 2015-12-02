@@ -12,10 +12,10 @@
 angular.module('nabuApp')
   .controller('TabsCtrl', function ($scope, $state) {
     $scope.tabs = [
-        'initial.tabs.dashboard',
-        'initial.tabs.corpus',
-        'initial.tabs.embeddings',
-        'initial.tabs.tests'
+        'dashboard',
+        'corpus',
+        'embeddings',
+        'tests'
     ];
 
     $scope.changeTab = function(tab) {
@@ -23,6 +23,8 @@ angular.module('nabuApp')
         $state.go(stateToGo);
     };
 
-    $scope.selectedTab = $scope.tabs.indexOf($state.current.name);
+    var tabNameMatches = $state.current.name.match(/tabs\.(\w+)(\.|$|-)/);
+    // tabNameMatches = ['...', 'Tab name here', '...']
+    $scope.selectedIndex = $scope.tabs.indexOf(tabNameMatches[1]);
   });
 })(angular);

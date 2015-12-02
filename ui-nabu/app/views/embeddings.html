@@ -8,7 +8,8 @@
     </md-button>
   </div>
 
-  <md-card class="embedding-card" ng-repeat="embedding in embeddings">
+  <md-card class="embedding-card" ng-repeat="embedding in embeddings"
+    ui-sref="initial.tabs.embeddings-detail({embeddingId: embedding.id})">
     <md-card-content>
       <div class="md-title" layout="row" layout-wrap>
         <p>{{embedding.name}}</p>

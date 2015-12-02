@@ -85,6 +85,22 @@ angular
           }
         }
       })
+      .state('initial.tabs.embeddings-detail', {
+        url: '/embeddings/:embeddingId',
+        views: {
+          'embedding-detail': {
+            templateUrl: "views/embedding-detail.html",
+            controller: 'EmbeddingDetailCtrl',
+            resolve: {
+              embedding: function (Embeddings, $stateParams) {
+                return Embeddings.retrieve($stateParams.embeddingId).then(function(response) {
+                  return response.data;
+                });
+              }
+            }
+          }
+        }
+      })
       .state('initial.tabs.tests', {
         url: '/tests',
         views: {

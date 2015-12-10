@@ -1,8 +1,112 @@
-<div class="tab-container">
-  <div layout="row">
-    <p>This is the embedding-detail view.</p>
+<div layout-padding class="tab-container">
+
+  <div layout-padding layout="row">
+    <div layout="column">
+      <small class="section-header">
+        <a ui-sref="initial.tabs.embeddings">Embeddings</a> >
+        <b>Embedding #{{embedding.id}}</b>
+      </small>
+
+      <div layout="row" class="emb-detail-name">
+        <div ng-class="embedding.status | lowercase" class="status">
+          <md-tooltip md-direction="bottom">{{embedding.status | titlecase}}</md-tooltip>
+        </div>
+        <p>{{embedding.name}}</p>
+      </div>
+    </div>
+
+    <span flex></span>
+
+    <md-fab-speed-dial md-direction="left" ng-class="md-scale" >
+      <md-fab-trigger>
+        <md-button aria-label="menu" class="md-fab">
+          <md-icon class="fab-btn-icon" md-font-icon="fa fa-bars"></md-icon>
+        </md-button>
+      </md-fab-trigger>
+      <md-fab-actions>
+        <md-button class="md-fab md-mini" aria-label="Download embedding" href="{{embedding.download_link}}" download>
+          <md-icon class="fab-btn-icon" md-font-icon="fa fa-download"></md-icon>
+          <md-tooltip md-direction="top">Download Embedding</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Train embedding" ng-click="trainEmbedding()">
+          <md-icon class="fab-btn-icon" md-font-icon="fa fa-lightbulb-o"></md-icon>
+          <md-tooltip md-direction="top">Train Embedding</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Delete embedding" ng-click="deleteEmbedding()">
+          <md-icon class="fab-btn-icon" md-font-icon="fa fa-trash-o"></md-icon>
+          <md-tooltip md-direction="top">Delete Embedding</md-tooltip>
+        </md-button>
+      </md-fab-actions>
+    </md-fab-speed-dial>
   </div>
-  <div layout="row">
-    <pre>{{embedding}}</pre>
+
+  <div layout-padding layout="row" layout-sm="column">
+    <md-input-container flex=40 flex-sm=90>
+      <label>Description</label>
+      <textarea ng-model="embedding.description" columns="1"></textarea>
+    </md-input-container>
+
+    <span flex="15"></span>
+
+    <md-input-container flex=40 flex-sm=90>
+      <label>Corpus Size</label>
+      <textarea ng-readonly="true" columns="1">{{embedding.corpus.size | number}}</textarea>
+    </md-input-container>
+  </div>
+
+  <div layout-padding layout="row" layout-sm="column">
+    <md-data-table-container flex="40" flex-sm="90">
+      <span layout-padding class="md-label-sim">Model Parameters</span>
+      <table layout-padding md-data-table md-progress="deferred" class="corpus-search-results">
+        <thead md-order="parametersTable.order" md-trigger="onOrderChange">
+          <tr>
+            <th name="Parameter" order-by="parameter"></th>
+            <th name="Value" order-by="value"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr md-auto-select ng-repeat="(prop, value) in embedding.parameters">
+            <td>{{prop}}</td>
+            <td>{{value || '--'}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </md-data-table-container>
+
+    <span flex="15" class="emb-separator">
+      <div class="vertical-separator"></div>
+    </span>
+
+    <div layout="column" flex="40" flex-sm="90">
+      <md-data-table-container flex>
+        <span layout-padding class="md-label-sim">Corpus Preprocessing</span>
+        <table layout-padding md-data-table md-progress="deferred" class="corpus-search-results">
+          <thead md-order="preprocessingTable.order" md-trigger="onOrderChange">
+            <tr>
+              <th name="Parameter" order-by="parameter"></th>
+              <th name="Value" order-by="value"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr md-auto-select ng-repeat="(prop, value) in embedding.corpus.preprocessing">
+              <td>{{prop}}</td>
+              <td>{{value || '--'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </md-data-table-container>
+
+      <md-input-container class="md-block" flex>
+        <span class="md-label-sim">Elasticsearch query</span>
+        <div class="es-query-box" ng-model="searchQuery" ui-ace="{
+            useWrapMode: true,
+            showGutter: true,
+            mode: 'json',
+            onLoad: aceLoaded,
+            onChange: aceChanged
+          }">
+        </div>
+      </md-input-container>
+    </div>
   </div>
 </div>

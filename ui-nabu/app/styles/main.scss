@@ -153,6 +153,10 @@ a:hover {
   font-size: 24px !important;
 }
 
+.section-header {
+  padding-bottom: 10px;
+}
+
 // Corpus
 
 .corpus-search-btn {
@@ -248,6 +252,31 @@ a:hover {
 .untrained {
   @extend .embedding-status;
   background-color: $status-color-error;
+}
+
+.emb-detail-name {
+  p {
+    font-size: 18px;
+    font-family: monospace;
+  }
+
+  .status {
+    margin-top: 4px;
+    margin-right: 12px;
+  }
+}
+
+.emb-separator {
+  position: relative;
+
+  .vertical-separator {
+    width: 1px;
+    right: 50%;
+    top: 73px;
+    bottom: 25px;
+    position: absolute;
+    background-color: #e0e0e0;
+  }
 }
 
 .embedding-new-dialog {

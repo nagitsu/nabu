@@ -10,13 +10,26 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('EmbeddingDetailCtrl', function ($scope, $state, VerifyDelete, Embeddings, embedding) {
+  .controller('EmbeddingDetailCtrl', function (
+    $scope, $state, VerifyDelete, JobsTraining, Embeddings, embedding
+  ) {
     $scope.embedding = embedding;
 
     $scope.searchQuery = angular.toJson($scope.embedding.corpus.query, true);
     $scope.aceLoaded = function(_editor) {
         // Options
         _editor.setReadOnly(true);
+        _editor.$blockScrolling = Infinity;
+    };
+
+    $scope.trainEmbedding = function() {
+        var newJob = {"embedding_id": $scope.embedding.id};
+        JobsTraining.create(newJob).then(function() {
+            console.log("Embedding marked for training.");
+            Embeddings.retrieve($scope.embedding.id).then(function(emb) {
+                $scope.embedding = emb.data;
+            });
+        });
     };
 
     $scope.deleteEmbedding = function() {

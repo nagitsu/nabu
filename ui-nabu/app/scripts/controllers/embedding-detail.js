@@ -32,6 +32,14 @@ angular.module('nabuApp')
         });
     };
 
+    $scope.updateEmbedding = function() {
+        // In this case we can only update the description attribute.
+        var editEmb = {"description": $scope.embedding.description};
+        Embeddings.update($scope.embedding.id, editEmb).then(function(emb) {
+            $scope.embedding = emb.data;
+        });
+    };
+
     $scope.deleteEmbedding = function() {
         var msg = 'Are you sure you want to delete this embedding?';
         new VerifyDelete(msg, 'Embedding').then(function() {

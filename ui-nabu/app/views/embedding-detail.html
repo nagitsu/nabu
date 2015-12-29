@@ -43,7 +43,7 @@
   <div layout-padding layout="row" layout-sm="column">
     <md-input-container flex=40 flex-sm=90>
       <label>Description</label>
-      <textarea ng-model="embedding.description" columns="1"></textarea>
+      <textarea ng-blur="updateEmbedding()" ng-model="embedding.description" columns="1"></textarea>
     </md-input-container>
 
     <span flex="15"></span>

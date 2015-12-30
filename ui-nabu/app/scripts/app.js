@@ -96,6 +96,16 @@ angular
                 return Embeddings.retrieve($stateParams.embeddingId).then(function(response) {
                   return response.data;
                 });
+              },
+              evaluationResults: function (Results, $stateParams) {
+                return Results.list($stateParams.embeddingId).then(function(response) {
+                  return response.data;
+                });
+              },
+              testList: function (TestSets) {
+                return TestSets.list().then(function(response) {
+                  return response.data;
+                });
               }
             }
           }

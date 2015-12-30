@@ -11,9 +11,15 @@
  */
 angular.module('nabuApp')
   .controller('EmbeddingDetailCtrl', function (
-    $scope, $state, VerifyDelete, JobsTraining, Embeddings, embedding
+    $scope, $state, VerifyDelete, JobsTraining, Embeddings, embedding,
+    evaluationResults, testList
   ) {
     $scope.embedding = embedding;
+    $scope.evaluationResults = evaluationResults;
+    // Here we build a map for TestSet data: TestSet.id -> TestSet.data
+    $scope.testSet = _.object(_.map(testList, function(item) {
+        return [item.id, item];
+    }));
 
     $scope.searchQuery = angular.toJson($scope.embedding.corpus.query, true);
     $scope.aceLoaded = function(_editor) {

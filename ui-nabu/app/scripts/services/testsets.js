@@ -17,7 +17,17 @@ angular.module('nabuApp')
       },
 
       create: function (newTestset) {
-        return Restangular.all('testsets').post(newTestset);
+        // Restangular (and also $http) asks for a little extra effort in order
+        // to upload files.
+        var data = new FormData();
+        data.append('name', newTestset.name);
+        data.append('type', newTestset.type);
+        data.append('file', newTestset.file);
+        data.append('description', newTestset.description);
+
+        return Restangular.all('testsets')
+          .withHttpConfig({transformRequest: angular.identity})
+          .customPOST(data, '', undefined, {'Content-Type': undefined});
       },
 
       retrieve: function (testsetId) {

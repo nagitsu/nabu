@@ -8,26 +8,7 @@
     </md-button>
   </div>
 
-  <md-data-table-container>
-    <table md-data-table md-progress="deferred" class="corpus-search-results">
-      <thead md-order="resultsTable.order" md-trigger="onOrderChange">
-        <tr>
-          <th name="Name" order-by="name"></th>
-          <th name="Description" order-by="description"></th>
-          <th name="Type" order-by="type"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr md-auto-select ng-repeat="testcase in tests">
-          <td>{{testcase.name}}</td>
-          <td>{{testcase.description}}</td>
-          <td>{{testcase.type}}</td>
-        </tr>
-      </tbody>
-    </table>
-  </md-data-table-container>
-
-  <md-card class="embedding-card" ng-repeat="testcase in tests">
+  <md-card class="nabu-card" ng-repeat="testcase in tests">
     <md-card-content>
       <div class="md-title" layout="row" layout-wrap>
         <p>{{testcase.name}}</p>

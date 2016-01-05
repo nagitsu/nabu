@@ -1,0 +1,54 @@
+<md-dialog flex="85" class="embedding-new-dialog" aria-label="Create new test set" ng-cloak>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Create new test set</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="cancel()">
+        <i aria-label="Close" class="fa fa-close"></i>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-dialog-content>
+    <div class="md-dialog-content">
+        <form name="newTestSetForm">
+
+          <div layout="row" layout-sm="column">
+            <md-input-container flex=35 flex-sm=100>
+              <label>Name</label>
+              <input ng-model="newTestSet.name">
+            </md-input-container>
+            <md-input-container flex=65 flex-sm=100>
+              <label>Description</label>
+              <textarea ng-model="newTestSet.description" columns="1"></textarea>
+            </md-input-container>
+          </div>
+
+          <div layout="row" layout-sm="column">
+            <md-input-container flex=35 flex-sm=100>
+              <label>Type</label>
+              <input ng-model="newTestSet.type">
+            </md-input-container>
+
+            <md-input-container flex=65 flex-sm=100>
+              <choose-file-button>
+                  <md-button aria-label="Upload test set file" class="md-fab md-mini">
+                    <md-icon class="fab-btn-icon" md-font-icon="fa fa-cloud-upload"></md-icon>
+                    <md-tooltip md-direction="right">Select test set file</md-tooltip>
+                  </md-button>
+                  <input choose-file-button="uploadFile" type="file">
+                  <span ng-bind="uploadFileName"></span>
+              </choose-file-button>
+            </md-input-container>
+          </div>
+        </form>
+    </div>
+  </md-dialog-content>
+
+  <div class="md-actions" layout-align="space-between center" layout="row">
+    <span ng-show="showErrors" class="error-message" flex>There was an error creating the test set.</span>
+    <div layout="row" layout-align="end center" flex>
+      <md-button md-autofocus ng-click="create()">Create</md-button>
+    </div>
+  </div>
+</md-dialog>

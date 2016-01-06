@@ -143,22 +143,6 @@ angular
           }
         }
       });
-      // .state('initial.tabs.corpus-search', {
-      //   url: '/corpus',
-      //   // abstract: true,
-      //   templateUrl: "views/corpus-search.html",
-      //   controller: function($scope) {
-      //     $scope.items = ["A", "List", "Of", "Items"];
-      //   }
-      // });
-      // .state('initial.sidenav.home', {
-      //   abstract: true,
-      //   url: '/',
-      //   templateUrl: "views/main.html",
-      //   controller: function($scope) {
-      //     $scope.items = ["A", "List", "Of", "Items"];
-      //   }
-      // });
   })
   .config(function($mdThemingProvider) {
     // Available palettes:

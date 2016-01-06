@@ -8,7 +8,8 @@
     </md-button>
   </div>
 
-  <md-card class="nabu-card" ng-repeat="testcase in tests">
+  <md-card class="nabu-card" ng-repeat="testcase in tests"
+    ui-sref="initial.tabs.tests-detail({testId: testcase.id})">
     <md-card-content>
       <div class="md-title" layout="row" layout-wrap>
         <p>{{testcase.name}}</p>

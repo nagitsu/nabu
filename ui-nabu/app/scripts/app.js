@@ -126,6 +126,22 @@ angular
             }
           }
         }
+      })
+      .state('initial.tabs.tests-detail', {
+        url: '/tests/:testId',
+        views: {
+          'test-detail': {
+            templateUrl: "views/test-detail.html",
+            controller: 'TestDetailCtrl',
+            resolve: {
+              testset: function (TestSets, $stateParams) {
+                return TestSets.retrieve($stateParams.testId).then(function(response) {
+                  return response.data;
+                });
+              }
+            }
+          }
+        }
       });
       // .state('initial.tabs.corpus-search', {
       //   url: '/corpus',

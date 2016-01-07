@@ -1,1 +1,56 @@
-<p>This is the test-detail view.</p>
+<div layout-padding class="tab-container">
+
+  <div layout-padding layout="row">
+    <div layout="column">
+      <small class="section-header">
+        <a ui-sref="initial.tabs.tests">Tests</a> >
+        <b>Test set #{{testSet.id}}</b>
+      </small>
+
+      <div layout="row" class="emb-detail-name">
+        <p>{{testSet.type | uppercase}}</p>
+      </div>
+    </div>
+
+    <span flex></span>
+
+    <md-fab-speed-dial md-direction="left" ng-class="md-scale" >
+      <md-fab-trigger>
+        <md-button aria-label="menu" class="md-fab">
+          <md-icon class="fab-btn-icon" md-font-icon="fa fa-bars"></md-icon>
+        </md-button>
+      </md-fab-trigger>
+      <md-fab-actions>
+        <md-button class="md-fab md-mini" aria-label="Download test set file" href="{{testSet.download_link}}" download>
+          <md-icon class="fab-btn-icon" md-font-icon="fa fa-download"></md-icon>
+          <md-tooltip md-direction="top">Download Test Set File</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Delete test set" ng-click="deleteTestSet()">
+          <md-icon class="fab-btn-icon" md-font-icon="fa fa-trash-o"></md-icon>
+          <md-tooltip md-direction="top">Delete Test Set</md-tooltip>
+        </md-button>
+      </md-fab-actions>
+    </md-fab-speed-dial>
+  </div>
+
+  <div layout-padding layout="row" layout-sm="column">
+    <md-input-container flex=40 flex-sm=90>
+      <label>Name</label>
+      <textarea ng-blur="updateTestSet()" ng-model="testSet.name" columns="1"></textarea>
+    </md-input-container>
+
+    <span flex="15"></span>
+
+    <md-input-container flex=40 flex-sm=90>
+      <label>Description</label>
+      <textarea ng-blur="updateTestSet()" ng-model="testSet.description" columns="1"></textarea>
+    </md-input-container>
+  </div>
+
+  <div layout-padding layout="row">
+    <h4>Example</h4>
+  </div>
+  <div layout-padding layout="row">
+    <pre ng-bind="testSet.sample_entry"></pre>
+  </div>
+</div>

@@ -12,12 +12,12 @@
 angular.module('nabuApp')
   .service('Results', function (Restangular) {
     return {
-      list: function (embeddingId) {
-        if (embeddingId) {
-          return Restangular.one('results').get({embedding: embeddingId});
-        } else {
-          return Restangular.one('results').get();
-        }
+      list: function (embeddingId, testSetId) {
+        var queryParams = {};
+        if (embeddingId) queryParams.embedding = embeddingId;
+        if (testSetId) queryParams.testset = testSetId;
+
+        return Restangular.one('results').get(queryParams);
       },
 
       retrieve: function (embeddingId, testSetId) {

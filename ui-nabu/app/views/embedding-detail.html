@@ -116,14 +116,14 @@
       <table layout-padding md-data-table md-progress="deferred" class="corpus-search-results">
         <thead md-order="evaluation.order" md-trigger="onOrderChange">
           <tr>
-            <th name="Date" order-by="date"></th>
-            <th name="Name" order-by="testName"></th>
-            <th name="Description" order-by="testDescription"></th>
+            <th name="Date" order-by="creation_date"></th>
+            <th name="Name"></th>
+            <th name="Description"></th>
             <th name="Accuracy" order-by="accuracy"></th>
           </tr>
         </thead>
         <tbody>
-          <tr md-auto-select ng-repeat="result in evaluationResults">
+          <tr md-auto-select ng-repeat="result in evaluationResults | orderBy: evaluation.order">
             <td>{{result.creation_date}}</td>
             <td>{{testSet[result.testset_id].name}}</td>
             <td>{{testSet[result.testset_id].description}}</td>

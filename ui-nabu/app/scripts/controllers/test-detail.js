@@ -11,9 +11,16 @@
  */
 angular.module('nabuApp')
   .controller('TestDetailCtrl', function (
-    $scope, $state, VerifyDelete, TestSets, testset
+    $scope, $state, $mdDialog, VerifyDelete, TestSets, Results, testset,
+    evaluationResults, embeddingList
   ) {
+    $scope.dialogLoading = false;
     $scope.testSet = testset;
+    $scope.evaluationResults = evaluationResults;
+    // Here we build a map for Embeddings data: Embedding.id -> Embedding.data
+    $scope.embeddings = _.object(_.map(embeddingList, function(item) {
+        return [item.id, item];
+    }));
 
     $scope.updateTestSet = function() {
         // In this case we can only update description and name attributes.
@@ -32,6 +39,35 @@ angular.module('nabuApp')
             TestSets.delete($scope.testSet.id).then(function() {
                 $state.go("initial.tabs.tests");
             });
+        });
+    };
+
+    $scope.testResultDialog = function(ev, embeddingId) {
+        if ($scope.dialogLoading) {
+            return;
+        }
+        $scope.dialogLoading = true;
+        $mdDialog.show({
+            controller: 'TestResultDialogCtrl',
+            templateUrl: 'views/test-result-dialog.html',
+            targetEvent: ev,
+            clickOutsideToClose: true,
+            resolve: {
+                resultData: function(Results) {
+                    return Results.retrieve(
+                        embeddingId, $scope.testSet.id
+                    ).then(function(response) {
+                        return response.data;
+                    });
+                }
+            },
+            locals: {
+                embedding: $scope.embeddings[embeddingId],
+                test: $scope.testSet
+            },
+            onComplete: function() {
+                $scope.dialogLoading = false;
+            }
         });
     };
   });

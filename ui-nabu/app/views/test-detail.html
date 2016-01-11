@@ -53,4 +53,34 @@
   <div layout-padding layout="row">
     <pre ng-bind="testSet.sample_entry"></pre>
   </div>
+
+  <div ng-show="evaluationResults.length > 0" layout="row" flex>
+    <md-data-table-container flex>
+      <span layout-padding class="md-label-sim">Evaluation</span>
+      <table layout-padding md-data-table md-progress="deferred" class="corpus-search-results">
+        <thead md-order="evaluation.order" md-trigger="onOrderChange">
+          <tr>
+            <th name="Date" order-by="creation_date"></th>
+            <th name="Embedding Description" order-by="embedding_id"></th>
+            <th name="Embedding Model" order-by="embedding_id"></th>
+            <th name="Accuracy" order-by="accuracy" md-order-by="accuracy"></th>
+            <th name="Details"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr md-auto-select ng-repeat="result in evaluationResults | orderBy: evaluation.order">
+            <td>{{result.creation_date}}</td>
+            <td>{{embeddings[result.embedding_id].description}}</td>
+            <td>{{embeddings[result.embedding_id].model}}</td>
+            <td>{{result.accuracy | percentage}}</td>
+            <td>
+              <a ng-click="testResultDialog($event, result.embedding_id)" href="">
+                <i class="fa fa-eye fa-2x"></i>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </md-data-table-container>
+  </div>
 </div>

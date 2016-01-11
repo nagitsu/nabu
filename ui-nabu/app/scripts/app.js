@@ -138,6 +138,16 @@ angular
                 return TestSets.retrieve($stateParams.testId).then(function(response) {
                   return response.data;
                 });
+              },
+              evaluationResults: function (Results, $stateParams) {
+                return Results.list(null, $stateParams.testId).then(function(response) {
+                  return response.data;
+                });
+              },
+              embeddingList: function (Embeddings) {
+                return Embeddings.list().then(function(response) {
+                  return response.data;
+                });
               }
             }
           }

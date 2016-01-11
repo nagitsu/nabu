@@ -1,0 +1,66 @@
+<md-dialog class="test-result-dialog" aria-label="Test result details" ng-cloak>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Test result details</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="cancel()">
+        <i aria-label="Close" class="fa fa-close"></i>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-dialog-content>
+    <div class="md-dialog-content">
+      <div layout="row">
+        <div flex>
+          <h5>Test set: <i>{{test.name}}</i></h5>
+          <h5>Embedding: <i>{{embedding.description}}</i></h5>
+        </div>
+        <div flex>
+          <h5>Date: <i>{{resultData.creation_date}}</i></h5>
+          <h5>Accuracy: <i>{{resultData.accuracy | percentage}}</i></h5>
+        </div>
+      </div>
+
+      <br/>
+      <md-data-table-container flex>
+        <table layout-padding md-data-table md-progress="deferred">
+          <tbody>
+            <tr>
+              <td>Missing</td>
+              <td>{{resultData.extended.missing}}</td>
+            </tr>
+            <tr>
+              <td>Total</td>
+              <td>{{resultData.extended.total}}</td>
+            </tr>
+            <tr>
+              <td>Top 10 (add)</td>
+              <td>{{resultData.extended.top10_add}}</td>
+            </tr>
+            <tr>
+              <td>Top 10 (mul)</td>
+              <td>{{resultData.extended.top10_mul}}</td>
+            </tr>
+            <tr>
+              <td>Top 1 (add)</td>
+              <td>{{resultData.extended.top1_add}}</td>
+            </tr>
+            <tr>
+              <td>Top 1 (mul)</td>
+              <td>{{resultData.extended.top1_mul}}</td>
+            </tr>
+            <tr>
+              <td>Top 5 (add)</td>
+              <td>{{resultData.extended.top5_add}}</td>
+            </tr>
+            <tr>
+              <td>Top 5 (mul)</td>
+              <td>{{resultData.extended.top5_mul}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </md-data-table-container>
+    </div>
+  </md-dialog-content>
+</md-dialog>

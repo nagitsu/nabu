@@ -282,3 +282,17 @@ a:hover {
 .embedding-new-dialog {
   overflow: visible;
 }
+
+// Tests
+
+.test-result-dialog {
+
+  .md-dialog-content {
+    min-width: 550px;
+    max-width: 1400px;
+    max-height: 1100px;
+  }
+  .doc-content {
+    white-space: pre-line;
+  }
+}

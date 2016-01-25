@@ -1,0 +1,37 @@
+<md-dialog flex="85" class="embedding-new-dialog" aria-label="Create new test for an embedding" ng-cloak>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Create new test for an embedding</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="cancel()">
+        <i aria-label="Close" class="fa fa-close"></i>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-dialog-content>
+    <div class="md-dialog-content">
+        <p>Please select the embedding you want to test with <i>{{test.name}}</i>.</p>
+        <form name="newEmbeddingTestForm">
+
+          <div layout="row" layout-sm="column">
+            <md-input-container flex="80">
+              <label>Embedding</label>
+              <md-select ng-model="newTest.embeddingId">
+                <md-option ng-repeat="emb in embeddings" ng-value="{{emb.id}}">
+                  {{emb.name}}
+                </md-option>
+              </md-select>
+            </md-input-container>
+          </div>
+        </form>
+    </div>
+  </md-dialog-content>
+
+  <div class="md-actions" layout-align="space-between center" layout="row">
+    <span ng-show="showErrors" class="error-message" flex>There was an error creating the test.</span>
+    <div layout="row" layout-align="end center" flex>
+      <md-button md-autofocus ng-click="create()">Create</md-button>
+    </div>
+  </div>
+</md-dialog>

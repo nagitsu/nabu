@@ -70,5 +70,25 @@ angular.module('nabuApp')
             }
         });
     };
+
+    $scope.newEmbeddingTestDialog = function(ev) {
+        if ($scope.dialogLoading) {
+            return;
+        }
+        $scope.dialogLoading = true;
+        $mdDialog.show({
+            controller: 'NewEmbeddingTestDialogCtrl',
+            templateUrl: 'views/test-embedding-new.html',
+            targetEvent: ev,
+            clickOutsideToClose: true,
+            locals: {
+                embeddings: embeddingList,
+                test: $scope.testSet
+            },
+            onComplete: function() {
+                $scope.dialogLoading = false;
+            }
+        });
+    };
   });
 })(angular);

@@ -97,7 +97,13 @@
       </md-data-table-container>
 
       <md-input-container class="md-block" flex>
-        <span class="md-label-sim">Elasticsearch query</span>
+        <div layout="row">
+          <span class="md-label-sim">Elasticsearch query</span>
+          <span flex></span>
+          <span class="text-right">
+            <a ui-sref="initial.tabs.corpus({esQuery: searchQuery})">Run query</a>
+          </span>
+        </div>
         <div class="es-query-box" ng-model="searchQuery" ui-ace="{
             useWrapMode: true,
             showGutter: true,

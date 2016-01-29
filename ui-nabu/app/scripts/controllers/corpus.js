@@ -9,7 +9,7 @@
      * Controller of the nabuApp
      */
     angular.module('nabuApp')
-      .controller('CorpusCtrl', function ($scope, $mdDialog, Corpus, sourceList) {
+      .controller('CorpusCtrl', function ($stateParams, $scope, $mdDialog, Corpus, sourceList) {
 
         // Properties
 
@@ -49,7 +49,20 @@
                 }
             }
         };
+
+        // Initial behaviour
+
         $scope.advancedQuery = angular.toJson($scope.basicQuery, true);
+
+        // We got an advanced query in the params so we show it.
+        if ($stateParams.esQuery) {
+            var objectQuery = angular.fromJson($stateParams.esQuery);
+            $scope.advancedQuery = angular.toJson(
+                {'query': objectQuery},
+                true
+            );
+            $scope.useAdvancedQuery = true;
+        }
 
         // Methods
 

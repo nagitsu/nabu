@@ -56,6 +56,9 @@ angular
               }
             }
           }
+        },
+        params: {
+          esQuery: null
         }
       })
       .state('initial.tabs.dashboard', {

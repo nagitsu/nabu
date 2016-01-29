@@ -10,7 +10,7 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('TabsCtrl', function ($scope, $state) {
+  .controller('TabsCtrl', function ($rootScope, $scope, $state) {
     $scope.tabs = [
         'dashboard',
         'corpus',
@@ -23,8 +23,19 @@ angular.module('nabuApp')
         $state.go(stateToGo);
     };
 
-    var tabNameMatches = $state.current.name.match(/tabs\.(\w+)(\.|$|-)/);
-    // tabNameMatches = ['...', 'Tab name here', '...']
-    $scope.selectedIndex = $scope.tabs.indexOf(tabNameMatches[1]);
+    $scope.setCurrentTab = function(state) {
+        var tabNameMatches = state.name.match(/tabs\.(\w+)(\.|$|-)/);
+        // tabNameMatches = ['...', 'Tab name here', '...']
+        $scope.selectedIndex = $scope.tabs.indexOf(tabNameMatches[1]);
+    };
+
+    $rootScope.$on('$stateChangeStart', function(
+        event, toState, toParams, fromState, fromParams
+    ) {
+        $scope.setCurrentTab(toState);
+    });
+
+    // Set tab for cases where there was no initial state change.
+    $scope.setCurrentTab($state.current);
   });
 })(angular);

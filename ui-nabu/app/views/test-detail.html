@@ -4,7 +4,7 @@
     <div layout="column">
       <small class="section-header">
         <a ui-sref="initial.tabs.tests">Tests</a> >
-        <b>Test set #{{testSet.id}}</b>
+        <b>{{testSet.name}}</b>
       </small>
 
       <div layout="row" class="emb-detail-name">
@@ -79,7 +79,10 @@
         <tbody>
           <tr md-auto-select ng-repeat="result in evaluationResults | orderBy: evaluation.order">
             <td>{{result.creation_date}}</td>
-            <td>{{embeddings[result.embedding_id].description}}</td>
+            <td>
+              <a ui-sref="initial.tabs.embeddings-detail({embeddingId: result.embedding_id})">
+                {{embeddings[result.embedding_id].description}}</td>
+              </a>
             <td>{{embeddings[result.embedding_id].model}}</td>
             <td>{{result.accuracy | percentage}}</td>
             <td>

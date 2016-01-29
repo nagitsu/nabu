@@ -125,7 +125,11 @@
         <tbody>
           <tr md-auto-select ng-repeat="result in evaluationResults | orderBy: evaluation.order">
             <td>{{result.creation_date}}</td>
-            <td>{{testSet[result.testset_id].name}}</td>
+            <td>
+              <a ui-sref="initial.tabs.tests-detail({testId: result.testset_id})">
+                {{testSet[result.testset_id].name}}
+              </a>
+            </td>
             <td>{{testSet[result.testset_id].description}}</td>
             <td>{{result.accuracy | percentage}}</td>
           </tr>

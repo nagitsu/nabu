@@ -103,8 +103,9 @@
         };
 
         $scope.onPaginationChange = function (page, limit) {
+            var q = $scope.buildQuery();
             var offset = (page - 1) * $scope.resultsTable.limit;
-            return Corpus.search($scope.basicQuery, offset).then(function(results) {
+            return Corpus.search(q, offset).then(function(results) {
                 $scope.results = results;
             });
         };

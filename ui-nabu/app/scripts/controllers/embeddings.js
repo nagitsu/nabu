@@ -10,9 +10,15 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('EmbeddingsCtrl', function ($scope, $mdDialog, Enums, Embeddings, embeddingList) {
+  .controller('EmbeddingsCtrl', function (
+    $stateParams, $timeout, $scope, $mdDialog, Enums, Embeddings, embeddingList
+  ) {
+    // Properties
+
     $scope.dialogLoading = false;
     $scope.embeddings = embeddingList;
+
+    // Methods
 
     $scope.newEmbeddingDialog = function(ev) {
         if ($scope.dialogLoading) {
@@ -33,7 +39,8 @@ angular.module('nabuApp')
                 }
             },
             locals: {
-                Embeddings: Embeddings
+                Embeddings: Embeddings,
+                newEmbQuery: $stateParams.newEmbQuery
             },
             onComplete: function() {
                 $scope.dialogLoading = false;
@@ -48,5 +55,15 @@ angular.module('nabuApp')
             }
         });
     };
+
+    // Initial behaviour
+
+    // We got an advanced query in the params so we open the 'new embedding' dialog.
+    if ($stateParams.newEmbQuery) {
+        // We use timeout to break out of the current $apply() cycle.
+        $timeout(function() {
+            angular.element('#new-embedding-btn').trigger('click');
+        }, 100);
+    }
   });
 })(angular);

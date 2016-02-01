@@ -10,7 +10,11 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('EmbeddingNewDialogCtrl', function ($scope, $mdDialog, Embeddings, modelEnums, corpusEnums) {
+  .controller('EmbeddingNewDialogCtrl', function (
+    $scope, $mdDialog, Embeddings, modelEnums, corpusEnums, newEmbQuery
+  ) {
+    // Properties
+
     $scope.showErrors = false;
     // Transform the list of models data into a map that has model names as
     // keys and model parameters as values.
@@ -29,6 +33,8 @@ angular.module('nabuApp')
     };
     $scope.currentParams = [];
 
+    // Initial behaviour
+
     $scope.$watch('newEmb.model', function(){
         // Update the list of model parameters when the selected model changes.
         $scope.newEmb.parameters = {};
@@ -44,7 +50,16 @@ angular.module('nabuApp')
         // Transform text query into JSON object.
         $scope.newEmb.query = angular.fromJson($scope.searchQuery);
     });
-    $scope.searchQuery = angular.toJson({'match': {'content': ''}}, true);
+
+    if (newEmbQuery) {
+        // Use provided query.
+        $scope.searchQuery = angular.toJson(newEmbQuery, true);
+    } else {
+        // Default query.
+        $scope.searchQuery = angular.toJson({'match': {'content': ''}}, true);
+    }
+
+    // Methods
 
     $scope.create = function() {
         $scope.showErrors = false;

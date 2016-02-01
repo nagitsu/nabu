@@ -86,6 +86,9 @@ angular
               }
             }
           }
+        },
+        params: {
+          newEmbQuery: null
         }
       })
       .state('initial.tabs.embeddings-detail', {

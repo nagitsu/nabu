@@ -61,6 +61,11 @@ angular.module('nabuApp')
 
     // Methods
 
+    $scope.aceLoaded = function(_editor) {
+        // Options
+        _editor.$blockScrolling = Infinity;
+    };
+
     $scope.create = function() {
         $scope.showErrors = false;
         Embeddings.create($scope.newEmb).then(function(createdEmb) {

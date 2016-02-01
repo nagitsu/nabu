@@ -116,6 +116,11 @@
              return null;
         };
 
+        $scope.aceLoaded = function(_editor) {
+            // Options
+            _editor.$blockScrolling = Infinity;
+        };
+
         $scope.documentDetailDialog = function(ev, docId) {
             if ($scope.dialogLoading) {
                 return;

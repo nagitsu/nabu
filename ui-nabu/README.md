@@ -19,7 +19,9 @@ To get started go into the `ui-nabu` folder and run:
 - `npm install`
 - `bower install`
 
-This will install all dependencies. Then, just run `grunt` for building and `grunt serve` for preview.
+This will install all dependencies. Then, just run `grunt build` for building and `grunt serve` for preview.
+
+After executing `grunt build`, the built code will be stored in the `dist` folder. You can easily test the current distribution by moving to the `dist` folder and running `python -m SimpleHTTPServer`.
 
 ## Testing
 

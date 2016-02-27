@@ -31,6 +31,15 @@
         "dist/css/bootstrap.css",
         "dist/js/bootstrap.js"
       ]
+    },
+    "ace-builds": {
+      "main": [
+        "src-min-noconflict/ace.js",
+        "src-min-noconflict/mode-html.js",
+        "src-min-noconflict/mode-handlebars.js",
+        "src-min-noconflict/mode-json.js",
+        "src-min-noconflict/theme-eclipse.js"
+      ]
     }
   }
 }

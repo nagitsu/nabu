@@ -39,6 +39,11 @@ module.exports = function(config) {
       'bower_components/angular-material-data-table/dist/md-data-table.min.js',
       'bower_components/lodash/lodash.js',
       'bower_components/restangular/dist/restangular.js',
+      'bower_components/ace-builds/src-min-noconflict/ace.js',
+      'bower_components/ace-builds/src-min-noconflict/mode-html.js',
+      'bower_components/ace-builds/src-min-noconflict/mode-handlebars.js',
+      'bower_components/ace-builds/src-min-noconflict/mode-json.js',
+      'bower_components/ace-builds/src-min-noconflict/theme-eclipse.js',
       'bower_components/angular-ui-ace/ui-ace.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower

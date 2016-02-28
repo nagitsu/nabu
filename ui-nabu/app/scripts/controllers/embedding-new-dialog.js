@@ -18,7 +18,7 @@ angular.module('nabuApp')
     $scope.showErrors = false;
     // Transform the list of models data into a map that has model names as
     // keys and model parameters as values.
-    $scope.models = _.object(_.map(modelEnums.data, function(item) {
+    $scope.models = _.fromPairs(_.map(modelEnums.data, function(item) {
         return [item.model, item];
     }));
 

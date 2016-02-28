@@ -17,7 +17,7 @@ angular.module('nabuApp')
     $scope.embedding = embedding;
     $scope.evaluationResults = evaluationResults;
     // Here we build a map for TestSet data: TestSet.id -> TestSet.data
-    $scope.testSet = _.object(_.map(testList, function(item) {
+    $scope.testSet = _.fromPairs(_.map(testList, function(item) {
         return [item.id, item];
     }));
 

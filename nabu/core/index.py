@@ -116,5 +116,9 @@ def prepare_document(content, metadata, entry):
 
 
 # Check everything is correctly configured when importing the module.
-es = Elasticsearch([settings.ES_HOST], http_auth=settings.ES_HTTP_AUTH)
+es = Elasticsearch(
+    [settings.ES_HOST],
+    http_auth=settings.ES_HTTP_AUTH,
+    retry_on_timeout=True
+)
 check_configuration()

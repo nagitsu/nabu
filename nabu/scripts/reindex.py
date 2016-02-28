@@ -130,5 +130,5 @@ if __name__ == '__main__':
     else:
         es_auth = None
 
-    es = Elasticsearch([es_host], http_auth=es_auth)
+    es = Elasticsearch([es_host], http_auth=es_auth, retry_on_timeout=True)
     reindex(es, source_index, target_index)

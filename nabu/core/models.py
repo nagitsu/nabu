@@ -91,7 +91,8 @@ def get_corpus_size(context):
         }
     }
     response = es.search(
-        index='nabu', doc_type='document',
+        index=settings.ES_INDEX,
+        doc_type=settings.ES_DOCTYPE,
         search_type='count', body=query
     )
     return response['aggregations']['words']['value']

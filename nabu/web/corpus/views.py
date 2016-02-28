@@ -7,6 +7,7 @@ from elasticsearch.helpers import scan
 from flask import Blueprint, jsonify, request, abort, Response, url_for
 
 from nabu.core.index import es
+from nabu.core import settings
 
 
 bp = Blueprint('corpus', __name__, url_prefix='/corpus')
@@ -23,7 +24,7 @@ def get_corpus_size():
         }
     }
     response = es.search(
-        index='nabu', doc_type='document',
+        index=settings.ES_INDEX, doc_type=settings.ES_DOCTYPE,
         search_type='count', body=query
     )
     return response['aggregations']['words']['value']
@@ -47,8 +48,8 @@ def get_corpus_size_by_source():
     }
 
     response = es.search(
-        index='nabu',
-        doc_type='document',
+        index=settings.ES_INDEX,
+        doc_type=settings.ES_DOCTYPE,
         search_type='count',
         body=query
     )
@@ -99,8 +100,8 @@ def get_corpus_size_increase():
     }
 
     response = es.search(
-        index='nabu',
-        doc_type='document',
+        index=settings.ES_INDEX,
+        doc_type=settings.ES_DOCTYPE,
         search_type='count',
         body=query
     )
@@ -183,7 +184,11 @@ def search():
     }
 
     try:
-        response = es.search(index='nabu', doc_type='document', body=query)
+        response = es.search(
+            index=settings.ES_INDEX,
+            doc_type=settings.ES_DOCTYPE,
+            body=query
+        )
     except ElasticsearchException as e:
         return jsonify(message=e.error, error='Bad Request'), 400
 
@@ -208,7 +213,11 @@ def search():
 @bp.route('/document/<document_id>/')
 def document_detail(document_id):
     try:
-        response = es.get(index='nabu', doc_type='document', id=document_id)
+        response = es.get(
+            index=settings.ES_INDEX,
+            doc_type=settings.ES_DOCTYPE,
+            id=document_id
+        )
     except ElasticsearchException:
         abort(404)
 
@@ -244,7 +253,8 @@ def download_search():
         query = {'match_all': {}}
 
     documents = scan(
-        es, index='nabu',
+        es, index=settings.ES_INDEX,
+        doc_type=settings.ES_DOCTYPE,
         scroll='30m', fields='content',
         query={'query': query}
     )

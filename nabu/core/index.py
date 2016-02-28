@@ -1,6 +1,8 @@
 from elasticsearch import Elasticsearch
 from hashlib import sha512
 
+from nabu.core import settings
+
 
 INDEX_BODY = {
     "settings": {
@@ -32,7 +34,7 @@ INDEX_BODY = {
         }
     },
     "mappings": {
-        "document": {
+        settings.ES_DOCTYPE: {
             "_all": {"enabled": False},
             "properties": {
                 "content": {"type": "string", "analyzer": "folding"},
@@ -68,18 +70,18 @@ INDEX_BODY = {
 
 
 def check_configuration():
-    if not es.indices.exists(index="nabu"):
-        es.indices.create(index="nabu", body=INDEX_BODY)
+    if not es.indices.exists(index=settings.ES_INDEX):
+        es.indices.create(index=settings.ES_INDEX, body=INDEX_BODY)
 
 
 def create_index(force=False):
     """
-    Create the `nabu` index with the specified settings. If `force` is set,
-    deletes the old one if it already exists.
+    Create the index with the specified settings. If `force` is set, deletes
+    the old one if it already exists.
     """
     if force:
-        es.indices.delete(index="nabu", ignore=404)
-    es.indices.create(index="nabu", body=INDEX_BODY, ignore=400)
+        es.indices.delete(index=settings.ES_INDEX, ignore=404)
+    es.indices.create(index=settings.ES_INDEX, body=INDEX_BODY, ignore=400)
 
 
 def prepare_document(content, metadata, entry):
@@ -114,5 +116,5 @@ def prepare_document(content, metadata, entry):
 
 
 # Check everything is correctly configured when importing the module.
-es = Elasticsearch(['golbat.ydns.eu'], http_auth=('nabu', 'nabunabu'))
+es = Elasticsearch([settings.ES_HOST], http_auth=settings.ES_HTTP_AUTH)
 check_configuration()

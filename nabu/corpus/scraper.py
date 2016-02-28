@@ -276,7 +276,12 @@ def scrape_entry(entry_id):
 
     # Finally, store document on Elasticsearch too.
     for doc_id, doc in new_docs:
-        es.index(index='nabu', doc_type='document', id=doc_id, body=doc)
+        es.index(
+            index=settings.ES_INDEX,
+            doc_type=settings.ES_DOCTYPE,
+            id=doc_id,
+            body=doc
+        )
 
 
 def scrape():

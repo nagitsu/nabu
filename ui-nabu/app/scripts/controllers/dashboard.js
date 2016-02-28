@@ -10,7 +10,7 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('DashboardCtrl', function ($interval, $scope, Corpus, corpusStats) {
+  .controller('DashboardCtrl', function ($interval, $scope, $mdToast, Corpus, corpusStats) {
     $scope.corpusStats = mapCorpusStats(corpusStats);
     $scope.corpusSize = corpusStats.size;
 
@@ -23,8 +23,18 @@ angular.module('nabuApp')
     // periodically to show new corpus stats numbers.
     $scope.corpusTimer = $interval(function () {
         Corpus.stats().then(function(response) {
-          $scope.corpusStats = mapCorpusStats(response.data);
-          $scope.corpusSize = response.data.size;
+            var oldCount = $scope.corpusSize;
+            $scope.corpusStats = mapCorpusStats(response.data);
+            $scope.corpusSize = response.data.size;
+
+            var diffWords = $scope.corpusSize - oldCount;
+            if (diffWords > 0) {
+                $mdToast.show(
+                    $mdToast.simple({
+                        hideDelay: 5000, position: 'bottom right'
+                    }).content('We just got ' + diffWords + ' new words!')
+                );
+            }
         });
     }, 10000);
 

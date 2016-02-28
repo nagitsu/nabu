@@ -195,7 +195,8 @@ def scrape_entry(entry_id):
 
     if content['outcome'] == 'success':
         min_words = settings.MIN_WORDS_PER_DOCUMENT
-        if not content['content'] or len(content['content']) < min_words:
+        word_count = len(content['content'].split())
+        if not content['content'] or word_count < min_words:
             # Parsing was marked as successful, but no (or too little) content
             # returned; mark as unparseable instead.
             content['outcome'] = 'unparseable'

@@ -1,4 +1,5 @@
 from elasticsearch import Elasticsearch
+from hashlib import sha512
 
 
 INDEX_BODY = {
@@ -104,7 +105,12 @@ def prepare_document(content, metadata, entry):
         }
     })
 
-    return payload
+    # Document ID is be fixed, so it can be overwritten if scraped again.
+    doc_id = sha512(
+        "{}@@{}".format(domain, source_id).encode('utf-8')
+    ).hexdigest()[:30]
+
+    return doc_id, payload
 
 
 # Check everything is correctly configured when importing the module.

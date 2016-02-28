@@ -268,15 +268,15 @@ def scrape_entry(entry_id):
             if not content['content'] or word_count < min_words:
                 continue
 
-            doc = prepare_document(content, metadata, entry)
-            new_docs.append(doc)
+            doc_id, doc = prepare_document(content, metadata, entry)
+            new_docs.append((doc_id, doc))
 
     logger.info("entry_id = %s finished with outcome = %s", entry_id, outcome)
     db.commit()
 
     # Finally, store document on Elasticsearch too.
-    for doc in new_docs:
-        es.index(index='nabu', doc_type='document', body=doc)
+    for doc_id, doc in new_docs:
+        es.index(index='nabu', doc_type='document', id=doc_id, body=doc)
 
 
 def scrape():

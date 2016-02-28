@@ -45,6 +45,9 @@ module.exports = function(config) {
       'bower_components/ace-builds/src-min-noconflict/mode-json.js',
       'bower_components/ace-builds/src-min-noconflict/theme-eclipse.js',
       'bower_components/angular-ui-ace/ui-ace.js',
+      'bower_components/Chart.js/Chart.js',
+      'bower_components/angular-chart.js/dist/angular-chart.js',
+      'bower_components/moment/moment.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
       "app/scripts/**/*.js",

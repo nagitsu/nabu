@@ -24,7 +24,8 @@ angular
     'ui.bootstrap',
     'md.data.table',
     'restangular',
-    'ui.ace'
+    'ui.ace',
+    'chart.js'
   ])
   .config(function($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise("/dashboard");

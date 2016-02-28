@@ -22,7 +22,7 @@ def prepare_document(page_id, url, title, text):
         'content': text,
         'content_type': 'clean',
         'word_count': word_count,
-        'tags': ['wikipedia'],
+        'tags': ['wikipedia', 'spanish'],
         'data_source': 'es.wikipedia.com',
         'title': title,
         'url': url,

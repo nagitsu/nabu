@@ -69,7 +69,7 @@ def get_content(response):
     result = {
         'outcome': 'success',
         'content': content,
-        'tags': ['news', 'Paraguay']
+        'tags': ['news', 'Paraguay', 'spanish']
     }
 
     return result

@@ -67,8 +67,13 @@ angular
         views: {
           'dashboard': {
             templateUrl: "views/dashboard.html",
-            controller: function($scope) {
-              $scope.items = ["A", "List", "Of", "Items"];
+            controller: 'DashboardCtrl',
+            resolve: {
+              corpusStats: function (Corpus) {
+                return Corpus.stats().then(function(response) {
+                  return response.data;
+                });
+              }
             }
           }
         }

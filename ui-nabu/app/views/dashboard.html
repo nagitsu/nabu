@@ -1,4 +1,24 @@
-<div class="tab-container">
-	<p>This is the DASHBOARD view.</p>
-</div>
+<div layout-padding class="tab-container">
+  <div layout-padding layout="row">
+    <h3>
+      The corpus currently has <span style="color: #FF4081;">{{corpusSize | number}}</span> words!
+    </h3>
+  </div>
 
+  <div layout="row" layout-align="center center" layout-wrap>
+    <md-card  class="nabu-card" ng-repeat="(corpusSource, sourceData) in corpusStats">
+      <md-card-content>
+        <div class="md-title" layout="row" layout-wrap>
+          <p>{{corpusSource}}</p>
+        </div>
+        <p>Size: {{sourceData.size | number}}</p>
+        <div flex layout="row">
+          <canvas id="{{corpusSource}}-bar" class="chart chart-bar" chart-data="sourceData.over_time"
+                  chart-labels="corpusGraphLabels" chart-series="corpusGraphSeries"
+                  chart-colours="['#3F51B5', '#FF4081']">
+          </canvas>
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>

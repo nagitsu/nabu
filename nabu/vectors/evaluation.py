@@ -18,14 +18,18 @@ def evaluate_analogies(embedding, testset, report=None):
     analogies = list(read_analogies(testset.full_path, preprocessor))
 
     # Run the test and fill `accuracy`, `extended_results`. Report every
-    # 25 analogies tested.
+    # 25 analogies tested. Save indices of failed entries and missing words.
     results = []
-    missing = 0
+    missing_words = set()
+    missing_entries = []
+    wrong_entries = []
     for idx, analogy in enumerate(analogies):
         if not all(w in model for w in analogy):
-            # One of the words is not present, count as a failed test.
+            # One of the words is not present, count as a failed test, saving
+            # the missing words.
             results.append((False, False, False, False, False, False))
-            missing += 1
+            missing_words.update({w for w in analogy if w not in model})
+            missing_entries.append(idx)
             continue
 
         w1, w2, w3, w4 = analogy
@@ -42,6 +46,10 @@ def evaluate_analogies(embedding, testset, report=None):
             w4 in result_mul[:1], w4 in result_mul[:5], w4 in result_mul[:10],
             w4 in result_add[:1], w4 in result_add[:5], w4 in result_add[:10],
         ))
+
+        if not any(results[-1]):
+            # Analogy failed completely.
+            wrong_entries.append(idx)
 
         if report and (idx + 1) % 25 == 0:
             report(idx / len(analogies))
@@ -69,7 +77,11 @@ def evaluate_analogies(embedding, testset, report=None):
         'top5_add': top5_add,
         'top10_add': top10_add,
 
-        'missing': missing,
+        'missing_words': list(missing_words),
+        'failed_entries': {
+            'missing': missing_entries,
+            'wrong': wrong_entries,
+        },
         'total': len(analogies),
     }
 
@@ -84,13 +96,15 @@ def evaluate_similarities(embedding, testset, report=None):
     )))
 
     results = []
-    missing = 0
+    missing_words = set()
+    missing_entries = []
     for idx, pair in enumerate(word_pairs):
         try:
             sim = np.dot(*model[pair])
         except KeyError:
             # If one of the words is missing, similarity is zero.
-            missing += 1
+            missing_entries.append(idx)
+            missing_words.update({w for w in pair if w not in model})
             sim = 0.0
 
         results.append(sim)
@@ -102,7 +116,10 @@ def evaluate_similarities(embedding, testset, report=None):
     rho = 0.0 if np.isnan(rho) else rho
 
     extended = {
-        'missing': missing,
+        'missing_words': list(missing_words),
+        'failed_entries': {
+            'missing': missing_entries,
+        },
         'total': len(word_pairs),
     }
 
@@ -117,15 +134,18 @@ def evaluate_odd_one_outs(embedding, testset, report=None):
     ))
 
     results = []
-    missing = 0
+    missing_words = set()
+    missing_entries = []
     for idx, (odd, rest) in enumerate(odd_one_outs):
         try:
             result = model.doesnt_match([odd] + rest) == odd
         except ValueError:
             # If all of the words are missing, the test failed.
             result = False
-            missing += 1
+            missing_entries.append(idx)
 
+        # May be missing a word even if result is returned.
+        missing_words.update({w for w in [odd] + rest if w not in model})
         results.append(result)
 
         if report and (idx + 1) % 25 == 0:
@@ -133,7 +153,10 @@ def evaluate_odd_one_outs(embedding, testset, report=None):
 
     accuracy = len(list(filter(lambda r: r, results))) / len(results)
     extended = {
-        'missing': missing,
+        'missing_words': list(missing_words),
+        'failed_entries': {
+            'missing': missing_entries,
+        },
         'total': len(odd_one_outs),
     }
 

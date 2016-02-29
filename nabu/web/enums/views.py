@@ -47,14 +47,14 @@ def model_enums():
         },
         {
             'model': 'svd',
-            'verbose_name': 'SVD',
+            'verbose_name': 'PPMI/SVD',
             'parameters': [
                 {'name': 'dimension', 'verbose_name': 'Dimension', 'type': 'int', 'description': "Size of word vectors", 'default': 300},
                 {'name': 'min_count', 'verbose_name': 'Minimum Count', 'type': 'int', 'description': "Minimum times a word must appear on the corpus to be in the vocabulary", 'default': 10},
                 {'name': 'max_count', 'verbose_name': 'Maximum Count', 'type': 'int', 'description': "Upper bound for the vocabulary size (i.e. keep top N words)", 'default': None},
                 {'name': 'window', 'verbose_name': 'Window', 'type': 'int', 'description': "Window size for the word's context", 'default': 5},
                 {'name': 'subsampling', 'verbose_name': 'Subsampling', 'type': 'float', 'description': "Subsampling for words", 'default': 1e-5},
-                {'name': 'cds', 'verbose_name': 'Context Distribution Smoothing', 'type': 'float', 'description': "Apply smoothing to counts for PMI", 'default': 0.75},
+                {'name': 'cds', 'verbose_name': 'Context Distribution Smoothing', 'type': 'float', 'description': "Apply smoothing to counts for PPMI", 'default': 0.75},
                 {'name': 'sum_context', 'verbose_name': 'Sum Context', 'type': 'bool', 'description': "Sum context vectors to main vectors", 'default': True},
             ]
         },

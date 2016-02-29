@@ -155,8 +155,10 @@ def clean_doc(doc):
     try:
         cleaned['snippet'] = doc['highlight']['content'][0]
     except (KeyError, IndexError):
-        # If no highlighting present, return the full field.
-        cleaned['snippet'] = doc['_source']['content']
+        # If no highlighting present, return the first 100 characters.
+        cleaned['snippet'] = doc['_source']['content'][:100]
+        if len(cleaned['snippet']) == 100:
+            cleaned['snippet'] += "..."
 
     return cleaned
 

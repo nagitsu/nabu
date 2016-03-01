@@ -12,7 +12,10 @@ class Embedding:
         self.vocab = vocab
         self.vectors = vectors
 
-        self.inv_vocab = {v: k for k, v in self.vocab.items()}
+        self.inv_vocab, _ = zip(*sorted(
+            self.vocab.items(),
+            key=lambda x: x[1]
+        ))
 
     def __getitem__(self, words):
         """

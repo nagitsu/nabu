@@ -12,6 +12,7 @@ from nabu.vectors.utils import (
 )
 from nabu.vectors.glove import GloveFactory
 from nabu.vectors.svd import SVDFactory
+from nabu.vectors.word2vec import Word2VecFactory
 
 
 def word2vec_params(parameters):
@@ -119,6 +120,7 @@ def sentence_generator(query, preprocessing_params, report=None):
 def train(model, query, preprocessing, parameters, file_name, report=None):
     model_path = os.path.join(settings.EMBEDDING_PATH, file_name)
 
+    # TODO: Ideally, all the models would have the same factory interface.
     if model == 'word2vec':
         model_params = word2vec_params(parameters)
         model = gensim.models.Word2Vec(
@@ -152,7 +154,8 @@ def train(model, query, preprocessing, parameters, file_name, report=None):
             )
             model.train(training_sentences)
 
-        model.save(model_path)
+        factory = Word2VecFactory(model)
+        factory.save(model_path)
 
     elif model == 'glove':
         model_params = glove_params(parameters)
@@ -199,7 +202,8 @@ def train(model, query, preprocessing, parameters, file_name, report=None):
             os.remove(env['cooccur_path'])
 
         report(0.35)
-        model = factory.train(model_path)
+        model = factory.train()
+        factory.save(model_path)
 
     elif model == 'svd':
         model_params = svd_params(parameters)
@@ -209,7 +213,7 @@ def train(model, query, preprocessing, parameters, file_name, report=None):
             query, preprocessing,
             lambda p: report(p * 0.1)
         )
-        factory.build_vocab(vocabulary_sentences)
+        factory.build_vocabulary(vocabulary_sentences)
 
         matrix_sentences = sentence_generator(
             query, preprocessing,

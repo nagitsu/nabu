@@ -1,4 +1,6 @@
 import numpy as np
+import os
+import uuid
 
 from os.path import join
 from subprocess import Popen, PIPE
@@ -41,16 +43,27 @@ class GloveFactory:
                                          'cooccurrence.shuf.bin')
 
     @classmethod
-    def load(cls, vectors_path):
+    def load(cls, path):
+        vocab_file = "{}.txt".format(path)
+        matrix_file = "{}.npy".format(path)
+
+        with open(vocab_file, 'r', encoding='utf-8') as f:
+            words = {word.strip(): idx for idx, word in enumerate(f)}
+
+        vectors = np.load(matrix_file)
+
+        return Glove(words, vectors)
+
+    def _load_trained_vectors(self, vectors_path):
         vocab = {}
         text_vectors = []
-        with open('{}.txt'.format(vectors_path)) as f:
+        with open("{}.txt".format(vectors_path)) as f:
             for idx, line in enumerate(f):
                 word, vector = line.split(' ', 1)
                 vocab[word] = idx
                 text_vectors.append(vector)
         vectors = np.loadtxt(text_vectors)
-        return Glove(vocab, vectors)
+        return vocab, vectors
 
     def build_vocabulary(self, corpus):
         self._build_vocab_count(corpus)
@@ -59,9 +72,31 @@ class GloveFactory:
         self._build_cooccur_matrix(corpus)
         self._shuffle_cooccur_matrix()
 
-    def train(self, vectors_path):
+    def train(self):
+        # Temporary file name for storing the vector files.
+        vectors_path = str(uuid.uuid4())
+
         self._run_glove(vectors_path)
-        return self.load(vectors_path)
+        vocab, vectors = self._load_trained_vectors(vectors_path)
+
+        # Remove the original (`glove`'s) vector files.
+        os.remove("{}.txt".format(vectors_path))
+
+        # Normalize the vectors.
+        vectors /= np.linalg.norm(vectors, axis=1).reshape(-1, 1)
+
+        self.model = Glove(vocab, vectors)
+
+        return self.model
+
+    def save(self, path):
+        vocab_file = "{}.txt".format(path)
+        matrix_file = "{}.npy".format(path)
+
+        with open(vocab_file, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(self.model.inv_words))
+
+        np.save(matrix_file, self.model.vectors)
 
     def _build_vocab_count(self, corpus):
         output = open(self.vocab_path, 'w')

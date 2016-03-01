@@ -61,7 +61,7 @@ class SVDFactory:
 
         return SVD(words, vectors)
 
-    def build_vocab(self, corpus):
+    def build_vocabulary(self, corpus):
         logger.debug('building vocabulary from corpus')
         vocab = Counter()
 

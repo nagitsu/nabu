@@ -60,9 +60,8 @@ class Embedding:
                 raise KeyError("Word '{}' not in vocabulary".format(word))
 
         mean = np.mean(np.array(vectors), axis=0)
-        distances = np.dot(self.vectors, mean)\
-            / np.linalg.norm(self.vectors, axis=1)\
-            / np.linalg.norm(mean)
+        mean /= np.linalg.norm(mean)
+        distances = np.dot(self.vectors, mean)
         word_ids = np.argsort(-distances)
 
         result = (
@@ -95,9 +94,7 @@ class Embedding:
             raise ValueError("Cannot compute similarity with no input")
 
         def distance(vector):
-            return np.dot(self.vectors, vector)\
-                / np.linalg.norm(self.vectors, axis=1)\
-                / np.linalg.norm(vector)
+            return np.dot(self.vectors, vector)
 
         # Shift to [0, 1] so we don't have negative distances.
         pos_dists = [((1 + distance(vector)) / 2) for vector in positive]
@@ -127,9 +124,8 @@ class Embedding:
 
         vectors = self[words]
         mean = np.mean(vectors, axis=0)
+        mean /= np.linalg.norm(mean)
 
-        distances = np.dot(vectors, mean)\
-            / np.linalg.norm(vectors)\
-            / np.linalg.norm(mean)
+        distances = np.dot(vectors, mean)
 
         return sorted(zip(distances, words))[0][1]

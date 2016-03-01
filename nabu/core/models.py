@@ -1,4 +1,3 @@
-import gensim
 import os
 
 from datetime import datetime
@@ -18,6 +17,7 @@ from nabu.vectors.utils import (
 )
 from nabu.vectors.glove import GloveFactory
 from nabu.vectors.svd import SVDFactory
+from nabu.vectors.word2vec import Word2VecFactory
 
 
 engine = create_engine(
@@ -186,7 +186,7 @@ class Embedding(Base):
 
     def load_model(self):
         if self.model == 'word2vec':
-            model = gensim.models.Word2Vec.load(self.full_path)
+            model = Word2VecFactory.load(self.full_path)
         elif self.model == 'glove':
             model = GloveFactory.load(self.full_path)
         elif self.model == 'svd':

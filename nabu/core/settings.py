@@ -3,7 +3,6 @@ LOG_FILE_LOCATION = '/home/nabu/logs/nabu.log'
 
 ES_HOST = 'golbat.ydns.eu'
 ES_HTTP_AUTH = ('nabu', 'nabunabu')
-ES_INDEX = 'nabu'
 ES_INDEX = 'nabu2'
 ES_DOCTYPE = 'document'
 

@@ -7,6 +7,7 @@ import os
 import re
 
 from datetime import datetime
+from hashlib import sha512
 
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
@@ -18,6 +19,8 @@ now = datetime.now()
 
 def prepare_document(page_id, url, title, text):
     word_count = len(text.split())
+    es_id = sha512(page_id.encode('utf-8')).hexdigest()[:30]
+
     payload = {
         'content': text,
         'content_type': 'clean',
@@ -34,8 +37,9 @@ def prepare_document(page_id, url, title, text):
 
     action = {
         '_op_type': 'index',
-        '_index': 'nabu',
+        '_index': 'nabu2',
         '_type': 'document',
+        '_id': es_id,
         '_source': payload,
     }
 

@@ -1,4 +1,5 @@
 import requests
+import sys
 
 from IPython import embed
 from lxml import html
@@ -6,8 +7,8 @@ from lxml import html
 from nabu.core import settings
 from nabu.corpus import sources
 
-SOURCE_NAME = 'perfil'
-SOURCE_ID = '20160303-0042'
+SOURCE_NAME = sys.argv[1]
+SOURCE_ID = sys.argv[2]
 
 module = getattr(sources, SOURCE_NAME)
 

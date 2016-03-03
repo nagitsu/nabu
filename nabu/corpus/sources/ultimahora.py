@@ -50,14 +50,12 @@ def get_content(response):
     root = html.fromstring(response.content)
 
     try:
-        title = root.cssselect('div.news-headline-obj > h1.t1')[0]\
+        title = root.cssselect('h1.detail-main-title')[0]\
                     .text_content().strip()
-        summary = root.cssselect('div.news-headline-obj > h2.summary')[0]\
+        summary = root.cssselect('div.preview')[0]\
                       .text_content().strip()
-        text = u'\n'.join(map(
-            lambda node: node.text_content().strip(),
-            root.cssselect('div.news-detail-obj p')
-        ))
+        text = root.cssselect('section.note-body')[0]\
+                   .text_content()
 
         content = u'\n'.join([title, summary, text]).strip()
     except:
@@ -77,15 +75,13 @@ def get_metadata(response):
 
     metadata = {}
     try:
-        metadata['title'] = root.cssselect('div.news-headline-obj > h1.t1')[0]\
+        metadata['title'] = root.cssselect('h1.detail-main-title')[0]\
                                 .text_content().strip()
     except:
         pass
 
     try:
-        raw_date = root.cssselect(
-            'div.news-headline-obj > div.cols1 div.floatright'
-        )[0].text_content().strip()
+        raw_date = root.cssselect('span.detail-date')[0].text_content().strip()
         date = parse_date(raw_date)
         if date:
             metadata['date'] = date

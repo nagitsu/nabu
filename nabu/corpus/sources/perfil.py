@@ -57,11 +57,11 @@ def get_content(response):
         title = root.xpath("//h1[@itemprop='name']")[0].text_content().strip()
         try:
             summary = root.xpath(
-                "//h3[@itemprop='description']/following-sibling::p"
+                "//h3[@itemprop='description']"
             )[0].text_content().strip()
         except:
             summary = ""
-        text = root.xpath("//span[@itemprop='articleBody']")[0]\
+        text = root.xpath("//div[@itemprop='articleBody']")[0]\
                    .text_content().strip()
 
         content = u'\n'.join([title, summary, text]).strip()
@@ -88,7 +88,7 @@ def get_metadata(response):
         pass
 
     try:
-        raw_date = root.xpath("//*[@itemprop='author']/span")[0]\
+        raw_date = root.xpath("//*[@itemprop='datePublished']")[0]\
                        .text_content().strip()
         date = parse_date(raw_date)
         if date:

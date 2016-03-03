@@ -3,14 +3,15 @@ import requests
 from IPython import embed
 from lxml import html
 
-from nabu.corpus import sources, settings
+from nabu.core import settings
+from nabu.corpus import sources
 
-SOURCE_NAME = 'clarin'
-SOURCE_ID = '1384061731'
+SOURCE_NAME = 'perfil'
+SOURCE_ID = '20160303-0042'
 
 module = getattr(sources, SOURCE_NAME)
 
-missing_ids = module.get_missing_ids([])
+missing_ids = list(module.get_missing_ids([]))
 url = module.DOCUMENT_URL.format(SOURCE_ID)
 response = requests.get(url, headers=settings.REQUEST_HEADERS)
 content = module.get_content(response)

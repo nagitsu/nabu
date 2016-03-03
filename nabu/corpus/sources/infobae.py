@@ -52,22 +52,32 @@ def get_content(response):
     try:
         unneeded = [
             'div.social-hori', 'footer', 'figure', 'div.modal', 'script',
-            'div.tags'
+            'div.tags', 'div.embed_cont',
         ]
         for selector in unneeded:
             nodes = root.cssselect(selector)
             for node in nodes:
                 node.getparent().remove(node)
 
-        base = "(//section[contains(@class, wrapper)])[1]"
-        title = root.xpath(base + "//h1[@class='entry-title']")[0]\
-                    .text_content().strip()
-        summary = root.xpath(
-            base + "//h1[@class='entry-title']/following-sibling::p"
-        )[0].text_content().strip()
-        text = u' '.join(root.xpath(
-            base + "//div[contains(@class, 'entry-content')]//div//text()"
-        )).strip()
+        title = root.cssselect('h1.entry-title > a')[0].text_content().strip()
+        try:
+            summary = root.xpath("//p[@class='preview']/following-sibling::p")[0]\
+                        .text_content().strip()
+        except:
+            summary = root.xpath("//p[@class='preview']")[0].text_content().strip()
+
+        text = u'\n'.join([
+            node.text_content().strip()
+            for node in root.cssselect('div.cuerposmart > div > p')
+            if 'LEA MÁS:' not in node.text_content()
+        ])
+
+        if len(text) < 50:
+            text = u'\n'.join([
+                text.strip()
+                for text in root.cssselect('div.cuerposmart > div')[0].text_content().split('\n')
+                if len(text.strip()) > 30
+            ])
 
         if len(text) < 50:
             return {'outcome': 'unparseable'}
@@ -90,8 +100,7 @@ def get_metadata(response):
 
     metadata = {}
     try:
-        base = "//article[contains(@class, item)]"
-        metadata['title'] = root.xpath(base + "//h1[@class='entry-title']")[0]\
+        metadata['title'] = root.cssselect('h1.entry-title > a')[0]\
                                 .text_content().strip()
     except:
         pass

@@ -115,6 +115,13 @@ def prepare_document(content, metadata, entry):
     return doc_id, payload
 
 
+def calculate_doc_id(domain, source_id):
+    doc_id = sha512(
+        "{}@@{}".format(domain, source_id).encode('utf-8')
+    ).hexdigest()[:30]
+    return doc_id
+
+
 # Check everything is correctly configured when importing the module.
 es = Elasticsearch(
     [settings.ES_HOST],

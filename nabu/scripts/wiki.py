@@ -19,7 +19,9 @@ now = datetime.now()
 
 def prepare_document(page_id, url, title, text):
     word_count = len(text.split())
-    es_id = sha512(page_id.encode('utf-8')).hexdigest()[:30]
+    es_id = sha512(
+        "{}@@{}".format('es.wikipedia.com', page_id).encode('utf-8')
+    ).hexdigest()[:30]
 
     payload = {
         'content': text,

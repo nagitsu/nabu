@@ -84,7 +84,7 @@ class ElPaisSpainSpider(Spider):
 
     name = 'elpais.com'
     custom_settings = {'ITEM_PIPELINES': {
-        'nabu.corpus.spiders.elpais.ArticlePipeline': 300
+        'nabu.corpus.spiders.elpais_spain.ArticlePipeline': 300
     }}
 
     def start_requests(self):

@@ -140,18 +140,27 @@ def deserialize_testset(data):
     return testset, None
 
 
-def serialize_result(result):
+def serialize_result(result, summary=True):
     if result.testing_job:
         elapsed_time = result.testing_job.elapsed_time
     else:
         elapsed_time = None
 
-    serialized = {
-        'embedding_id': result.embedding_id,
-        'testset_id': result.testset_id,
-        'creation_date': result.creation_date,
-        'elapsed_time': elapsed_time,
-        'accuracy': result.accuracy,
-        'extended': result.extended,
-    }
+    if summary:
+        serialized = {
+            'embedding_id': result.embedding_id,
+            'testset_id': result.testset_id,
+            'creation_date': result.creation_date,
+            'elapsed_time': elapsed_time,
+            'accuracy': result.accuracy,
+        }
+    else:
+        serialized = {
+            'embedding_id': result.embedding_id,
+            'testset_id': result.testset_id,
+            'creation_date': result.creation_date,
+            'elapsed_time': elapsed_time,
+            'accuracy': result.accuracy,
+            'extended': result.extended,
+        }
     return serialized

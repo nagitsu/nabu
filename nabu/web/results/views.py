@@ -30,7 +30,7 @@ def view_result(embedding_id, testset_id):
     result = db.query(Result).get((embedding_id, testset_id))
     if not result:
         abort(404)
-    return jsonify(data=serialize_result(result))
+    return jsonify(data=serialize_result(result, summary=False))
 
 
 @bp.route('/<embedding_id>/<testset_id>/', methods=['DELETE'])

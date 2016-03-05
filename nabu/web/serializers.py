@@ -141,11 +141,16 @@ def deserialize_testset(data):
 
 
 def serialize_result(result):
+    if result.testing_job:
+        elapsed_time = result.testing_job.elapsed_time
+    else:
+        elapsed_time = None
+
     serialized = {
         'embedding_id': result.embedding_id,
         'testset_id': result.testset_id,
         'creation_date': result.creation_date,
-        'elapsed_time': result.testing_job.elapsed_time,
+        'elapsed_time': elapsed_time,
         'accuracy': result.accuracy,
         'extended': result.extended,
     }

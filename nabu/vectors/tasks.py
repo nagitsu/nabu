@@ -70,15 +70,6 @@ def test(self, testing_job_id):
     embedding = testing_job.embedding
     testset = testing_job.testset
 
-    # Delete existing results, if any.
-    existing_result = db.query(Result).filter(
-        Result.testset == testset,
-        Result.embedding == embedding
-    ).first()
-
-    if existing_result:
-        db.delete(existing_result)
-
     db.commit()
 
     def report(progress):

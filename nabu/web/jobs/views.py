@@ -137,8 +137,7 @@ def create_testing_job():
     embeddings = filter(lambda e: e.status == 'TRAINED', embeddings)
 
     # For each pair <embedding, testset>, create the necessary TestingJob,
-    # deleting it first if it already exists. The result will be deleted inside
-    # the task, so no need to do it here.
+    # deleting it first if it already exists. Also delete associated results.
     jobs = []
     for embedding in embeddings:
         for testset in testsets:
@@ -150,6 +149,8 @@ def create_testing_job():
                 # still pending or running right now, we want to keep it.
                 continue
             elif job:
+                for result in job.results.all():
+                    db.delete(result)
                 db.delete(job)
 
             job = TestingJob(testset=testset, embedding=embedding)

@@ -46,6 +46,13 @@ def read_similarities(path, preprocessor=lambda x: x):
             yield ((w1, w2), sim)
 
 
+def remove_accents(word):
+    no_acc = unicodedata.normalize('NFKD', word)\
+                        .encode('ascii', 'ignore')\
+                        .decode('ascii')
+    return no_acc
+
+
 def build_token_preprocessor(params):
 
     def preprocessor(text):

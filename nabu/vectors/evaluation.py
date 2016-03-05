@@ -5,7 +5,7 @@ from scipy.stats.stats import spearmanr
 from nabu.core.models import db, Result
 from nabu.vectors.utils import (
     read_analogies, read_odd_one_outs, read_similarities,
-    build_token_preprocessor,
+    build_token_preprocessor, remove_accents,
 )
 
 
@@ -28,7 +28,9 @@ def evaluate_analogies(embedding, testset, report=None):
             # One of the words is not present, count as a failed test, saving
             # the missing words.
             results.append((False, False, False, False, False, False))
-            missing_words.update({w for w in analogy if w not in model})
+            missing_words.update({
+                remove_accents(w) for w in analogy if w not in model
+            })
             missing_entries.append(idx)
             continue
 
@@ -104,7 +106,9 @@ def evaluate_similarities(embedding, testset, report=None):
         except KeyError:
             # If one of the words is missing, similarity is zero.
             missing_entries.append(idx)
-            missing_words.update({w for w in pair if w not in model})
+            missing_words.update({
+                remove_accents(w) for w in pair if w not in model
+            })
             sim = 0.0
 
         results.append(sim)
@@ -145,7 +149,9 @@ def evaluate_odd_one_outs(embedding, testset, report=None):
             missing_entries.append(idx)
 
         # May be missing a word even if result is returned.
-        missing_words.update({w for w in [odd] + rest if w not in model})
+        missing_words.update({
+            remove_accents(w) for w in [odd] + rest if w not in model
+        })
         results.append(result)
 
         if report and (idx + 1) % 25 == 0:

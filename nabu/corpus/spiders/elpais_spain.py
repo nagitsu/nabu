@@ -142,8 +142,12 @@ class ElPaisSpainSpider(Spider):
             "/@href"
         ).extract_first()
 
-        full_url = urljoin("http://elpais.com", next_page.extract())
-        yield Request(full_url, callback=self.parse_tag_page)
+        if next_page:
+            logger.info("found next_page='%s'", next_page)
+            yield Request(
+                response.urljoin(next_page),
+                callback=self.parse_tag_page
+            )
 
     def parse_article(self, response):
         article_id = response.url.split('/')[-1].split('.')[0]
@@ -170,11 +174,6 @@ class ElPaisSpainSpider(Spider):
         pub_date = " ".join([c.strip() for c in pub_date if c.strip()])
         pub_date = parse_date(pub_date)
 
-        logger.info(
-            "parsed article_id=%s pub_date=%s",
-            article_id, pub_date.isoformat().split('T')[0]
-        )
-
         # Prepare the parsed article.
         full_content = "\n".join([title, summary, content])
         word_count = len(full_content.split())
@@ -194,5 +193,10 @@ class ElPaisSpainSpider(Spider):
             'url': response.url,
             'date': pub_date,
         }
+
+        logger.info(
+            "parsed article_id=%s pub_date=%s",
+            article_id, pub_date.isoformat().split('T')[0]
+        )
 
         yield article

@@ -52,6 +52,7 @@ angular
                   _.each(response.data.by_source, function(item) {
                     sources.push(item.source);
                   });
+                  sources.sort();
                   return sources;
                 });
               }

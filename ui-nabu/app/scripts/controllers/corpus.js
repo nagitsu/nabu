@@ -26,6 +26,20 @@
             query: '',
             sources: []
         };
+        $scope.matchAllQuery = {
+            'query': {'match_all' : {}}
+        };
+        $scope.filteredMatchAllQuery = {
+            'query': {
+                'filtered': {
+                    'filter': {
+                        'terms': {
+                            'data_source': []
+                        }
+                    }
+                }
+            }
+        };
         $scope.basicQuery = {
             'query': {
                 'match' : {
@@ -74,12 +88,19 @@
                 q = angular.fromJson($scope.advancedQuery);
             } else if ($scope.searchQuery.sources.length) {
                 // We must filter by data source
-                q = $scope.filterSourceQuery;
-                q.query.filtered.query.match.content = $scope.searchQuery.query;
+                if ($scope.searchQuery.query) {
+                    q = $scope.filterSourceQuery;
+                    q.query.filtered.query.match.content = $scope.searchQuery.query;
+                } else {
+                    q = $scope.filteredMatchAllQuery;
+                }
                 q.query.filtered.filter.terms.data_source = $scope.searchQuery.sources;
-            } else {
+            } else if ($scope.searchQuery.query) {
                 q = $scope.basicQuery;
                 q.query.match.content = $scope.searchQuery.query;
+            } else {
+                // No value in search box.
+                q = $scope.matchAllQuery;
             }
 
             return q;

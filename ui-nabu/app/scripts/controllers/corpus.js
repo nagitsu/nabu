@@ -110,13 +110,6 @@
             });
         };
 
-        $scope.onOrderChange = function (order) {
-            /* The server doesn't support ordering at the moment. We leave this
-             * placeholder here in case ordering is implemented in the future.
-             */
-             return null;
-        };
-
         $scope.aceLoaded = function(_editor) {
             // Options
             _editor.$blockScrolling = Infinity;

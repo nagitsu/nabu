@@ -12,7 +12,7 @@
 angular.module('nabuApp')
   .controller('EmbeddingDetailCtrl', function (
     $scope, $state, VerifyDelete, JobsTraining, Embeddings, embedding,
-    evaluationResults, testList
+    evaluationResults, testList, modelEnums, corpusEnums
   ) {
     $scope.embedding = embedding;
     $scope.evaluationResults = evaluationResults;
@@ -27,6 +27,8 @@ angular.module('nabuApp')
         _editor.setReadOnly(true);
         _editor.$blockScrolling = Infinity;
     };
+
+    $scope.verboseNames = getVerboseNames(modelEnums, corpusEnums);
 
     $scope.trainEmbedding = function() {
         var newJob = {"embedding_id": $scope.embedding.id};
@@ -54,5 +56,22 @@ angular.module('nabuApp')
             });
         });
     };
+
+
+    function getVerboseNames(modelEnums, corpusEnums) {
+      var verboseNames = {};
+
+      modelEnums.filter(function (elem) {
+        return elem.model == embedding.model;
+      })[0].parameters.forEach(function (elem) {
+        verboseNames[elem.name] = elem.verbose_name;
+      });
+
+      corpusEnums.forEach(function (elem) {
+        verboseNames[elem.name] = elem.verbose_name;
+      });
+
+      return verboseNames;
+    }
   });
 })(angular);

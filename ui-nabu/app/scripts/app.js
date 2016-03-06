@@ -124,6 +124,16 @@ angular
                 return TestSets.list().then(function(response) {
                   return response.data;
                 });
+              },
+              modelEnums: function(Enums) {
+                return Enums.models().then(function(response) {
+                  return response.data;
+                });
+              },
+              corpusEnums: function(Enums) {
+                return Enums.corpus().then(function(response) {
+                  return response.data;
+                });
               }
             }
           }

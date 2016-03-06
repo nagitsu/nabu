@@ -3,7 +3,7 @@ import time
 from celery import Celery
 
 from nabu.core import settings
-from nabu.core.models import db, Result, TrainingJob, TestingJob
+from nabu.core.models import db, TrainingJob, TestingJob
 from nabu.vectors.training import train as train_model
 from nabu.vectors.evaluation import evaluate
 

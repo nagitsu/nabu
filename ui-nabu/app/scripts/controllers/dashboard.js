@@ -49,7 +49,16 @@ angular.module('nabuApp')
             statsMap[sourceData.source].over_time = [sourceData.values];
         });
 
-        return statsMap;
+        var stats = [];
+        _.forOwn(statsMap, function (value, key) {
+            stats.push({
+                corpusSource: key,
+                sourceData: value
+            });
+        });
+        stats.sort(function (a, b) { return a.sourceData.size <= b.sourceData.size; });
+
+        return stats;
     }
 
     function getDateRange(startDate, endDate, dateFormat) {

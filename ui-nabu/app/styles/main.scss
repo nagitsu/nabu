@@ -17,7 +17,7 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
 
 $md-theme-orange: #ffab40;
 $status-color-ok: #90ee90;
-$status-color-warn: #ffffe0;
+$status-color-warn: #f5de7d;
 $status-color-error: #f08080;
 
 /* ---- Style ---- */
@@ -263,6 +263,79 @@ a:hover {
   }
 }
 
+.card-progress {
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-top: 8px;
+  height: 2px;
+
+  box-shadow: 0 0 2px #FF4081;
+  background-color: #FF4081;
+
+  width: 0%;
+}
+
+.embedding-card {
+  /* `margin-top` is set by .card-progress. */
+  margin-top: 0px;
+  height: 72px;
+
+  .card-model {
+    height: 100%;
+    width: 60px;
+
+    color: white;
+    background-color: #3F51B5;
+
+    font-size: 16px;
+    text-align: center;
+    font-weight: bold;
+    line-height: 20px;
+  }
+
+  .card-model.card-word2vec {
+    background-color: rgba(41, 158, 12, 0.9);
+    border-right: 1px solid rgba(41, 158, 12, 1.0);
+  }
+
+  .card-model.card-glove {
+    background-color: rgba(239, 87, 52, 0.9);
+    border-right: 1px solid rgba(239, 87, 52, 1.0);
+  }
+
+  .card-model.card-svd {
+    background-color: rgba(38, 126, 213, 0.9);
+    border-right: 1px solid rgba(38, 126, 213, 1.0);
+  }
+
+  .card-content {
+    flex-grow: 1;
+
+    height: 100%;
+    padding-left: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    .card-name {
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 0.005em;
+    }
+
+    .card-description {
+      padding-left: 20px;
+
+      color: rgba(0,0,0,0.87)
+    }
+  }
+
+  .card-status {
+    height: 100%;
+    padding-right: 16px;
+  }
+}
+
 .embedding-status {
     width: 20px;
     height: 20px;
@@ -271,17 +344,17 @@ a:hover {
     border: 1px solid rgba(99, 91, 91, 0.38);
 }
 
-.trained {
+.card-status-trained {
   @extend .embedding-status;
   background-color: $status-color-ok;
 }
 
-.training {
+.card-status-training {
   @extend .embedding-status;
   background-color: $status-color-warn;
 }
 
-.untrained {
+.card-status-untrained {
   @extend .embedding-status;
   background-color: $status-color-error;
 }

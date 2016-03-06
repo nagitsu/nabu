@@ -11,8 +11,8 @@
  */
 angular.module('nabuApp')
   .controller('EmbeddingsCtrl', function (
-    $stateParams, $timeout, $scope, $mdDialog, Enums, Embeddings, JobsTraining,
-    embeddingList, pendingTrainingJobs
+    $stateParams, $timeout, $interval, $scope, $mdDialog, Enums, Embeddings,
+    JobsTraining, embeddingList, pendingTrainingJobs
   ) {
     // Properties
 
@@ -72,6 +72,15 @@ angular.module('nabuApp')
             angular.element('#new-embedding-btn').trigger('click');
         }, 100);
     }
+
+
+    // Periodically update the progress.
+
+    $scope.trainingTimer = $interval(function () {
+        JobsTraining.list('queued').then(function(response) {
+            $scope.trainingJobs = buildJobMap(response.data);
+        });
+    }, 4000);
 
 
     // Utility functions

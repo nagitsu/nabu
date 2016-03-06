@@ -8,25 +8,32 @@
     </md-button>
   </div>
 
-  <md-card class="nabu-card" ng-repeat="embedding in embeddings"
-    ui-sref="initial.tabs.embeddings-detail({embeddingId: embedding.id})">
-    <md-card-content>
-      <div class="md-title" layout="row" layout-wrap>
-        <p>{{embedding.name}}</p>
-        <span flex></span>
-        <div ng-class="embedding.status | lowercase">
+  <div ng-repeat="embedding in embeddings">
+    <div class="card-progress" ng-if="embedding.status != 'TRAINING'"></div>
+    <div class="card-progress" ng-if="embedding.status == 'TRAINING'"
+         style="width: {{100 * trainingJobs[embedding.id].progress | number:6}}%"></div>
+    <md-card class="nabu-card embedding-card"
+             ui-sref="initial.tabs.embeddings-detail({embeddingId: embedding.id})"
+             layout="row" layout-align="space-between center" layout-wrap>
+      <div class="card-model card-{{embedding.model | lowercase}}"
+           layout="column" layout-align="center center">
+        {{embedding.model[0] | uppercase}}
+        <md-tooltip md-direction="right">{{embedding.model}}</md-tooltip>
+      </div>
+      <div class="card-content" layout="column" layout-align="space-between start">
+        <div class="card-name">{{embedding.name}}</div>
+        <div class="card-description">{{embedding.description}}</div>
+      </div>
+      <div class="card-status" layout="row" layout-align="center center">
+        <div class="card-status-{{embedding.status | lowercase}}">
           <md-tooltip md-direction="left" ng-if="embedding.status != 'TRAINING'">
             {{embedding.status | titlecase}}
           </md-tooltip>
           <md-tooltip md-direction="left" ng-if="embedding.status == 'TRAINING'">
-            {{embedding.status | titlecase}} - {{trainingJobs[embedding.id].progress | number:3}}%
+            {{embedding.status | titlecase}} - {{100 * trainingJobs[embedding.id].progress | number:1}}%
           </md-tooltip>
         </div>
       </div>
-      <p>{{embedding.description}}</p>
-    </md-card-content>
-    <div class="md-actions" layout="row" layout-align="end center">
-      <md-button>{{embedding.model}}</md-button>
-    </div>
-  </md-card>
+    </md-card>
+  </div>
 </div>

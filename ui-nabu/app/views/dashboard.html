@@ -13,9 +13,10 @@
         </div>
         <p>Size: {{source.sourceData.size | number}}</p>
         <div flex layout="row">
-          <canvas id="{{source.corpusSource}}-bar" class="chart chart-bar"
+          <canvas id="{{source.corpusSource}}-bar" class="chart chart-bar" height="100"
                   chart-data="source.sourceData.over_time" chart-labels="corpusGraphLabels"
-                  chart-series="corpusGraphSeries" chart-colours="['#3F51B5', '#FF4081']">
+                  chart-series="corpusGraphSeries" chart-colours="[{fillColor: '#3F51B5'}]"
+                  chart-options="corpusGraphOptions">
           </canvas>
         </div>
       </md-card-content>

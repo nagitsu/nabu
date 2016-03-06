@@ -18,6 +18,11 @@ angular.module('nabuApp')
     $scope.corpusGraphLabels = getDateRange(
         moment().subtract(10, 'days'), moment().add(1, 'days'), 'DD/MM'
     );
+    $scope.corpusGraphOptions = {
+        showScale: false,
+        barShowStroke: false,
+        barValueSpacing: 2
+    };
 
     // We want some real-time-like behavior here, so we poll the server
     // periodically to show new corpus stats numbers.

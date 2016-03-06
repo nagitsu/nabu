@@ -42,6 +42,14 @@
     </md-fab-speed-dial>
   </div>
 
+  <div ng-show="embedding.status == 'TRAINING'">
+    <div class="embedding-progress-container" layout="row">
+      <div class="embedding-progress-bar"
+           style="width: {{100 * jobProgress}}%">
+      </div>
+    </div>
+  </div>
+
   <div layout-padding layout="row" layout-sm="column">
     <md-input-container flex=40 flex-sm=90>
       <label>Description</label>

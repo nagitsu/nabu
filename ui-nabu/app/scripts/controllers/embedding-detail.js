@@ -11,10 +11,13 @@
  */
 angular.module('nabuApp')
   .controller('EmbeddingDetailCtrl', function (
-    $scope, $state, VerifyDelete, JobsTraining, Embeddings, embedding,
-    evaluationResults, testList, modelEnums, corpusEnums
+    $scope, $state, $interval, VerifyDelete, JobsTraining, Embeddings,
+    embedding, evaluationResults, testList, modelEnums, corpusEnums
   ) {
     $scope.embedding = embedding;
+    if (embedding.training_job) {
+      $scope.jobProgress = embedding.training_job.progress;
+    }
 
     // Here we build a map for TestSet data: TestSet.id -> TestSet.data
     var testsets = _.fromPairs(_.map(testList, function(item) {
@@ -71,6 +74,16 @@ angular.module('nabuApp')
             });
         });
     };
+
+
+    // Periodically update the progress.
+
+    $scope.trainingTimer = $interval(function () {
+      var trainingJobId = $scope.embedding.training_job.id;
+      JobsTraining.retrieve(trainingJobId).then(function(response) {
+        $scope.jobProgress = response.data.progress;
+      });
+    }, 4000);
 
 
     function getVerboseNames(modelEnums, corpusEnums) {

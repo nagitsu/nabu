@@ -18,5 +18,9 @@ angular.module('nabuApp')
     $scope.cancel = function() {
         $mdDialog.cancel();
     };
+
+    $scope.formatDate = function(date) {
+      return moment(date).format('DD/MM/YYYY HH:mm');
+    };
   });
 })(angular);

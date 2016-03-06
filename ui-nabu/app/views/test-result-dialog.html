@@ -17,7 +17,7 @@
           <h5>Embedding: <i>{{embedding.description}}</i></h5>
         </div>
         <div flex>
-          <h5>Date: <i>{{resultData.creation_date}}</i></h5>
+          <h5>Date: <i>{{formatDate(resultData.creation_date)}}</i></h5>
           <h5>Accuracy: <i>{{resultData.accuracy | percentage}}</i></h5>
         </div>
       </div>
@@ -27,36 +27,44 @@
         <table layout-padding md-data-table md-progress="deferred">
           <tbody>
             <tr>
-              <td>Missing</td>
-              <td>{{resultData.extended.missing}}</td>
+              <td>Missing Entries</td>
+              <td>{{resultData.extended.failed_entries.missing.length}}</td>
+            </tr>
+            <tr>
+              <td>Wrong Entries</td>
+              <td>{{resultData.extended.failed_entries.wrong.length}}</td>
+            </tr>
+            <tr>
+              <td>Missing Words</td>
+              <td>{{resultData.extended.missing_words.length}}</td>
             </tr>
             <tr>
               <td>Total</td>
               <td>{{resultData.extended.total}}</td>
             </tr>
             <tr>
-              <td>Top 10 (add)</td>
-              <td>{{resultData.extended.top10_add}}</td>
+              <td>Top 1 (<span class="method-name">3CosAdd</span>)</td>
+              <td>{{resultData.extended.top1_add | number:2}}</td>
             </tr>
             <tr>
-              <td>Top 10 (mul)</td>
-              <td>{{resultData.extended.top10_mul}}</td>
+              <td>Top 1 (<span class="method-name">3CosMul</span>)</td>
+              <td>{{resultData.extended.top1_mul | number:2}}</td>
             </tr>
             <tr>
-              <td>Top 1 (add)</td>
-              <td>{{resultData.extended.top1_add}}</td>
+              <td>Top 5 (<span class="method-name">3CosAdd</span>)</td>
+              <td>{{resultData.extended.top5_add | number:2}}</td>
             </tr>
             <tr>
-              <td>Top 1 (mul)</td>
-              <td>{{resultData.extended.top1_mul}}</td>
+              <td>Top 5 (<span class="method-name">3CosMul</span>)</td>
+              <td>{{resultData.extended.top5_mul | number:2}}</td>
             </tr>
             <tr>
-              <td>Top 5 (add)</td>
-              <td>{{resultData.extended.top5_add}}</td>
+              <td>Top 10 (<span class="method-name">3CosAdd</span>)</td>
+              <td>{{resultData.extended.top10_add | number:2}}</td>
             </tr>
             <tr>
-              <td>Top 5 (mul)</td>
-              <td>{{resultData.extended.top5_mul}}</td>
+              <td>Top 10 (<span class="method-name">3CosMul</span>)</td>
+              <td>{{resultData.extended.top10_mul | number:2}}</td>
             </tr>
           </tbody>
         </table>

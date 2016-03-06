@@ -424,7 +424,12 @@ a:hover {
     max-width: 1400px;
     max-height: 1100px;
   }
+
   .doc-content {
     white-space: pre-line;
+  }
+
+  .method-name {
+    font-variant-caps: small-caps;
   }
 }

@@ -152,8 +152,17 @@ a:hover {
 
 .fab-btn-icon {
   color: white !important;
-  height: 24px;
-  font-size: 24px !important;
+  height: 26px;
+  font-size: 26px !important;
+  line-height: 0.90 !important;
+}
+
+.md-mini {
+  .fab-btn-icon {
+    height: 23px;
+    font-size: 23px !important;
+    line-height: 0.90 !important;
+  }
 }
 
 .section-header {

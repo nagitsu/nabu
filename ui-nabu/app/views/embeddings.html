@@ -15,7 +15,12 @@
         <p>{{embedding.name}}</p>
         <span flex></span>
         <div ng-class="embedding.status | lowercase">
-          <md-tooltip md-direction="left">{{embedding.status | titlecase}}</md-tooltip>
+          <md-tooltip md-direction="left" ng-if="embedding.status != 'TRAINING'">
+            {{embedding.status | titlecase}}
+          </md-tooltip>
+          <md-tooltip md-direction="left" ng-if="embedding.status == 'TRAINING'">
+            {{embedding.status | titlecase}} - {{trainingJobs[embedding.id].progress | number:3}}%
+          </md-tooltip>
         </div>
       </div>
       <p>{{embedding.description}}</p>

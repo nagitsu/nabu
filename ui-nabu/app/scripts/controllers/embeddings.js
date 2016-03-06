@@ -11,12 +11,15 @@
  */
 angular.module('nabuApp')
   .controller('EmbeddingsCtrl', function (
-    $stateParams, $timeout, $scope, $mdDialog, Enums, Embeddings, embeddingList
+    $stateParams, $timeout, $scope, $mdDialog, Enums, Embeddings, JobsTraining,
+    embeddingList, pendingTrainingJobs
   ) {
     // Properties
 
     $scope.dialogLoading = false;
-    $scope.embeddings = embeddingList;
+    $scope.embeddings = sortEmbeddings(embeddingList);
+    $scope.trainingJobs = buildJobMap(pendingTrainingJobs);
+
 
     // Methods
 
@@ -50,11 +53,15 @@ angular.module('nabuApp')
             if (newObjCreated) {
                 // Refresh embeddings list.
                 Embeddings.list().then(function(response) {
-                    $scope.embeddings = response.data;
+                    $scope.embeddings = sortEmbeddings(response.data);
+                });
+                JobsTraining.list('queued').then(function(response) {
+                    $scope.trainingJobs = buildJobMap(response.data);
                 });
             }
         });
     };
+
 
     // Initial behaviour
 
@@ -65,5 +72,27 @@ angular.module('nabuApp')
             angular.element('#new-embedding-btn').trigger('click');
         }, 100);
     }
+
+
+    // Utility functions
+
+    function sortEmbeddings(embeddingList) {
+        // Display training embeddings first.
+        var statusOrder = ['TRAINING', 'TRAINED', 'UNTRAINED'];
+        embeddingList.sort(function (a, b) {
+            return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
+        });
+        return embeddingList;
+    }
+
+    function buildJobMap(pendingTrainingJobs) {
+        // Training jobs indexed by embedding ID.
+        var jobsMap = {};
+        pendingTrainingJobs.forEach(function (job) {
+            jobsMap[job.embedding_id] = job;
+        });
+        return jobsMap;
+    }
+
   });
 })(angular);

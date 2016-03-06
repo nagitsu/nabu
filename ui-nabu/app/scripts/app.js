@@ -90,6 +90,11 @@ angular
                 return Embeddings.list().then(function(response) {
                   return response.data;
                 });
+              },
+              pendingTrainingJobs: function (JobsTraining) {
+                return JobsTraining.list('queued').then(function(response) {
+                  return response.data;
+                });
               }
             }
           }

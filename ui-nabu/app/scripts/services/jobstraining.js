@@ -12,8 +12,14 @@
 angular.module('nabuApp')
   .factory('JobsTraining', function (Restangular) {
     return {
-      list: function () {
-        return Restangular.all('jobs').one('training').get();
+      list: function (status) {
+        var apiCall = Restangular.all('jobs').one('training');
+        if (status) {
+          var params = {status: status};
+          return apiCall.get(params);
+        } else {
+          return apiCall.get();
+        }
       },
 
       create: function (newTrainingJob) {

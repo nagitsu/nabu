@@ -109,12 +109,11 @@ body {
   }
 }
 
-/* ****
-
-    Nabu app rules
-
-   ****
-*/
+// ****
+//
+//  Nabu app rules
+//
+// ****
 
 a:focus {
   outline: 0;
@@ -160,6 +159,22 @@ a:hover {
 .section-header {
   padding-bottom: 10px;
 }
+
+
+// Dashboard
+
+.source-card {
+  width: 330px;
+
+  .md-title {
+    overflow: hidden;
+
+    a {
+      color: rgba(0,0,0,0.87);
+    }
+  }
+}
+
 
 // Corpus
 

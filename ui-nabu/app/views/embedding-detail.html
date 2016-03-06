@@ -29,7 +29,8 @@
           <md-icon class="fab-btn-icon" md-font-icon="fa fa-download"></md-icon>
           <md-tooltip md-direction="top">Download Embedding</md-tooltip>
         </md-button>
-        <md-button class="md-fab md-mini" aria-label="Train embedding" ng-click="trainEmbedding()">
+        <md-button class="md-fab md-mini" aria-label="Train embedding" ng-click="trainEmbedding()"
+                   ng-show="embedding.status == 'UNTRAINED'">
           <md-icon class="fab-btn-icon" md-font-icon="fa fa-lightbulb-o"></md-icon>
           <md-tooltip md-direction="top">Train Embedding</md-tooltip>
         </md-button>

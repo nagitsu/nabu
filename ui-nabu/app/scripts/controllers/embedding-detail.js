@@ -41,6 +41,10 @@ angular.module('nabuApp')
 
     $scope.verboseNames = getVerboseNames(modelEnums, corpusEnums);
 
+    $scope.formatDate = function(date) {
+      return moment(date).format('DD/MM/YYYY HH:mm');
+    };
+
     $scope.trainEmbedding = function() {
         var newJob = {"embedding_id": $scope.embedding.id};
         JobsTraining.create(newJob).then(function() {

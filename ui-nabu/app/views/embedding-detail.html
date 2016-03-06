@@ -132,7 +132,7 @@
         </thead>
         <tbody>
           <tr md-auto-select ng-repeat="result in evaluationResults | orderBy: evaluation.order">
-            <td>{{result.creation_date}}</td>
+            <td>{{formatDate(result.creation_date)}}</td>
             <td>
               <a ui-sref="initial.tabs.tests-detail({testId: result.testset_id})">
                 {{result.testsetName}}

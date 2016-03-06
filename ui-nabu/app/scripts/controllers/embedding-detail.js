@@ -11,8 +11,8 @@
  */
 angular.module('nabuApp')
   .controller('EmbeddingDetailCtrl', function (
-    $scope, $state, $interval, VerifyDelete, JobsTraining, Embeddings,
-    embedding, evaluationResults, testList, modelEnums, corpusEnums
+    $scope, $state, $interval, $mdDialog, VerifyDelete, JobsTraining,
+    Embeddings, embedding, evaluationResults, testList, modelEnums, corpusEnums
   ) {
     $scope.embedding = embedding;
     if (embedding.training_job) {
@@ -20,14 +20,14 @@ angular.module('nabuApp')
     }
 
     // Here we build a map for TestSet data: TestSet.id -> TestSet.data
-    var testsets = _.fromPairs(_.map(testList, function(item) {
+    $scope.testsets = _.fromPairs(_.map(testList, function(item) {
         return [item.id, item];
     }));
 
     // Augment the evaluation results with testset names and descriptions.
     evaluationResults.forEach(function (elem) {
-      elem.testsetName = testsets[elem.testset_id].name;
-      elem.testsetDescription = testsets[elem.testset_id].description;
+      elem.testsetName = $scope.testsets[elem.testset_id].name;
+      elem.testsetDescription = $scope.testsets[elem.testset_id].description;
     });
     // Default ordering by name.
     evaluationResults.sort(function (a, b) {
@@ -73,6 +73,35 @@ angular.module('nabuApp')
                 $state.go("initial.tabs.embeddings");
             });
         });
+    };
+
+    $scope.testResultDialog = function(ev, testsetId) {
+      if ($scope.dialogLoading) {
+        return;
+      }
+      $scope.dialogLoading = true;
+      $mdDialog.show({
+        controller: 'TestResultDialogCtrl',
+        templateUrl: 'views/test-result-dialog.html',
+        targetEvent: ev,
+        clickOutsideToClose: true,
+        resolve: {
+          resultData: function(Results) {
+            return Results.retrieve(
+              $scope.embedding.id, testsetId
+            ).then(function(response) {
+              return response.data;
+            });
+          }
+        },
+        locals: {
+          embedding: $scope.embedding,
+          test: $scope.testsets[testsetId]
+        },
+        onComplete: function() {
+          $scope.dialogLoading = false;
+        }
+      });
     };
 
 

@@ -136,6 +136,7 @@
             <th name="Name" order-by="testsetName"></th>
             <th name="Description"></th>
             <th name="Accuracy" order-by="accuracy"></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -148,6 +149,11 @@
             </td>
             <td>{{result.testsetDescription}}</td>
             <td>{{result.accuracy | percentage}}</td>
+            <td>
+              <a ng-click="testResultDialog($event, result.testset_id)" href="">
+                <i class="fa fa-eye fa-2x"></i>
+              </a>
+            </td>
           </tr>
         </tbody>
       </table>

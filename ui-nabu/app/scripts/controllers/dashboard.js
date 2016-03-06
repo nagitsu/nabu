@@ -21,6 +21,7 @@ angular.module('nabuApp')
     $scope.corpusGraphOptions = {
         showScale: false,
         barShowStroke: false,
+        tooltipTemplate: "<%= label %>: <%= value.toLocaleString() %>",
         barValueSpacing: 2
     };
 
@@ -37,7 +38,7 @@ angular.module('nabuApp')
                 $mdToast.show(
                     $mdToast.simple({
                         hideDelay: 5000, position: 'bottom right'
-                    }).content('We just got ' + diffWords + ' new words!')
+                    }).content('We just got ' + diffWords.toLocaleString() + ' new words!')
                 );
             }
         });

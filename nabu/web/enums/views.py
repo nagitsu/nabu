@@ -26,7 +26,7 @@ def model_enums():
                     'description': "Whether to use `cbow` or `skipgram`", 'default': 'skipgram'
                 },
                 {'name': 'hsoftmax', 'verbose_name': 'Hierarchical Softmax', 'type': 'bool', 'description': "Whether to use hierarchical softmax", 'default': True},
-                {'name': 'negative', 'verbose_name': 'Negative Sampling', 'type': 'int', 'description': "Number of words to use for negative sampling", 'default': 0},
+                {'name': 'negative', 'verbose_name': 'Negative Sampling', 'type': 'int', 'description': "Number of words to use for negative sampling (only if HS is not used)", 'default': 0},
                 {'name': 'epochs', 'verbose_name': 'Epochs', 'type': 'int', 'description': "Number of epochs to train with", 'default': 1},
                 {'name': 'alpha', 'verbose_name': 'Alpha', 'type': 'float', 'description': "Learning rate for sgd", 'default': 0.025},
             ]

@@ -15,11 +15,22 @@ angular.module('nabuApp')
     evaluationResults, testList, modelEnums, corpusEnums
   ) {
     $scope.embedding = embedding;
-    $scope.evaluationResults = evaluationResults;
+
     // Here we build a map for TestSet data: TestSet.id -> TestSet.data
-    $scope.testSet = _.fromPairs(_.map(testList, function(item) {
+    var testsets = _.fromPairs(_.map(testList, function(item) {
         return [item.id, item];
     }));
+
+    // Augment the evaluation results with testset names and descriptions.
+    evaluationResults.forEach(function (elem) {
+      elem.testsetName = testsets[elem.testset_id].name;
+      elem.testsetDescription = testsets[elem.testset_id].description;
+    });
+    // Default ordering by name.
+    evaluationResults.sort(function (a, b) {
+      return (a.testsetName < b.testsetName) ? -1 : 1;
+    });
+    $scope.evaluationResults = evaluationResults;
 
     $scope.searchQuery = angular.toJson($scope.embedding.corpus.query, true);
     $scope.aceLoaded = function(_editor) {

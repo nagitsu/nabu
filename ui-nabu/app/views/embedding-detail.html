@@ -122,10 +122,10 @@
     <md-data-table-container flex>
       <span layout-padding class="md-label-sim">Evaluation</span>
       <table layout-padding md-data-table md-progress="deferred" class="corpus-search-results">
-        <thead md-order="evaluation.order" md-trigger="onOrderChange">
+        <thead md-order="evaluation.order">
           <tr>
             <th name="Date" order-by="creation_date"></th>
-            <th name="Name"></th>
+            <th name="Name" order-by="testsetName"></th>
             <th name="Description"></th>
             <th name="Accuracy" order-by="accuracy"></th>
           </tr>
@@ -135,10 +135,10 @@
             <td>{{result.creation_date}}</td>
             <td>
               <a ui-sref="initial.tabs.tests-detail({testId: result.testset_id})">
-                {{testSet[result.testset_id].name}}
+                {{result.testsetName}}
               </a>
             </td>
-            <td>{{testSet[result.testset_id].description}}</td>
+            <td>{{result.testsetDescription}}</td>
             <td>{{result.accuracy | percentage}}</td>
           </tr>
         </tbody>

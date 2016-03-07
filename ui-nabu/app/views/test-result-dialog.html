@@ -11,64 +11,82 @@
 
   <md-dialog-content>
     <div class="md-dialog-content">
-      <div layout="row">
-        <div flex>
-          <h5>Test set: <i>{{test.name}}</i></h5>
-          <h5>Embedding: <i>{{embedding.description}}</i></h5>
-        </div>
-        <div flex>
-          <h5>Date: <i>{{formatDate(resultData.creation_date)}}</i></h5>
-          <h5>Accuracy: <i>{{resultData.accuracy | percentage}}</i></h5>
+      <div class="result-dialog-section">
+        <h4>Evaluation Information</h4>
+        <div layout="row">
+          <div flex>
+            <h5><strong>Test set</strong>: {{test.name}}</h5>
+            <h5><strong>Embedding</strong>: {{embedding.description}}</h5>
+          </div>
+          <div flex>
+            <h5><strong>Date</strong>: {{formatDate(resultData.creation_date)}}</h5>
+            <h5><strong>Accuracy</strong>: {{resultData.accuracy | percentage}}</h5>
+          </div>
         </div>
       </div>
 
-      <br/>
-      <md-data-table-container flex>
-        <table layout-padding md-data-table md-progress="deferred">
-          <tbody>
-            <tr>
-              <td>Missing Entries</td>
-              <td>{{resultData.extended.failed_entries.missing.length}}</td>
-            </tr>
-            <tr>
-              <td>Wrong Entries</td>
-              <td>{{resultData.extended.failed_entries.wrong.length}}</td>
-            </tr>
-            <tr>
-              <td>Missing Words</td>
-              <td>{{resultData.extended.missing_words.length}}</td>
-            </tr>
-            <tr>
-              <td>Total</td>
-              <td>{{resultData.extended.total}}</td>
-            </tr>
-            <tr>
-              <td>Top 1 (<span class="method-name">3CosAdd</span>)</td>
-              <td>{{resultData.extended.top1_add | number:2}}</td>
-            </tr>
-            <tr>
-              <td>Top 1 (<span class="method-name">3CosMul</span>)</td>
-              <td>{{resultData.extended.top1_mul | number:2}}</td>
-            </tr>
-            <tr>
-              <td>Top 5 (<span class="method-name">3CosAdd</span>)</td>
-              <td>{{resultData.extended.top5_add | number:2}}</td>
-            </tr>
-            <tr>
-              <td>Top 5 (<span class="method-name">3CosMul</span>)</td>
-              <td>{{resultData.extended.top5_mul | number:2}}</td>
-            </tr>
-            <tr>
-              <td>Top 10 (<span class="method-name">3CosAdd</span>)</td>
-              <td>{{resultData.extended.top10_add | number:2}}</td>
-            </tr>
-            <tr>
-              <td>Top 10 (<span class="method-name">3CosMul</span>)</td>
-              <td>{{resultData.extended.top10_mul | number:2}}</td>
-            </tr>
-          </tbody>
-        </table>
-      </md-data-table-container>
+      <div class="result-dialog-section">
+        <h4>Entries Information</h4>
+        <md-data-table-container flex>
+          <table layout-padding md-data-table md-progress="deferred">
+            <tbody>
+              <tr title="{{resultData.extended.missing_words.join(', ')}}">
+                <td>Missing Words</td>
+                <td>{{resultData.extended.missing_words.length}}</td>
+              </tr>
+              <tr>
+                <td style="width: 50%;">Missing Entries</td>
+                <td>{{resultData.extended.failed_entries.missing.length}}</td>
+              </tr>
+              <tr ng-show="{{resultData.extended.failed_entries.wrong !== undefined}}">
+                <td>
+                  Wrong Entries
+                  <md-tooltip md-direction="left">Outside top 10</md-tooltip>
+                </td>
+                <td>{{resultData.extended.failed_entries.wrong.length}}</td>
+              </tr>
+              <tr>
+                <td>Total Entries</td>
+                <td>{{resultData.extended.total}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </md-data-table-container>
+      </div>
+
+      <div class="result-dialog-section" ng-show="resultData.extended.top1_add">
+        <h4>Extended Result Information</h4>
+        <md-data-table-container flex>
+          <table layout-padding md-data-table md-progress="deferred">
+            <tbody>
+              <tr>
+                <td style="width: 50%;">Top 1 (<span class="method-name">3CosAdd</span>)</td>
+                <td>{{resultData.extended.top1_add | number:2}}</td>
+              </tr>
+              <tr>
+                <td>Top 1 (<span class="method-name">3CosMul</span>)</td>
+                <td>{{resultData.extended.top1_mul | number:2}}</td>
+              </tr>
+              <tr>
+                <td>Top 5 (<span class="method-name">3CosAdd</span>)</td>
+                <td>{{resultData.extended.top5_add | number:2}}</td>
+              </tr>
+              <tr>
+                <td>Top 5 (<span class="method-name">3CosMul</span>)</td>
+                <td>{{resultData.extended.top5_mul | number:2}}</td>
+              </tr>
+              <tr>
+                <td>Top 10 (<span class="method-name">3CosAdd</span>)</td>
+                <td>{{resultData.extended.top10_add | number:2}}</td>
+              </tr>
+              <tr>
+                <td>Top 10 (<span class="method-name">3CosMul</span>)</td>
+                <td>{{resultData.extended.top10_mul | number:2}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </md-data-table-container>
+      </div>
     </div>
   </md-dialog-content>
 </md-dialog>

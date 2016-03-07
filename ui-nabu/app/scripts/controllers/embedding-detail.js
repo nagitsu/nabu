@@ -23,6 +23,7 @@ angular.module('nabuApp')
     $scope.testsets = _.fromPairs(_.map(testList, function(item) {
         return [item.id, item];
     }));
+    $scope.testList = testList;
 
     // Augment the evaluation results with testset names and descriptions.
     evaluationResults.forEach(function (elem) {
@@ -97,6 +98,26 @@ angular.module('nabuApp')
         locals: {
           embedding: $scope.embedding,
           test: $scope.testsets[testsetId]
+        },
+        onComplete: function() {
+          $scope.dialogLoading = false;
+        }
+      });
+    };
+
+    $scope.evaluateOnTestSet = function(ev) {
+      if ($scope.dialogLoading) {
+        return;
+      }
+      $scope.dialogLoading = true;
+      $mdDialog.show({
+        controller: 'EvaluateOnTestsetDialogCtrl',
+        templateUrl: 'views/evaluate-on-testset-dialog.html',
+        targetEvent: ev,
+        clickOutsideToClose: true,
+        locals: {
+          embedding: $scope.embedding,
+          tests: $scope.testList
         },
         onComplete: function() {
           $scope.dialogLoading = false;

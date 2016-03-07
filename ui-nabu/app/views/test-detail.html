@@ -54,19 +54,20 @@
     <div ng-bind="testSet.sample_entry" class="quote-text"></div>
   </div>
 
-  <div ng-show="evaluationResults.length > 0" layout="row" flex>
+  <div layout="row" flex>
     <md-data-table-container flex>
       <div layout="row" layout-align="center center">
-        <span layout-padding class="md-label-sim">Embeddings</span>
+        <h4>Evaluation results</h4>
         <span flex></span>
         <md-button class="md-fab md-mini" aria-label="New Embedding Test"
-          ng-click="newEmbeddingTestDialog($event)">
+                   ng-click="newEmbeddingTestDialog($event)">
           <md-icon class="fab-btn-icon" md-font-icon="fa fa-plus"></md-icon>
           <md-tooltip md-direction="left">New Embedding Test</md-tooltip>
         </md-button>
       </div>
 
-      <table layout-padding md-data-table md-progress="deferred" class="corpus-search-results">
+      <table ng-show="evaluationResults.length > 0" layout-padding
+             md-data-table md-progress="deferred" class="corpus-search-results">
         <thead md-order="evaluation.order" md-trigger="onOrderChange">
           <tr>
             <th name="Date" order-by="creation_date"></th>

@@ -1,0 +1,50 @@
+<md-dialog flex="85" class="nabu-dialog" aria-label="Evaluate the embedding on a test set" ng-cloak>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Evaluate the embedding on a test set</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="cancel()">
+        <i aria-label="Close" class="fa fa-close"></i>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-dialog-content>
+    <div class="md-dialog-content">
+      <div class="dialog-instructions">
+        <p>Please select how to evaluate the embedding.</p>
+      </div>
+
+      <form name="evaluateEmbeddingForm">
+        <div layout="row" layout-sm="column">
+          <md-input-container flex="80">
+            <label>Evaluation method</label>
+            <md-select ng-model="evaluationMethod">
+              <md-option value="missing">Evaluate on the missing tests</md-option>
+              <md-option value="full">Evaluate on all the tests</md-option>
+              <md-option value="single">Evaluate on a particular test</md-option>
+            </md-select>
+          </md-input-container>
+        </div>
+        <div layout="row" layout-sm="column" ng-show="evaluationMethod == 'single'">
+          <md-input-container flex="80">
+            <label>Test</label>
+            <md-select ng-model="testsetId">
+              <md-option ng-repeat="ts in tests" ng-value="{{ts.id}}">
+                {{ts.name}} ({{ts.description}})
+              </md-option>
+            </md-select>
+          </md-input-container>
+        </div>
+      </form>
+
+    </div>
+  </md-dialog-content>
+
+  <div class="md-actions" layout-align="space-between center" layout="row">
+    <span ng-show="showErrors" class="error-message" flex>There was an error creating the test.</span>
+    <div layout="row" layout-align="end center" flex>
+      <md-button md-autofocus ng-click="create()">Create</md-button>
+    </div>
+  </div>
+</md-dialog>

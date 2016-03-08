@@ -12,7 +12,7 @@
     <div class="card-progress" ng-if="embedding.status != 'TRAINING'"></div>
     <div class="card-progress" ng-if="embedding.status == 'TRAINING'"
          style="width: {{100 * trainingJobs[embedding.id].progress | number:6}}%"></div>
-    <md-card class="nabu-card embedding-card"
+    <md-card class="nabu-card"
              ui-sref="initial.tabs.embeddings-detail({embeddingId: embedding.id})"
              layout="row" layout-align="space-between center" layout-wrap>
       <div class="card-model card-{{embedding.model | lowercase}}"

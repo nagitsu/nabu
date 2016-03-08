@@ -1,25 +1,40 @@
 <div class="tab-container">
   <div layout="row">
     <span flex></span>
+    <div class="tests-count" layout="column" layout-align="center center">
+      ({{getAllTestingJobCount()}} tests being run)
+    </div>
     <md-button class="md-fab md-mini" aria-label="New Test set"
       ng-click="newTestSetDialog($event)">
       <md-icon class="fab-btn-icon" md-font-icon="fa fa-plus"></md-icon>
-      <md-tooltip md-direction="left">New Test set</md-tooltip>
+      <md-tooltip md-direction="left">New Test Set</md-tooltip>
     </md-button>
   </div>
 
-  <md-card class="nabu-card" ng-repeat="testcase in tests"
-    ui-sref="initial.tabs.tests-detail({testId: testcase.id})">
-    <md-card-content>
-      <div class="md-title" layout="row" layout-wrap>
-        <p>{{testcase.name}}</p>
-        <span flex></span>
-        <div ng-class="testcase.status | lowercase"><small>#{{testcase.id}}</small></div>
+  <div ng-repeat="test in tests">
+    <div class="card-progress" ng-if="!isBeingRun(test.id)"></div>
+    <div class="card-progress" ng-if="isBeingRun(test.id)"
+         style="width: {{100 * getTestingProgress(test.id) | number:6}}%"></div>
+    <md-card class="nabu-card"
+             ui-sref="initial.tabs.tests-detail({testId: test.id})"
+             layout="row" layout-align="space-between center" layout-wrap>
+      <div class="card-model card-{{test.type | lowercase}}"
+           layout="column" layout-align="center center">
+        {{test.type[0] | uppercase}}
+        <md-tooltip md-direction="right">{{test.type | titlecase}}</md-tooltip>
       </div>
-      <p>{{testcase.description}}</p>
-    </md-card-content>
-    <div class="md-actions" layout="row" layout-align="end center">
-      <md-button>{{testcase.type}}</md-button>
-    </div>
-  </md-card>
+      <div class="card-content" layout="column" layout-align="space-between start">
+        <div class="card-name">{{test.name}}</div>
+        <div class="card-description">{{test.description}}</div>
+      </div>
+      <div class="card-status" layout="row" layout-align="center center">
+        <div class="card-status-testing" ng-if="isBeingRun(test.id)">
+          {{getTestingJobCount(test.id)}}
+          <md-tooltip md-direction="left">
+            {{getTestingJobCount(test.id)}} embedding(s) being evaluated
+          </md-tooltip>
+        </div>
+      </div>
+    </md-card>
+  </div>
 </div>

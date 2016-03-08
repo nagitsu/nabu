@@ -150,6 +150,11 @@ angular
                 return TestSets.list().then(function(response) {
                   return response.data;
                 });
+              },
+              pendingTestJobs: function (JobsTesting) {
+                return JobsTesting.list('queued').then(function(response) {
+                  return response.data;
+                });
               }
             }
           }

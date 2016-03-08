@@ -256,13 +256,6 @@ a:hover {
 
 // Embeddings
 
-.nabu-card {
-  cursor: pointer;
-  .md-title {
-    font-family: monospace;
-  }
-}
-
 .card-progress {
   margin-left: 8px;
   margin-right: 8px;
@@ -275,10 +268,16 @@ a:hover {
   width: 0%;
 }
 
-.embedding-card {
+.nabu-card {
   /* `margin-top` is set by .card-progress. */
   margin-top: 0px;
   height: 72px;
+
+  cursor: pointer;
+
+  .md-title {
+    font-family: monospace;
+  }
 
   .card-model {
     height: 100%;
@@ -293,17 +292,17 @@ a:hover {
     line-height: 20px;
   }
 
-  .card-model.card-word2vec {
+  .card-model.card-word2vec, .card-model.card-analogies {
     background-color: rgba(41, 158, 12, 0.9);
     border-right: 1px solid rgba(41, 158, 12, 1.0);
   }
 
-  .card-model.card-glove {
+  .card-model.card-glove, .card-model.card-odd-one-out {
     background-color: rgba(239, 87, 52, 0.9);
     border-right: 1px solid rgba(239, 87, 52, 1.0);
   }
 
-  .card-model.card-svd {
+  .card-model.card-svd, .card-model.card-similarity {
     background-color: rgba(38, 126, 213, 0.9);
     border-right: 1px solid rgba(38, 126, 213, 1.0);
   }
@@ -357,6 +356,22 @@ a:hover {
 .card-status-untrained {
   @extend .embedding-status;
   background-color: $status-color-error;
+}
+
+.card-status-testing {
+  min-width: 25px;
+  height: 20px;
+
+  color: #a18a28;
+  font-weight: 700;
+  text-align: center;
+  line-height: 17px;
+
+  border: 1px solid #eace56;
+  border-radius: 9px;
+  box-shadow: 0 2px 2px #d7d7d7;
+
+  background-color: $status-color-warn;
 }
 
 .emb-detail-name {
@@ -415,6 +430,11 @@ a:hover {
 
 
 // Tests
+
+.tests-count {
+  padding-right: 15px;
+  font-style: italic;
+}
 
 .quote-text {
   font-family: cursive;

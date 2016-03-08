@@ -10,9 +10,12 @@
  * Controller of the nabuApp
  */
 angular.module('nabuApp')
-  .controller('TestNewDialogCtrl', function ($scope, $mdDialog, TestSets) {
+    .controller('TestNewDialogCtrl', function ($scope, $mdDialog, TestSets, testEnums) {
     $scope.showErrors = false;
     $scope.uploadFileName = 'Please select a test set file.';
+    $scope.types = _.fromPairs(_.map(testEnums.data, function(item) {
+        return [item.type, item];
+    }));
 
     $scope.uploadFile = function(event) {
         $scope.uploadFileName = event.target.files[0].name;

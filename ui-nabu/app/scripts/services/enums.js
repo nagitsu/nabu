@@ -19,6 +19,10 @@ angular.module('nabuApp')
       corpus: function () {
         return Restangular.all('enums').one('corpus').get();
       },
+
+      tests: function () {
+        return Restangular.all('enums').one('tests').get();
+      },
     };
   });
 })(angular);

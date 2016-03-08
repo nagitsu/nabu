@@ -27,7 +27,11 @@
           <div layout="row" layout-sm="column">
             <md-input-container flex=35 flex-sm=100>
               <label>Type</label>
-              <input ng-model="newTestSet.type">
+              <md-select ng-model="newTestSet.type">
+                <md-option ng-repeat="type in types" value="{{type.type}}">
+                  {{type.verbose_name}}
+                </md-option>
+              </md-select>
             </md-input-container>
 
             <md-input-container flex=65 flex-sm=100>

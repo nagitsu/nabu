@@ -45,6 +45,11 @@ angular.module('nabuApp')
         templateUrl: 'views/test-new.html',
         targetEvent: ev,
         clickOutsideToClose: true,
+        resolve: {
+          testEnums: function(Enums) {
+            return Enums.tests();
+          }
+        },
         locals: {
           TestSets: TestSets
         },
@@ -56,7 +61,7 @@ angular.module('nabuApp')
         if (newObjCreated) {
           // Refresh tests list.
           TestSets.list().then(function(response) {
-            $scope.tests = response.data;
+            $scope.tests = sortTests(response.data);
           });
         }
       });

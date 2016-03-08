@@ -55,9 +55,6 @@ angular.module('nabuApp')
                 Embeddings.list().then(function(response) {
                     $scope.embeddings = sortEmbeddings(response.data);
                 });
-                JobsTraining.list('queued').then(function(response) {
-                    $scope.trainingJobs = buildJobMap(response.data);
-                });
             }
         });
     };

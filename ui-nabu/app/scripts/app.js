@@ -182,6 +182,11 @@ angular
                   return response.data;
                 });
               },
+              pendingTestJobs: function (JobsTesting, $stateParams) {
+                return JobsTesting.list('queued', $stateParams.testId).then(function(response) {
+                  return response.data;
+                });
+              },
               modelEnums: function(Enums) {
                 return Enums.models().then(function(response) {
                   return response.data;

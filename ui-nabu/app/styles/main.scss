@@ -472,3 +472,35 @@ a:hover {
     font-variant-caps: small-caps;
   }
 }
+
+.test-progress-container {
+  height: 8px;
+  margin-left: 100px;
+  margin-right: 100px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+
+  overflow: hidden;
+
+  background-color: rgb(197, 202, 233);
+
+  .test-progress-bar {
+    height: 100%;
+    background-color: rgb(63, 81, 181);
+  }
+}
+
+
+.job-container {
+  padding-top: 5px;
+  padding-left: 20px;
+  padding-right: 20px;
+
+  .job-container-current {
+    padding-bottom: 5px;
+  }
+
+  .job-container-next {
+    padding-top: 5px;
+  }
+}

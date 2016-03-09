@@ -12,14 +12,21 @@
 angular.module('nabuApp')
   .factory('JobsTesting', function (Restangular) {
     return {
-      list: function (status) {
+      list: function (status, testsetId, embeddingId) {
         var apiCall = Restangular.all('jobs').one('testing');
+
+        var params = {};
         if (status) {
-          var params = {status: status};
-          return apiCall.get(params);
-        } else {
-          return apiCall.get();
+          params.status = status;
         }
+        if (testsetId) {
+          params.testset = testsetId;
+        }
+        if (embeddingId) {
+          params.embedding = embeddingId;
+        }
+
+        return apiCall.get(params);
       },
 
       create: function (embeddingId, testsetId) {

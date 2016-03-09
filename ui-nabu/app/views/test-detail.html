@@ -54,6 +54,47 @@
     <div ng-bind="testSet.sample_entry" class="quote-text"></div>
   </div>
 
+  <div layout="column" flex>
+    <div layout="row" layout-align="center center">
+      <h4>Running tests</h4>
+      <span flex></span>
+    </div>
+
+    <div class="job-container" ng-show="jobsInProgress.length > 0 || queuedJobs.length > 0">
+
+      <div class="job-container-current">
+        Current:
+        <span ng-repeat="job in jobsInProgress | orderBy: job.progress">
+          <a ui-sref="initial.tabs.embeddings-detail({embeddingId: job.embedding.id})">
+            #{{job.embedding.id}}<span ng-show="!$last">,</span>
+          </a>
+          <md-tooltip md-direction="top">{{job.embedding.name}}</md-tooltip>
+        </span>
+      </div>
+
+      <div class="test-progress-container" layout="row"
+           ng-repeat="job in jobsInProgress | orderBy: job.progress">
+        <div class="test-progress-bar"
+             style="width: {{100 * job.progress}}%">
+        </div>
+        <md-tooltip md-direction="top">
+          Embedding #{{job.embedding.id}}, progress: {{100 * job.progress | number:1}}%
+        </md-tooltip>
+      </div>
+
+      <div class="job-container-next">
+        Next up:
+        <span ng-repeat="job in queuedJobs">
+          <a ui-sref="initial.tabs.embeddings-detail({embeddingId: job.embedding.id})">
+            #{{job.embedding.id}}<span ng-show="!$last">,</span>
+          </a>
+          <md-tooltip md-direction="top">{{job.embedding.name}}</md-tooltip>
+        </span>
+      </div>
+
+    </div>
+  </div>
+
   <div layout="row" flex>
     <md-data-table-container flex>
       <div layout="row" layout-align="center center">

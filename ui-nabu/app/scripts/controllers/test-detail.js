@@ -11,8 +11,9 @@
  */
 angular.module('nabuApp')
   .controller('TestDetailCtrl', function (
-    $scope, $state, $mdDialog, VerifyDelete, TestSets, Results, testset,
-    evaluationResults, embeddingList, modelEnums
+    $scope, $state, $mdDialog, $interval, VerifyDelete, TestSets, Results,
+    JobsTesting, testset, evaluationResults, embeddingList, modelEnums,
+    pendingTestJobs
   ) {
     $scope.dialogLoading = false;
     $scope.testSet = testset;
@@ -21,6 +22,9 @@ angular.module('nabuApp')
     $scope.embeddings = _.fromPairs(_.map(embeddingList, function(item) {
         return [item.id, item];
     }));
+
+    $scope.jobsInProgress = getJobsInProgress(pendingTestJobs);
+    $scope.queuedJobs = getQueuedJobs(pendingTestJobs);
 
     // Augment the evaluation results with testset names and descriptions.
     evaluationResults.forEach(function (elem) {
@@ -39,6 +43,14 @@ angular.module('nabuApp')
     $scope.formatDate = function(date) {
       return moment(date).format('DD/MM/YYYY HH:mm');
     };
+
+    // Periodically update the progress.
+    $scope.testingTimer = $interval(function () {
+      JobsTesting.list('queued', $scope.testSet.id).then(function(response) {
+        $scope.jobsInProgress = getJobsInProgress(response.data);
+        $scope.queuedJobs = getQueuedJobs(response.data);
+      });
+    }, 4000);
 
     $scope.updateTestSet = function() {
         // In this case we can only update description and name attributes.
@@ -117,6 +129,31 @@ angular.module('nabuApp')
       });
 
       return verboseNames;
+    }
+
+    function getJobsInProgress(testJobs) {
+      var inProgress = [];
+      testJobs.forEach(function (tj) {
+        if (tj.progress > 0) {
+          inProgress.push({
+            embedding: {id: tj.embedding_id, name: $scope.embeddings[tj.embedding_id].name},
+            progress: tj.progress
+          });
+        }
+      });
+      return inProgress;
+    }
+
+    function getQueuedJobs(testJobs) {
+      var queued = [];
+      testJobs.forEach(function (tj) {
+        if (tj.progress < 0.01) {  // It's a float, use a tolerance.
+          queued.push({
+            embedding: {id: tj.embedding_id, name: $scope.embeddings[tj.embedding_id].name}
+          });
+        }
+      });
+      return queued;
     }
   });
 })(angular);

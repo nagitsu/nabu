@@ -168,6 +168,8 @@ def create_testing_job():
 @bp.route('/testing/', methods=['GET'])
 def list_testing_jobs():
     status = request.args.get('status', None)
+    embedding_id = request.args.get('embedding', None)
+    testset_id = request.args.get('testset', None)
 
     # Failed jobs are included in `queued`, as their `elapsed_time` will be
     # None too.
@@ -176,6 +178,13 @@ def list_testing_jobs():
         query = query.filter(~TestingJob.elapsed_time.is_(None))
     elif status == 'queued':
         query = query.filter(TestingJob.elapsed_time.is_(None))
+
+    # Filter by embedding/testset.
+    if embedding_id:
+        query = query.filter(TestingJob.embedding_id == int(embedding_id))
+    if testset_id:
+        query = query.filter(TestingJob.testset_id == int(testset_id))
+
     testing_jobs = query.all()
 
     data = [serialize_testing_job(tj) for tj in testing_jobs]

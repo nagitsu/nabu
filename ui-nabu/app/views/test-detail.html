@@ -71,20 +71,20 @@
         <thead md-order="evaluation.order" md-trigger="onOrderChange">
           <tr>
             <th name="Date" order-by="creation_date"></th>
-            <th name="Embedding Description" order-by="embedding_id"></th>
-            <th name="Embedding Model" order-by="embedding_id"></th>
+            <th name="Embedding Description" order-by="embeddingDescription"></th>
+            <th name="Embedding Model" order-by="embeddingModel"></th>
             <th name="Accuracy" order-by="accuracy" md-order-by="accuracy"></th>
             <th name="Details"></th>
           </tr>
         </thead>
         <tbody>
           <tr md-auto-select ng-repeat="result in evaluationResults | orderBy: evaluation.order">
-            <td>{{result.creation_date}}</td>
+            <td>{{formatDate(result.creation_date)}}</td>
             <td>
               <a ui-sref="initial.tabs.embeddings-detail({embeddingId: result.embedding_id})">
                 {{embeddings[result.embedding_id].description}}</td>
               </a>
-            <td>{{embeddings[result.embedding_id].model}}</td>
+            <td>{{verboseNames[embeddings[result.embedding_id].model]}}</td>
             <td>{{result.accuracy | percentage}}</td>
             <td>
               <a ng-click="testResultDialog($event, result.embedding_id)" href="">

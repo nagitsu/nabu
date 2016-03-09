@@ -181,7 +181,12 @@ angular
                 return Embeddings.list().then(function(response) {
                   return response.data;
                 });
-              }
+              },
+              modelEnums: function(Enums) {
+                return Enums.models().then(function(response) {
+                  return response.data;
+                });
+              },
             }
           }
         }

@@ -173,9 +173,11 @@ a:hover {
 // Dashboard
 
 .source-card {
+  cursor: pointer;
   width: 330px;
 
   .md-title {
+    font-family: monospace;
     overflow: hidden;
 
     a {

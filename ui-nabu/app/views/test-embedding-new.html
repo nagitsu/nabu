@@ -1,7 +1,7 @@
-<md-dialog flex="85" class="nabu-dialog" aria-label="Create new test for an embedding" ng-cloak>
+<md-dialog flex="85" class="nabu-dialog" aria-label="Run the test on an embedding" ng-cloak>
   <md-toolbar>
     <div class="md-toolbar-tools">
-      <h2>Create new test for an embedding</h2>
+      <h2>Run the test on an embedding</h2>
       <span flex></span>
       <md-button class="md-icon-button" ng-click="cancel()">
         <i aria-label="Close" class="fa fa-close"></i>
@@ -11,20 +11,33 @@
 
   <md-dialog-content>
     <div class="md-dialog-content">
-        <p>Please select the embedding you want to test with <i>{{test.name}}</i>.</p>
-        <form name="newEmbeddingTestForm">
+      <div class="dialog-instructions">
+        <p>Please select how to run the test.</p>
+      </div>
 
-          <div layout="row" layout-sm="column">
-            <md-input-container flex="80">
-              <label>Embedding</label>
-              <md-select ng-model="newTest.embeddingId">
-                <md-option ng-repeat="emb in embeddings" ng-value="{{emb.id}}">
-                  {{emb.name}}
-                </md-option>
-              </md-select>
-            </md-input-container>
-          </div>
-        </form>
+      <form name="newEmbeddingTestForm">
+        <div layout="row" layout-sm="column">
+          <md-input-container flex="80">
+            <label>Evaluation method</label>
+            <md-select ng-model="evaluationMethod">
+              <md-option value="missing">Evaluate on the missing embeddings</md-option>
+              <md-option value="full">Evaluate on all the embeddings</md-option>
+              <md-option value="single">Evaluate on a particular embedding</md-option>
+            </md-select>
+          </md-input-container>
+        </div>
+        <div layout="row" layout-sm="column" ng-show="evaluationMethod == 'single'">
+          <md-input-container flex="80">
+            <label>Embedding</label>
+            <md-select ng-model="embeddingId">
+              <md-option ng-repeat="emb in embeddings" ng-value="{{emb.id}}">
+                {{emb.name}}
+              </md-option>
+            </md-select>
+          </md-input-container>
+        </div>
+      </form>
+
     </div>
   </md-dialog-content>
 

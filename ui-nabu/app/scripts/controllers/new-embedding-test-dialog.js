@@ -16,19 +16,24 @@ angular.module('nabuApp')
     $scope.embeddings = embeddings;
     $scope.test = test;
 
-    $scope.newTest = {
-        embeddingId: $scope.embeddings[0].id
-    };
+    $scope.evaluationMethod;
+    $scope.embeddingId;
 
     $scope.create = function() {
-        $scope.showErrors = false;
-        JobsTesting.create($scope.newTest.embeddingId, $scope.test.id).then(function(createdTest) {
-            // Successful creation, notify parent controller.
-            $mdDialog.hide(true);
-        }, function() {
-            // There was an error creating the new test.
-            $scope.showErrors = true;
-        });
+      $scope.showErrors = false;
+
+      var embeddingId = $scope.evaluationMethod;
+      if ($scope.evaluationMethod === 'single') {
+        embeddingId = $scope.embeddingId;
+      }
+
+      JobsTesting.create(embeddingId, $scope.test.id).then(function(createdTest) {
+        // Successful creation, notify parent controller.
+        $mdDialog.hide(true);
+      }, function() {
+        // There was an error creating the new test.
+        $scope.showErrors = true;
+      });
     };
 
     $scope.cancel = function() {

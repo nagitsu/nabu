@@ -33,6 +33,7 @@ def create_app(config=None):
 def configure_app(app, config):
     environment = os.environ.get('NABU_ENV')
     app.config['ENV'] = 'DEV' if environment == 'DEV' else 'PROD'
+    app.config['PROPAGATE_EXCEPTIONS'] = True
 
     if app.config['ENV'] == 'DEV':
         app.debug = True

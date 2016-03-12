@@ -153,6 +153,7 @@ def serialize_result(result, summary=True):
             'creation_date': result.creation_date,
             'elapsed_time': elapsed_time,
             'accuracy': result.accuracy,
+            'embedding_rank': result.rank,
         }
     else:
         serialized = {
@@ -162,5 +163,6 @@ def serialize_result(result, summary=True):
             'elapsed_time': elapsed_time,
             'accuracy': result.accuracy,
             'extended': result.extended,
+            'embedding_rank': result.rank,
         }
     return serialized

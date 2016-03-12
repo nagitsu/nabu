@@ -32,9 +32,9 @@ angular.module('nabuApp')
       elem.embeddingDescription = $scope.embeddings[elem.embedding_id].description;
     });
 
-    // Default ordering by model name.
+    // Default ordering by accuracy.
     evaluationResults.sort(function (a, b) {
-      return (a.embeddingModel < b.embeddingModel) ? -1 : 1;
+      return b.accuracy - a.accuracy;
     });
     $scope.evaluationResults = evaluationResults;
 

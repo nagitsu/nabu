@@ -45,8 +45,23 @@ angular.module('nabuApp')
 
     $scope.verboseNames = getVerboseNames(modelEnums, corpusEnums);
 
-    $scope.formatDate = function(date) {
+    $scope.formatDate = function (date) {
       return moment(date).format('DD/MM/YYYY HH:mm');
+    };
+
+    $scope.formatDuration = function (duration) {
+      duration = moment.duration(duration, "seconds");
+      var days = Math.trunc(duration.asDays());
+      var hours = Math.trunc(duration.asHours() % 24);
+      var minutes = Math.trunc(duration.asMinutes() % 60);
+
+      var stringDate = (
+        ((days > 0) ? days + ' days ' : '') +
+        ((hours > 0) ? hours + ' hours ' : '') +
+        ((minutes > 0) ? minutes + ' minutes ' : '')
+      );
+
+      return stringDate;
     };
 
     $scope.trainEmbedding = function() {

@@ -66,23 +66,42 @@
   </div>
 
   <div layout-padding layout="row" layout-sm="column">
-    <md-data-table-container flex="40" flex-sm="90">
-      <span layout-padding class="md-label-sim">Model Parameters</span>
-      <table layout-padding md-data-table md-progress="deferred" class="corpus-search-results">
-        <thead md-order="parametersTable.order" md-trigger="onOrderChange">
-          <tr>
-            <th name="Parameter" order-by="parameter"></th>
-            <th name="Value" order-by="value"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr md-auto-select ng-repeat="(prop, value) in embedding.parameters">
-            <td>{{verboseNames[prop]}}</td>
-            <td>{{value || '--'}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </md-data-table-container>
+    <div layout="column" flex="40" flex-sm="90">
+      <md-data-table-container>
+        <span layout-padding class="md-label-sim">Model Parameters</span>
+        <table layout-padding md-data-table md-progress="deferred" class="corpus-search-results">
+          <thead md-order="parametersTable.order" md-trigger="onOrderChange">
+            <tr>
+              <th name="Parameter" order-by="parameter"></th>
+              <th name="Value" order-by="value"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr md-auto-select ng-repeat="(prop, value) in embedding.parameters">
+              <td>{{verboseNames[prop]}}</td>
+              <td>{{value || '--'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </md-data-table-container>
+
+      <md-data-table-container class="training-information"
+                               ng-show="embedding.status == 'TRAINED'">
+        <span layout-padding class="md-label-sim">Training Information</span>
+        <table layout-padding md-data-table md-progress="deferred" class="corpus-search-results">
+          <tbody>
+            <tr md-auto-select>
+              <td>Elapsed Time</td>
+              <td>{{formatDuration(embedding.training_job.elapsed_time)}}</td>
+            </tr>
+            <tr md-auto-select>
+              <td>Scheduled Date</td>
+              <td>{{formatDate(embedding.training_job.scheduled_date)}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </md-data-table-container>
+    </div>
 
     <span flex="15" class="emb-separator">
       <div class="vertical-separator"></div>
@@ -127,7 +146,7 @@
     </div>
   </div>
 
-  <div layout="row" flex>
+  <div class="embedding-result-container" layout="row" flex>
     <md-data-table-container flex>
       <div layout="row" layout-align="center center">
         <h4>Evaluation results</h4>

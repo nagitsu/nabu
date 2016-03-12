@@ -430,6 +430,24 @@ a:hover {
   margin-bottom: 20px;
 }
 
+.rank-best {
+  margin-left: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
+
+  min-width: 15px;
+  height: 10px;
+
+  color: #ffffff;
+  font-weight: 600;
+  font-size: x-small;
+  text-align: center;
+
+  border-radius: 4px;
+  box-shadow: 0 2px 2px #d7d7d7;
+  background-color: #00a000;
+}
+
 
 // Tests
 

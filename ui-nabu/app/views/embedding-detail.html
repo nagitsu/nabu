@@ -147,6 +147,9 @@
             <th name="Name" order-by="testsetName"></th>
             <th name="Description"></th>
             <th name="Accuracy" order-by="accuracy"></th>
+            <th name="Ranking" order-by="embedding_rank">
+              <md-tooltip md-direction="left">Ranking for the given test set</md-tooltip>
+            </th>
             <th></th>
           </tr>
         </thead>
@@ -160,6 +163,10 @@
             </td>
             <td>{{result.testsetDescription}}</td>
             <td>{{result.accuracy | percentage}}</td>
+            <td>
+              <span>#{{result.embedding_rank}}</span>
+              <span class="rank-best" ng-show="result.embedding_rank == 1">best!</span>
+            </td>
             <td>
               <a ng-click="testResultDialog($event, result.testset_id)" href="">
                 <i class="fa fa-eye fa-2x"></i>

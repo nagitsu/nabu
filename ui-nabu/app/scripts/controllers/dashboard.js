@@ -62,7 +62,7 @@ angular.module('nabuApp')
                 sourceData: value
             });
         });
-        stats.sort(function (a, b) { return a.sourceData.size <= b.sourceData.size; });
+        stats.sort(function (a, b) { return b.sourceData.size - a.sourceData.size; });
 
         return stats;
     }

@@ -94,7 +94,7 @@ class GloveFactory:
         matrix_file = "{}.npy".format(path)
 
         with open(vocab_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(self.model.inv_words))
+            f.write('\n'.join(self.model.inv_vocab))
 
         np.save(matrix_file, self.model.vectors)
 

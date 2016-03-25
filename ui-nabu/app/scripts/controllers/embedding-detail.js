@@ -166,5 +166,7 @@ angular.module('nabuApp')
 
       return verboseNames;
     }
+
+    $scope.$on('$destroy', function () { $interval.cancel($scope.trainingTimer); });
   });
 })(angular);

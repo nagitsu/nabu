@@ -155,5 +155,7 @@ angular.module('nabuApp')
       });
       return queued;
     }
+
+    $scope.$on('$destroy', function () { $interval.cancel($scope.testingTimer); });
   });
 })(angular);

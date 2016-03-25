@@ -100,5 +100,6 @@ angular.module('nabuApp')
         return jobsMap;
     }
 
+    $scope.$on('$destroy', function () { $interval.cancel($scope.trainingTimer); });
   });
 })(angular);

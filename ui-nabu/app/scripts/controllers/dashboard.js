@@ -82,5 +82,7 @@ angular.module('nabuApp')
 
         return _.reverse(dates);
     }
+
+    $scope.$on('$destroy', function () { $interval.cancel($scope.corpusTimer); });
   });
 })(angular, moment);

@@ -51,7 +51,8 @@ def download_embedding(embedding_id):
     def content_streamer():
         z = zipstream.ZipFile(
             mode='w',
-            compression=zipstream.ZIP_DEFLATED
+            compression=zipstream.ZIP_DEFLATED,
+            allowZip64=True
         )
 
         open_files = []

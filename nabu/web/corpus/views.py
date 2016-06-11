@@ -264,7 +264,8 @@ def download_search():
     def content_streamer():
         z = zipstream.ZipFile(
             mode='w',
-            compression=zipstream.ZIP_DEFLATED
+            compression=zipstream.ZIP_DEFLATED,
+            allowZip64=True
         )
 
         for document in documents:

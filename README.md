@@ -24,6 +24,14 @@ $ virtualenv virtualenv/ --python=/usr/bin/python3
 ```bash
 python install -r deploy/requirements.txt
 ```
+* Setup the database
+```bash
+$ sudo -u postgres createuser nabu -s
+$ createdb nabudb -E UTF8 -T template0
+```
+
+## How to run
+
 * Run the application dependencies:
 ```
 $ redis-server

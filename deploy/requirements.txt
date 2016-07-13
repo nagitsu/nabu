@@ -6,6 +6,7 @@ cssselect
 psycopg2
 python-dateutil
 Flask
+Flask-CORS
 click
 elasticsearch
 dataset

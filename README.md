@@ -17,8 +17,8 @@ sudo apt-get build-dep python-lxml
 * Create a [virtualenv](https://virtualenv.pypa.io/en/stable/) for the project:
 ```bash
 $ pip install virtualenv
-$ mkdir -p ~/.virtualenvs/
-$ virtualenv ~/.virtualenvs/nabu --python=/usr/bin/python3
+$ mkdir virtualenv
+$ virtualenv virtualenv/ --python=/usr/bin/python3
 ```
 * Install the requirements file:
 ```bash
@@ -29,9 +29,11 @@ python install -r deploy/requirements.txt
 $ redis-server
 $ sudo service elasticsearch start
 ```
-* Run the application components:
+* Run the application components, don't forget to activate the `virtualenv` (`source virtualenv/bin/activate`):
 ```
 $ NABU_DEV='DEV' python manage.py serve
 $ cd ui-nabu/dist && python3 -m http.server
 $ celery worker -A nabu.vectors.tasks -c 1 -Q testing --loglevel=info -n testing@localhost
 $ celery worker -A nabu.vectors.tasks -c 1 -Q training --loglevel=info -n training@localhost
+```
+Finally, the application should be running at [http://localhost:8000](http://localhost:8000).

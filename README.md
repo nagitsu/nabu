@@ -1,5 +1,7 @@
 # nabu
 
+Platform for managing, training and evaluate word embeddings over a corpus.
+
 ## Requirements
 
 * Python 3.4.3
